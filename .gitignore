@@ -1,0 +1,5 @@
+*.cpp
+*.o
+*.def
+*.pyc
+*.pyd
