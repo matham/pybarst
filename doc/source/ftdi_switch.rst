@@ -4,7 +4,6 @@
 FTDI switch
 ************
 
-
 :mod:`pybarst.ftdi.switch`
 =============================
 
