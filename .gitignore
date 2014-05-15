@@ -3,3 +3,4 @@
 *.def
 *.pyc
 *.pyd
+doc/build
