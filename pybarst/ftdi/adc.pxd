@@ -197,7 +197,7 @@ cdef class ADCData(object):
     '''
     cdef public double ts
     '''
-    The time stamp, in channel time :meth:`~pybarst.core.BarstChannel.clock`
+    The time stamp, in channel time :meth:`~pybarst.core.BarstServer.clock`
     that the :attr:`chan1_ts_idx` and :attr:`chan2_ts_idx` data points were
     approximately taken. See :attr:`chan1_ts_idx`.
 

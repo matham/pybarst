@@ -81,6 +81,26 @@ cdef class BarstServer(BarstPipe):
         individual channels. This parameter is only used when the server is
         launched by the client, not when the server already exists.
     '''
+    cdef public long long max_server_size
+    '''
+    The maximum number of bytes that the server can queue to send to clients
+    at any time. If `-1`, it's unlimited. There are many channels which
+    when requested, the server will continuously send data to clients, e.g.
+    RTV channels. When `-1`, if the client never reads, the server will still
+    continuously queue more data, exhausting its RAM after some time. Using
+    this value, once the server has exceeded this many bytes in its queue, new
+    data waiting to be sent will simply be discarded.
+
+    .. note::
+        This is a global server wide value. That is, the write queues of all
+        the channels are combined when checking if the size is too large.
+        Therefore, once exceeded, no channel will be able to send data to a
+        client until the client resolves the waiting data. Also, while some
+        channels will resume sending data once the value is not exceeded
+        anymore, other channels might disable their pipes. So once exceeded,
+        the server should be thought of as being in a unrecoverable error
+        state.
+    '''
     cdef public int connected
     '''
     Whether the instance opened it's connection with the server. If False,
@@ -93,6 +113,7 @@ cdef class BarstServer(BarstPipe):
     cpdef DWORD get_version(BarstServer self) except *
     cpdef object get_manager(BarstServer self, str manager)
     cpdef object close_manager(BarstServer self, str manager)
+    cpdef object clock(BarstServer self)
 
     cdef DWORD _get_man_version(BarstServer self, int chan) except *
     cdef object _get_man_ID(BarstServer self, int chan)
@@ -133,7 +154,6 @@ cdef class BarstChannel(BarstPipe):
     cpdef object open_channel(BarstChannel self)
     cpdef object close_channel_server(BarstChannel self)
     cpdef close_channel_client(BarstChannel self)
-    #cpdef double clock(BarstChannel self)
     cpdef object set_state(BarstChannel self, int state)
     cdef object _set_state(BarstChannel self, int state, HANDLE pipe=*,
                            int chan=*)

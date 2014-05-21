@@ -263,7 +263,7 @@ frame_fmt='rgb24', lossless=False)
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`~pybarst.core.BarstChannel.clock`.
+            read in channel time, :meth:`~pybarst.core.BarstServer.clock`.
             `data` is a python `array.array` of unsigned chars containing the
             raw image data as determined by the :attr:`video_fmt` and
             :attr:`frame_fmt` settings.

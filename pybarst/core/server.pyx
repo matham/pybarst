@@ -166,6 +166,9 @@ cdef class BarstServer(BarstPipe):
             The size of the buffer used to read from the server's main pipe.
             If None it defaults to 256 bytes. Defaults to None. See
             :attr:`read_size`.
+        `max_server_size`: 64-bit integer
+            The maximum number of bytes that the server can queue to send to
+            clients at any time. Defaults to -1. See :attr:`max_server_size`.
 
         .. warning::
 
@@ -178,11 +181,13 @@ cdef class BarstServer(BarstPipe):
     '''
 
     def __init__(BarstServer self, barst_path=None, curr_dir=None,
-                 write_size=None, read_size=None, **kwargs):
+                 write_size=None, read_size=None, max_server_size=-1,
+                 **kwargs):
         pass
 
     def __cinit__(BarstServer self, barst_path=None, curr_dir=None,
-                  write_size=None, read_size=None, **kwargs):
+                  write_size=None, read_size=None, max_server_size=-1,
+                  **kwargs):
         self.barst_path = barst_path
         self.curr_dir = curr_dir
         self.write_size = max(MIN_BUFF_IN, write_size if write_size else
@@ -191,6 +196,7 @@ cdef class BarstServer(BarstPipe):
                              MIN_BUFF_OUT)
         self.managers = {}
         self.connected = 0
+        self.max_server_size = max_server_size
 
     cpdef object open_server(BarstServer self):
         '''
@@ -228,7 +234,7 @@ cdef class BarstServer(BarstPipe):
             self.curr_dir = os.path.split(self.barst_path)[0]
 
         command_line = [self.barst_path, self.pipe_name, str(self.write_size),
-                        str(self.read_size)]
+                        str(self.read_size), str(self.max_server_size)]
         info = subprocess.STARTUPINFO()
         info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         info.wShowWindow = SW_HIDE
@@ -528,6 +534,54 @@ cdef class BarstServer(BarstPipe):
             raise BarstException(res)
         return man_id
 
+    cpdef object clock(BarstServer self):
+        '''
+        The server time stamps the data it sends back to clients using a high
+        precision global server clock.
+        '''
+        cdef HANDLE pipe
+        cdef int res
+        cdef SBaseIn base
+        cdef SBaseIn *pbase
+        cdef DWORD read_size = (sizeof(SBaseIn) + sizeof(SBase) +
+                                sizeof(SPerfTime))
+
+        pipe = self.open_pipe('rw')
+
+        base.dwSize = sizeof(SBaseIn)
+        base.eType = eQuery
+        base.nChan = -1
+        base.nError = 0
+        pbase = <SBaseIn *>malloc(read_size)
+        if pbase == NULL:
+            CloseHandle(pipe)
+            raise BarstException(NO_SYS_RESOURCE)
+
+        res = self.write_read(pipe, sizeof(SBaseIn), &base, &read_size, pbase)
+        ret = None
+        if not res:
+            if (read_size == sizeof(SBaseIn) + sizeof(SBase) +
+                sizeof(SPerfTime) and pbase.eType == eQuery and
+                not pbase.nError and
+                (<SBase *>(<char *>pbase + sizeof(SBaseIn))).eType ==
+                eServerTime):
+                ret = ((<SPerfTime *>(<char *>pbase + sizeof(SBaseIn) +
+                                      sizeof(SBase))).dRelativeTime,
+                       (<SPerfTime *>(<char *>pbase + sizeof(SBaseIn) +
+                                      sizeof(SBase))).dUTCTime)
+            elif ((read_size == sizeof(SBaseIn) or
+                   read_size == sizeof(SBaseOut)) and
+                  pbase.nError):
+                res = pbase.nError
+            else:
+                res = UNEXPECTED_READ
+
+        free(pbase)
+        CloseHandle(pipe)
+        if res:
+            raise BarstException(res)
+        return ret
+
 
 cdef class BarstChannel(BarstPipe):
     '''
@@ -615,6 +669,8 @@ cdef class BarstChannel(BarstPipe):
         channel in the server. After this is called, the channel will still
         exist on the server, but this instance won't be connected to it.
         '''
+        self.close_handle(self.pipe)
+        self.pipe = NULL
         self.connected = 0
 
     cdef object _set_state(BarstChannel self, int state, HANDLE pipe=NULL,
@@ -663,5 +719,14 @@ cdef class BarstChannel(BarstPipe):
         from reading or writing data you set the channel to an inactive state.
 
         Reading or writing to an inactive channel will result in an error.
+
+        .. note::
+
+            Many channels have a continuous reading mode in which the server
+            continuously reads and sends data aback to the client. To stop it,
+            you can set the state to inactive. However, if the server has
+            already queued data to be sent, they will still be sent and might
+            show up in later read requests. You can flush this by closing the
+            client's end of the pipe with :math:`close_channel_client`.
         '''
         return self._set_state(state)

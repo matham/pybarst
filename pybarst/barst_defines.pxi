@@ -127,10 +127,15 @@ cdef extern from "cpl defs.h":
         eRTVImageBuf
         eSerialWriteData
         eSerialReadData
+        eMCDAQChanInit
+        eMCDAQWriteData
+        eCancelReadRequest
+        eServerTime
 
-        eFTDIMan= 1000
+        eFTDIMan = 1000
         eRTVMan
         eSerialMan
+        eMCDAQMan
 
     struct SBaseIn:
         DWORD dwSize
@@ -250,3 +255,7 @@ cdef extern from "cpl defs.h":
         DWORD dwTimeout
         char cStop
         unsigned char bStop
+
+    struct SPerfTime:
+        double dRelativeTime
+        double dUTCTime

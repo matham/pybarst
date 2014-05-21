@@ -262,7 +262,7 @@ cdef class FTDISerializerIn(FTDISerializer):
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`pybarst.core.BarstChannel.clock`.
+            read in channel time, :meth:`pybarst.core.BarstServer.clock`.
             `data` is a list of size 8 * :attr:`SerializerSettings.num_boards`,
             where each element corresponds (True / False) to the state of the
             corresponding pin on the 75HC589.
@@ -683,7 +683,7 @@ byte1, byte2)
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`pybarst.core.BarstChannel.clock`.
+            read in channel time, :meth:`pybarst.core.BarstServer.clock`.
             `data` is a list of size :attr:`PinSettings.num_bytes`,
             where each element corresponds to a bit mask of the states of the
             pins. See class description.

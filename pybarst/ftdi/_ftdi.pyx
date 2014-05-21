@@ -531,8 +531,8 @@ cdef class FTDIDevice(BarstChannel):
 
     cpdef close_channel_client(FTDIDevice self):
         # Super must be called in inherited classes.
-        self.close_handle(self.pipe)
-        self.pipe = NULL
+        #self.close_handle(self.pipe)
+        #self.pipe = NULL
         BarstChannel.close_channel_client(self)
 
     cpdef object set_state(FTDIDevice self, int state):

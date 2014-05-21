@@ -17,4 +17,4 @@ channels, configure them, and read / write to them.
 
 __version__ = '1.0.0'
 
-__min_barst_version__ = 10000
+__min_barst_version__ = 20000
