@@ -16,9 +16,16 @@ cdef inline int RTV_ERROR(int val) nogil:
     else:
         return 0
 
-# 1001 + ? = (1001 to ?)
+# 501 + 1-1200 = (501 to 1700)
+cdef inline int MCDAQ_ERROR(int val) nogil:
+    if val:
+        return val + 500
+    else:
+        return 0
+
+# 1001 + ? = (10001 to ?)
 cdef inline int WIN_ERROR(int val) nogil:
     if val:
-        return val + 1000
+        return val + 10000
     else:
         return 0

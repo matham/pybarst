@@ -55,14 +55,15 @@ class BarstException(Exception):
     Error code values can arise from multiple sources, therefore, each source
     of error codes gets it's own range as defined below.
 
-    =========    ==========================================================
-    Range        Meaning
-    =========    ==========================================================
-    1 - 100      Barst native codes.
-    101 - 200    FTDI error codes
-    201 - 500    RTV error codes
-    1001 - ?     Windows error codes.
-    =========    ==========================================================
+    ===========    ==========================================================
+    Range          Meaning
+    ===========    ==========================================================
+    1 - 100        Barst native codes.
+    101 - 200      FTDI error codes
+    201 - 500      RTV error codes
+    501 - 1700     MCDAQ error codes
+    10001 - ?      Windows error codes.
+    ===========    ==========================================================
 
     The error codes Barst returns is in this range. This class attempts to
     convert the code into an error messages as well as convert the mapped code
@@ -101,17 +102,20 @@ class BarstException(Exception):
         elif 200 < value <= 500:
             source = 'RTV'
             value = 200 - value
-        elif value > 1000:
+        elif 500 < value <= 1700:
+            source = 'MCDAQ'
+            value -= 500
+        elif value > 10000:
             res = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                NULL, <DWORD>(value - 1000), 0, <LPSTR>&win_msg, 0, NULL)
+                NULL, <DWORD>(value - 10000), 0, <LPSTR>&win_msg, 0, NULL)
             if res:
                 result = <object>PyString_FromString(win_msg)
                 LocalFree(win_msg)
             else:
                 result = 'Unknown Windows error code'
             source = 'Windows'
-            value -= 1000
+            value -= 10000
         else:
             result = 'Unknown error code'
             source = 'Barst'
