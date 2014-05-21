@@ -11,6 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   installation.rst
+   getting_started.rst
+   examples.rst
    api.rst
 
 * :ref:`genindex`

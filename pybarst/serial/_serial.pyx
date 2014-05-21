@@ -64,10 +64,6 @@ max_write=32, max_read=32)
         (0.06754473171193724, 7)
         >>> print serial.read(read_len=7, timeout=10000)
         (0.07514634606696861, 'apples.')
-
-    .. note::
-        For the serial channel, the python client currently does not support
-        opening an already existing channel.
     '''
 
     def __init__(SerialChannel self, BarstServer server, port_name, max_write,
@@ -86,13 +82,20 @@ max_write=32, max_read=32)
         self.stop_bits = stop_bits
         self.parity = parity
         self.byte_size = byte_size
-        memset(&self.timer, 0, sizeof(LARGE_INTEGER))
         memset(&self.serial_init, 0, sizeof(SChanInitSerial))
 
     cpdef object open_channel(SerialChannel self):
-        cdef int man_chan, res
+        '''
+        Opens the, possibly existing, channel on the server and connects the
+        client to it. If the channel already exists, a new client connection
+        will be opened to the channel.
+
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for more
+        details.
+        '''
+        cdef int man_chan, res, pos = 0
         cdef HANDLE pipe
-        cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
+        cdef DWORD read_size = (2 * sizeof(SBaseOut) + sizeof(SBase) +
                                 sizeof(SChanInitSerial))
         cdef void *phead_out
         cdef void *phead_in
@@ -100,7 +103,7 @@ max_write=32, max_read=32)
         cdef SChanInitSerial chan_init
         self.close_channel_client()
 
-        if len(self.port_name) > SERIAL_MAX_LENGTH - 1:
+        if len(self.port_name) >= SERIAL_MAX_LENGTH:
             raise BarstException(msg='The port name, {} is longer than the '
                 'allowed length, {}'.format(self.port_name, SERIAL_MAX_LENGTH))
 
@@ -157,6 +160,7 @@ max_write=32, max_read=32)
         memcpy(<char *>pbase + sizeof(SBase), &chan_init,
                sizeof(SChanInitSerial))
 
+        # create the channel on the server
         res = self.server.write_read(pipe, 2 * sizeof(SBaseIn) +
         sizeof(SBase) + sizeof(SChanInitSerial), phead_out, &read_size,
         phead_in)
@@ -171,20 +175,68 @@ max_write=32, max_read=32)
                        (<SBaseIn *>phead_in).eType == eResponseExL)):
                 res = NO_CHAN
 
-        if not res:
-            memcpy(&chan_init, <char *>phead_in + sizeof(SBaseOut) +
-                   sizeof(SBase), sizeof(SChanInitSerial))
-            self.serial_init = chan_init
-            self.timer = (<SBaseOut *>phead_in).llLargeInteger
-            self.chan = (<SBaseOut *>phead_in).sBaseIn.nChan
-            self.pipe_name = bytes(barst_join(self.server.pipe_name,
-                bytes(man_chan), bytes(self.chan)))
-            self.pipe = self.open_pipe('rw')
+        if res and res != ALREADY_OPEN:
+            free(phead_in)
+            free(phead_out)
+            CloseHandle(pipe)
+            raise BarstException(res)
+        self.chan = (<SBaseIn *>phead_in).nChan
+        self.pipe_name = bytes(barst_join(self.server.pipe_name,
+            bytes(man_chan), bytes(self.chan)))
+
+        # now get the channel info and initialize things
+        pbase = <SBaseIn *>phead_out
+        pbase.dwSize = 2 * sizeof(SBaseIn)
+        pbase.eType = ePassOn
+        pbase.nChan = man_chan
+        pbase.nError = 0
+        pbase += 1
+        pbase.dwSize = sizeof(SBaseIn)
+        pbase.eType = eQuery
+        pbase.nChan = self.chan
+        pbase.nError = 0
+        read_size = (2 * sizeof(SBaseOut) + sizeof(SBase) +
+                     sizeof(SChanInitSerial))
+        res = self.server.write_read(pipe, 2 * sizeof(SBaseIn), phead_out,
+                                     &read_size, phead_in)
+        # parse the returned info
+        while pos < read_size:
+            if ((<SBaseIn *>(<char *>phead_in + pos)).dwSize <= read_size - pos and
+                (<SBaseIn *>(<char *>phead_in + pos)).dwSize >= sizeof(SBaseOut) and
+                (<SBase *>(<char *>phead_in + pos)).eType == eResponseEx):
+                self.basrt_chan_type = (<SBaseOut *>(<char *>phead_in + pos)).szName
+                pos += sizeof(SBaseOut)
+            elif ((<SBaseIn *>(<char *>phead_in + pos)).dwSize <= read_size - pos and
+                (<SBaseIn *>(<char *>phead_in + pos)).dwSize >= sizeof(SBaseOut) and
+                (<SBase *>(<char *>phead_in + pos)).eType == eResponseExL):
+                #self.timer = (<SBaseOut *>(<char *>phead_in + pos)).llLargeInteger
+                pos += sizeof(SBaseOut)
+            elif ((<SBase *>(<char *>phead_in + pos)).dwSize <= read_size - pos and
+                (<SBase *>(<char *>phead_in + pos)).dwSize == sizeof(SBase) +
+                sizeof(SChanInitSerial) and
+                (<SBase *>(<char *>phead_in + pos)).eType == eSerialChanInit):
+                self.serial_init = (<SChanInitSerial *>(<char *>phead_in + pos +
+                    sizeof(SBase)))[0]
+                self.port_name = bytes(self.serial_init.szPortName)
+                self.max_write = self.serial_init.dwMaxStrWrite
+                self.max_read = self.serial_init.dwMaxStrRead
+                self.baud_rate = self.serial_init.dwBaudRate
+                self.stop_bits = self.serial_init.ucStopBits
+                self.parity = {v: k for k, v in _parity.iteritems()}[
+                self.serial_init.ucParity]
+                self.byte_size = self.serial_init.ucByteSize
+                pos += sizeof(SBase) + sizeof(SChanInitSerial)
+            else:
+                res = UNEXPECTED_READ
+                break
+
         free(phead_in)
         free(phead_out)
         CloseHandle(pipe)
         if res:
             raise BarstException(res)
+        else:
+            self.pipe = self.open_pipe('rw')
 
         BarstChannel.open_channel(self)
 
@@ -194,9 +246,10 @@ max_write=32, max_read=32)
 
         The write request is initiated when this method is called and it waits
         until it finishes writing, it times out, or it returns an error.
-        To cancel the write, from another thread you must call
-        :attr:`close_channel_server`, or just close the the server, which will
-        cause this method to return with an error.
+        To terminate the waiting client, from another thread you must call
+        :meth:`~pybarst.core.BarstChannel.close_channel_client`, or just close
+        the channel or server, which will cause this method to return with an
+        error.
 
         Before this method can be called, :meth:`open_channel` must be called.
 
@@ -213,7 +266,7 @@ max_write=32, max_read=32)
         :returns:
             2-tuple of (`time`, `length`). `time` is the time that the data was
             finished writing in channel time,
-            :meth:`~pybarst.core.BarstChannel.clock`.
+            :meth:`~pybarst.core.BarstServer.clock`.
             `length` is the number of bytes actually written.
 
         For example::
@@ -291,13 +344,16 @@ timeout=10000)
                       bytes stop_char=b''):
         '''
         Requests the server to read from the serial port and send the data back
-        to the client.
+        to *this* client. When multiple clients are connected simultaneously,
+        and each requests a read, their read requests are performed in the
+        order on which they were received.
 
         The read request is initiated when this method is called and it waits
-        until the server sends data back or returns an error. To cancel the
-        read, from another thread you must call :attr:`close_channel_server`,
-        or just close the the server, which will cause this method to return
-        with an error.
+        until the server sends data back or returns an error.
+        To terminate the waiting client, from another thread you must call
+        :meth:`~pybarst.core.BarstChannel.close_channel_client`, or just close
+        the channel or server, which will cause this method to return with an
+        error.
 
         Before this method can be called, :meth:`open_channel` must be called`.
 
@@ -323,7 +379,7 @@ timeout=10000)
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
             finished reading in channel time,
-            :meth:`~pybarst.core.BarstChannel.clock`.
+            :meth:`~pybarst.core.BarstServer.clock`.
             `data` is a bytes instance containing the data read.
 
         For example, with a loopback cable connected to com3::

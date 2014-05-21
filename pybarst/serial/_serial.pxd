@@ -7,7 +7,6 @@ from pybarst.core.server cimport BarstChannel, BarstServer
 
 cdef class SerialChannel(BarstChannel):
     cdef SChanInitSerial serial_init
-    cdef LARGE_INTEGER timer
 
     cdef public bytes port_name
     '''
