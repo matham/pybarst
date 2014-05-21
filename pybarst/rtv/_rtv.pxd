@@ -7,7 +7,7 @@ from pybarst.core.server cimport BarstChannel, BarstServer
 
 cdef class RTVChannel(BarstChannel):
     cdef SChanInitRTV rtv_init
-    cdef LARGE_INTEGER timer
+    cdef int active_state
 
     cdef public str video_fmt
     '''

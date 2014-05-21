@@ -92,6 +92,11 @@ max_write=32, max_read=32)
 
         See :meth:`~pybarst.core.server.BarstChannel.open_channel` for more
         details.
+
+        .. note::
+            If the channel already exists on the server, the settings used to
+            initialize this client, e.g. :attr:`parity` will be overwritten
+            by their values received from the existing server channel.
         '''
         cdef int man_chan, res, pos = 0
         cdef HANDLE pipe

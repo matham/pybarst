@@ -1,4 +1,5 @@
 
+
 __all__ = ('RTVChannel', )
 
 cdef extern from "stdlib.h" nogil:
@@ -22,7 +23,7 @@ cdef dict frame_fmts = {'rgb16': 0, 'gray': 1, 'rgb15': 2, 'rgb24': 3,
 
 cdef class RTVChannel(BarstChannel):
     '''
-    A RTV interface channel.
+    An RTV interface channel.
 
     A RTV channel controls a single RTV port which samples from a single
     camera.
@@ -32,8 +33,8 @@ cdef class RTVChannel(BarstChannel):
         `chan`: int
             The channel number of the port. The RTV ports are assigned
             different channel numbers by the RTV driver. By using the proper
-            channel number you can select which RTV channel to smaple from.
-        `server`: :class:`~pybarst.core.BarstServer`
+            channel number you can select which RTV channel to sample from.
+        `server`: :class:`~pybarst.core.server.BarstServer`
             An instance of a server through which this channel is opened.
         `video_fmt`: str
             The size of the videos captured. See :attr:`video_fmt`. Defaults to
@@ -85,9 +86,10 @@ frame_fmt='rgb24', lossless=False)
 
     .. note::
         For the RTV channel, the python client currently does not support
-        reading from a channel that already has a client reading from it. I.e.
+        reading from a channel that is already open on the server. I.e.
         each channel can only have its state set and read from by a single
-        client at once.
+        client at once. An `already open` error will be raised when trying to
+        open an already existing RTV channel using :meth:`open_channel`.
     '''
 
     def __init__(RTVChannel self, int chan, BarstServer server,
@@ -117,10 +119,28 @@ frame_fmt='rgb24', lossless=False)
         self.luma_contrast = luma_contrast
         self.luma_filt = luma_filt
         self.lossless = lossless
-        memset(&self.timer, 0, sizeof(LARGE_INTEGER))
+        self.active_state = 0
         memset(&self.rtv_init, 0, sizeof(SChanInitRTV))
 
     cpdef object open_channel(RTVChannel self):
+        '''
+        Opens a new channel on the server and connects the
+        client to it. If the channel already exists, a error will be raised.
+
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for more
+        details.
+
+        .. warning::
+            Since you cannot open an existing channel, once the channel is
+            created to reconnect to the channel you'll first have to delete it.
+            I.e. if you call
+            :meth:`~pybarst.core.server.BarstChannel.close_channel_client`
+            which disconnect the client but leaves the channel on the server,
+            then you won't be able to call :meth:`open_channel` again without
+            raising an error. Instead you'll first have to call
+            :meth:`~pybarst.core.server.BarstChannel.close_channel_server` to
+            delete the channel from the server.
+        '''
         cdef int man_chan, res
         cdef HANDLE pipe
         cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
@@ -130,6 +150,7 @@ frame_fmt='rgb24', lossless=False)
         cdef SBaseIn *pbase
         cdef SChanInitRTV chan_init
         self.close_channel_client()
+        self.active_state = 0
 
         if self.chan < 0:
             raise BarstException(msg='Invalid RTV channel, {}, provided.'.
@@ -220,7 +241,6 @@ frame_fmt='rgb24', lossless=False)
                 self.rtv_init.ucColorFmt]
             self.video_fmt = {v: k for k, v in video_fmts.iteritems()}[
                 self.rtv_init.ucVideoFmt]
-            self.timer = (<SBaseOut *>phead_in).llLargeInteger
             self.pipe = self.open_pipe('rw')
         free(phead_in)
         free(phead_out)
@@ -232,20 +252,23 @@ frame_fmt='rgb24', lossless=False)
 
     cpdef object read(RTVChannel self):
         '''
-        Requests the RTV server to start acquiring and sending back the images
-        sampled from the camera connected to port controlled by this RTV
-        Channel.
+        Reads an images sampled from the camera connected to port controlled
+        by this RTV Channel. Once activated, there server continuously sends
+        back images to the client, which is read with this method.
 
         This method will wait until the server sends data or an error
-        message, tying up this thread. To cancel the read, from another
-        thread you must call :attr:`close_channel_client`, or
-        :attr:`close_channel_server`, or just close the the server,
-        which will cause this method to return with an error.
+        message is raised, thereby tying up this thread. To cancel a read,
+        from another thread you must call
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_server`, or just
+        close the the server, which will cause this method to return with an
+        error. A better method to cancel a read is :meth:`set_state` with
+        `flush` set to `True`, and `state` `False`. However, that method may
+        raise an exception if the state is not already active.
 
-        After :meth:`set_state` was called to activate the channel, the server
+        After :meth:`set_state` is called to activate the channel, the server
         will continuously read from the device and send the results back to the
         client. If :attr:`lossless` is `False`, the server will only send the
-        most recent image, when no image is waiting to be sent.
+        most recent image if no image is waiting to be sent.
 
         However, if :attr:`lossless` is `True`, then the server will
         continuously send back images to the server, no matter how many are
@@ -256,14 +279,15 @@ frame_fmt='rgb24', lossless=False)
 
         Before this method can be called, :meth:`open_channel` must be called
         and the device must be set to active with :meth:`set_state`.
+        :meth:`read` will raise an exception if it's called when inactive.
 
-        If :attr:`PinSettings.lossless` is `True`, to stop the server
-        from reading and sending data back to the client, set :meth:`set_state`
-        to inactive for this device.
+        To stop the server from reading and sending data back to the client,
+        set :meth:`set_state` to inactive for this channel.
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`~pybarst.core.BarstServer.clock`.
+            read in channel time,
+            :meth:`~pybarst.core.server.BarstServer.clock`.
             `data` is a python `array.array` of unsigned chars containing the
             raw image data as determined by the :attr:`video_fmt` and
             :attr:`frame_fmt` settings.
@@ -288,6 +312,12 @@ frame_fmt='rgb24', lossless=False)
             When reading with :attr:`lossless` `False`, if waiting between
             between reads, the first 1 or 2 images read when resuming reading
             might be older images from when the reading initially stopped.
+
+        .. warning::
+            When :attr:`lossless` is `True`, if the client doesn't read the
+            images and :attr:`~pybarst.core.server.BarstServer.max_server_size`
+            is set (i.e. not -1), then after the size has been exceeded, the
+            server will go into an error state.
         '''
         cdef int res = 0, r
         cdef DWORD read_size = (self.rtv_init.dwBuffSize + sizeof(SBaseOut) +
@@ -297,6 +327,12 @@ frame_fmt='rgb24', lossless=False)
         cdef array arr = None
         if pbase == NULL:
             raise BarstException(NO_SYS_RESOURCE)
+        if not self.connected:
+            raise BarstException(msg='You cannot read until the channel '
+                                 'has been opened')
+        if not self.active_state:
+            raise BarstException(msg='You cannot read until the channel '
+                                 'has been activated')
 
         with nogil:
             r = ReadFile(self.pipe, pbase, read_size, &read_size, NULL)
@@ -319,6 +355,8 @@ frame_fmt='rgb24', lossless=False)
         elif pbase.sBaseIn.nError:
             res = pbase.sBaseIn.nError
         if res:
+            if res == DEVICE_CLOSING:
+                self.active_state = 0
             free(pbase)
             raise BarstException(res)
 
@@ -330,14 +368,57 @@ frame_fmt='rgb24', lossless=False)
         free(pbase)
         return time, arr
 
-    cpdef object set_state(RTVChannel self, int state):
+    cpdef object set_state(RTVChannel self, int state, flush=False):
         '''
-        See :meth:`~pybarst.core.BarstChannel.set_state` for details.
+        See :meth:`~pybarst.core.server.BarstChannel.set_state` for details.
+
+        :Parameters:
+            `flush`: bool
+                Whether any data queued by the server waiting to be sent will
+                be discarded. When inactivating, no new data will be queued by
+                the server, however, any already queued data will still be
+                sent.
+
+                If `flush` is `False`, that data will be available to the
+                client when it calls read, until the server has no more data
+                available and read will return an error. The device will only
+                be considered inactive again, after the last read once that
+                error is raised.
+
+                If `flush` is `True`, then all data waiting to be sent will
+                be discarded. In addition, the channel will instantly become
+                inactive. If the channel is in a :meth:`read`, then that read
+                will return with an exception.
+
+                `flush` is only used when `state` is `False`. `flush` defaults
+                to `False`.
 
         .. note::
             When the state is set to active, the RTV server will immediately
             start sending images back to the client, even before the first call
             to :meth:`read`. So a user should start calling :meth:`read` as
-            soon as this method was called.
+            soon as this method is called.
         '''
-        return self._set_state(state, self.pipe, self.chan)
+        # when active, the server constantly sends data back to clients.
+        # The pipe that activated it is the one that gets these data.
+        # When inactivating, the server sends a DEVICE_CLOSING response to
+        # that pipe.
+        # If the pipe that activated is the one that de-activates it
+        # then that pipe will get both a response to the inactivation
+        # request as well as the DEVICE_CLOSING response. No data will be
+        # queued by the server after that. But that is not good, because
+        # _set_state might get data packets before it gets to its response
+        # therefore, when inactivating, we send the request from a new pipe
+        # so the main pipe will only get the DEVICE_CLOSING response after the
+        # last data, and the new pipe will only get the single response to
+        # its inactivation request.
+        if (state != 0) and (self.active_state != 0):
+            raise BarstException(msg='You cannot set an already active '
+                                 'channel to be active')
+
+        self._set_state(state, self.pipe if state else NULL, self.chan)
+        if not state and flush:
+            self.close_handle(self.pipe)
+            self.pipe = self.open_pipe('rw')
+        if state or flush:
+            self.active_state = state

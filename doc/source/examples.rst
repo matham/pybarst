@@ -6,8 +6,45 @@ PyBarst Examples
 See `pybarst/tests/` for more tests/examples.
 
 
+RTV Channel Examples
+---------------------
+
+A simple example::
+
+    >>> from pybarst.core.server import BarstServer
+    >>> from pybarst.rtv import RTVChannel
+
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\\\.\\pipe\\TestPipe')
+    >>> server.open_server()
+    >>> print(server.get_manager('rtv'))
+    {'version': 1080L, 'chan': 1, 'chan_id': 'RTVMan'}
+
+    >>> # for the code below, there should be a RTV-4 like device connected, with
+    >>> # a port 0 available
+    >>> rtv = RTVChannel(server=server, chan=0, video_fmt='full_NTSC', frame_fmt='rgb24', lossless=False)
+    >>> rtv.open_channel()
+    >>> rtv.set_state(state=True)
+
+    >>> # data is a buffer containing the raw image data
+    >>> time, data = rtv.read()
+    >>> print(time, len(data), rtv.buffer_size)
+    (12865.015067682945, 921600, 921600L)
+    >>> time, data = rtv.read()
+    >>> print(time, len(data), rtv.buffer_size)
+    (12865.048412758983, 921600, 921600L)
+    >>> # remove any data queued, otherwise read will return any waiting data
+    >>> rtv.set_state(state=False, flush=True)
+
+    >>> # activate again
+    >>> rtv.set_state(state=True)
+    >>> time, data = rtv.read()
+    >>> print(time, len(data), rtv.buffer_size)
+    (12865.281985012041, 921600, 921600L)
+    >>> rtv.close_channel_server()
+
+
 Serial Port Examples
---------------------
+---------------------
 
 A simple example::
 

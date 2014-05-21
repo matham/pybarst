@@ -611,8 +611,8 @@ cdef class BarstChannel(BarstPipe):
         All channels are designed such that when the instance is created no
         server communication occurs. To actually create / open the channel,
         this method must be called. Similarly, after closing a channel with
-        :meth:`close_channel_server` or :meth:`close_chan_client` you can reopen
-        it with this method.
+        :meth:`close_channel_server` or :meth:`close_channel_client` you can
+        reopen it with this method.
         '''
         self.connected = 1
 

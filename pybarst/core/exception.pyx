@@ -15,7 +15,7 @@ cdef extern from "Python.h":
 
 cdef dict err_codes = {BAD_INPUT_PARAMS: 'Bad inputs', NO_SYS_RESOURCE:
      'Out of system resources',
-    ALREADY_OPEN: 'Channel already open (not an error)',
+    ALREADY_OPEN: 'Channel already open',
     SIZE_MISSMATCH: 'internal size error; message size mismatch',
     INVALID_CHANN: 'Invalid channel requested', UNKWN_ERROR:
     'Unknown error', DRIVER_ERROR: 'Low level driver failed',

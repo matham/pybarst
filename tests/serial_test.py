@@ -5,7 +5,7 @@ import logging
 logging.root.setLevel(logging.DEBUG)
 
 server = BarstServer(barst_path=r'C:\Program Files\Barst\Barst.exe',
-                     pipe_name=r'\\PERSEPHONE\pipe\CPL_PERSEPHONE')
+                     pipe_name=r'\\.\pipe\TestPipe')
 server.open_server()
 val = server.get_version()
 print(val)
