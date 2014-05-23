@@ -19,7 +19,8 @@ cdef dict err_codes = {BAD_INPUT_PARAMS: 'Bad inputs', NO_SYS_RESOURCE:
     SIZE_MISSMATCH: 'internal size error; message size mismatch',
     INVALID_CHANN: 'Invalid channel requested', UNKWN_ERROR:
     'Unknown error', DRIVER_ERROR: 'Low level driver failed',
-    DEVICE_CLOSING: 'Device is closing, no more data will be sent',
+    DEVICE_CLOSING: 'Device is closing, no more data will be sent. '
+    'It can also e.g. reading/writing request was canceled so request failed.',
     INVALID_DEVICE:
     'You tried to create or access an unrecognized channel/device',
     INACTIVE_DEVICE: 'You tried to perform an action on a inactive channel',

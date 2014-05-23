@@ -372,27 +372,6 @@ frame_fmt='rgb24', lossless=False)
         '''
         See :meth:`~pybarst.core.server.BarstChannel.set_state` for details.
 
-        :Parameters:
-            `flush`: bool
-                Whether any data queued by the server waiting to be sent will
-                be discarded. When inactivating, no new data will be queued by
-                the server, however, any already queued data will still be
-                sent.
-
-                If `flush` is `False`, that data will be available to the
-                client when it calls read, until the server has no more data
-                available and read will return an error. The device will only
-                be considered inactive again, after the last read once that
-                error is raised.
-
-                If `flush` is `True`, then all data waiting to be sent will
-                be discarded. In addition, the channel will instantly become
-                inactive. If the channel is in a :meth:`read`, then that read
-                will return with an exception.
-
-                `flush` is only used when `state` is `False`. `flush` defaults
-                to `False`.
-
         .. note::
             When the state is set to active, the RTV server will immediately
             start sending images back to the client, even before the first call
@@ -416,9 +395,6 @@ frame_fmt='rgb24', lossless=False)
             raise BarstException(msg='You cannot set an already active '
                                  'channel to be active')
 
-        self._set_state(state, self.pipe if state else NULL, self.chan)
-        if not state and flush:
-            self.close_handle(self.pipe)
-            self.pipe = self.open_pipe('rw')
+        self._set_state(state, self.pipe if state else NULL, self.chan, flush)
         if state or flush:
             self.active_state = state

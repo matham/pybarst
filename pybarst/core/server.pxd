@@ -153,7 +153,11 @@ cdef class BarstChannel(BarstPipe):
 
     cpdef object open_channel(BarstChannel self)
     cpdef object close_channel_server(BarstChannel self)
-    cpdef close_channel_client(BarstChannel self)
-    cpdef object set_state(BarstChannel self, int state)
+    cpdef object close_channel_client(BarstChannel self)
+    cpdef object set_state(BarstChannel self, int state, object flush=*)
+    cpdef object cancel_read(BarstChannel self, flush=*)
+    #cpdef object is_active(BarstChannel self)
+
+    cdef object _cancel_read(BarstChannel self, flush=*)
     cdef object _set_state(BarstChannel self, int state, HANDLE pipe=*,
-                           int chan=*)
+                           int chan=*, object flush=*)

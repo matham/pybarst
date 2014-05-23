@@ -25,13 +25,17 @@ cdef dict dictify_ft_info(FT_DEVICE_LIST_INFO_NODE_OS *ft_info):
 cdef class FTDISettings(object):
     '''
     Base class for the settings describing FTDI devices connected to a FTDI
-    channel.
+    channel. This class is never created directly.
 
-    An FTDI channel can control multiple devices connected to it
-    simultaneously. Therefore, when the channel is created a list of settings
-    describing each connected device is supplied and is used to create the
-    channel. This is the base class for these settings.
-    See :class:`FTDIChannel`.
+    A FTDI channel can control multiple devices connected to its digital pins
+    at the same time. Therefore, when a FTDI channel is created, a list of
+    settings describing each connected device must be supplied to the
+    constructor and is then used by the channel to create the channel and
+    sub-devices for each device connected to the channel. This is the base
+    class for these settings. :class:`~pybarst.ftdi.adc.ADCSettings` is an
+    example of a settings class.
+
+    See :class:`FTDIChannel` for more details.
     '''
 
     cdef DWORD copy_settings(FTDISettings self, void *buffer,
@@ -46,26 +50,33 @@ cdef class FTDIChannel(BarstChannel):
     '''
     An FTDI channel.
 
-    An FTDI channel describes a single FTDI device, e.g. and FT2232H or a
+    An FTDI channel describes a single FTDI device, e.g. a FT2232H or a
     FT232R. Each FTDI device has one or more peripheral devices connected to
     it. For example, an ADC board could be interfaced with a PC through the
-    port on a FT232R.
+    digital port on a FT232R. Similarly, you can read/write directly to the
+    pins of the FTDI channel.
 
     :Parameters:
         `channels`: list
             A list of instances of :class:`FTDISettings` derived classes
-            which describe the peripheral devices connected to the server.
+            each describing a peripheral device connected to the FTDI port.
             For each :class:`FTDISettings` instance, a corresponding
-            :class:`FTDIDevice` derived class instance (in the same list order)
+            :class:`FTDIDevice` derived class instance (in the same order as
+            in this list)
             will be created and stored in :attr:`devices`. See :attr:`devices`.
-            Similarly, :attr:`~FTDIDevice.settings` stores the settings with
-            which the device was created.
+            Similarly, for each created :class:`FTDIDevice` instance,
+            :attr:`FTDIDevice.settings` stores the settings with which the
+            device was created.
 
-            If the channel already exists on the server, this list will be
-            ignored and instead the list of devices will be created from
-            the existing channel, ensuring the devices created are consistent
-            across clients that open them.
-        `server`: :class:`~pybarst.core.BarstServer`
+            .. note::
+                If this channel already exists on the server, e.g. if a
+                previous client created the channel and now a second client
+                created this channel instance and wants to connect to it.
+                Then this list will be ignored and instead the list of devices
+                will be created from the existing channel on the server,
+                ensuring the devices created are consistent across clients that
+                open them.
+        `server`: :class:`~pybarst.core.server.BarstServer`
             An instance of a server through which this channel is opened.
         `serial`: bytes
             The serial number used to identify the device to open.
@@ -99,23 +110,25 @@ cdef class FTDIChannel(BarstChannel):
         self.chan_min_buff_in = 0
         self.chan_min_buff_out = 0
         self.chan_baudrate = 0
-        memset(&self.timer, 0, sizeof(LARGE_INTEGER))
 
     cpdef object open_channel(FTDIChannel self, alloc=False):
         '''
-        See :meth:`~pybarst.core.BarstChannel.open_channel`.
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel`.
 
         Every time this method is called, :attr:`devices` is updated with a new
         list of devices. Therefore, any references to the devices that were on
-        the list previously must be updated to the new devices.
+        the list previously must be updated to the new devices. If the channel
+        already exists on the server, the devices list will be created from
+        the devices which initially created the channel, other :attr:`devices`
+        will be used to create the channel.
 
         :Parameters:
 
             `alloc`: bool
                 Whether we should create the channel on the server if the
-                channel doesn't exist. If False and the channel doesn't
-                exist yet an error would be raised. Otherwise, the channel
-                will be created automatically. Defaults to False.
+                channel doesn't already exist. If False and the channel doesn't
+                exist yet on the server, an error will be raised. Otherwise,
+                the channel will be created automatically. Defaults to False.
 
         For example::
 
@@ -151,10 +164,11 @@ cdef class FTDIChannel(BarstChannel):
         instance. Similarly, you can create multiple :class:`FTDIChannel`
         instances corresponding to the same physical device and do similar
         operations on each instance independently. However, calling
-        :math:`close_channel_server` will delete the channel on the server, and
-        all the clients connected will raise exceptions when trying to
-        communicate with it. To resolve it, for each instance you'll have to
-        call :meth:`open_channel` to recover the connection to the channel.
+        :math:`~pybarst.core.server.BarstChannel.close_channel_server` will
+        delete the channel on the server, and all the clients connected will
+        raise exceptions when trying to communicate with it. To resolve it,
+        for each instance you'll have to call :meth:`open_channel` to recover
+        the connection to the channel.
         '''
         cdef int man_chan, res
         cdef HANDLE pipe
@@ -322,7 +336,6 @@ cdef class FTDIChannel(BarstChannel):
                     res = NO_CHAN
             if not res:
                 self.chan = (<SBaseOut *>phead_in).sBaseIn.nChan
-                self.timer = (<SBaseOut *>phead_in).llLargeInteger
 
         free(phead_in)
         free(phead_out)
@@ -400,7 +413,6 @@ cdef class FTDIChannel(BarstChannel):
             elif ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(pbase_out + pos)).eType == eResponseExL):
-                self.timer = (<SBaseOut *>(pbase_out + pos)).llLargeInteger
                 pos += sizeof(SBaseOut)
             elif ((<SBase *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBase *>(pbase_out + pos)).dwSize == sizeof(SBase) +
@@ -479,19 +491,25 @@ cdef class FTDIChannel(BarstChannel):
         if res and res != INVALID_CHANN:
             raise BarstException(res, msg=msg)
 
-    cpdef object set_state(FTDIChannel self, int state):
-        raise BarstException(msg='You cannot set the sate of a ftdi channel.'
-        ' You have to set the state for each FTDI device independently.')
+    cpdef object set_state(FTDIChannel self, int state, flush=False):
+        '''
+        Because an FTDI channel is composed of peripheral devices, setting the
+        :class:`FTDIChannel` itself to inactive/active has no meaning.
+        Therefore, this method doesn't do anything. Instead, you should set
+        the state of the :class:`FTDIDevice` instances of the channel.
+        '''
+        pass
 
 
 cdef class FTDIDevice(BarstChannel):
     '''
-    A abstract class for the peripheral devices that can connect to an FTDI
+    An abstract class for the peripheral devices that can connect to an FTDI
     channel.
 
-    You don't instantiate this class or it's children; they are
-    instantiated by the :class:`FTDIChannel` and stored in
-    :attr:`~pybarst.ftdi.FTDIChannel.devices`.
+    You don't instantiate this class or it's derived classes, instead, it is
+    instantiated by the :class:`FTDIChannel` in response to
+    :class:`FTDISettings` instances in its `devices` parameter and is then
+    stored in its :attr:`FTDIChannel.devices` attribute.
 
     :Parameters:
 
@@ -519,45 +537,34 @@ cdef class FTDIDevice(BarstChannel):
         self.parent = parent
 
     cpdef object open_channel(FTDIDevice self):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for details.
+
+        Calling this method will open a new client for communication with
+        the peripheral instance on the server.
+        '''
         # Super must be called in inherited classes.
+        self.close_channel_client()
         self.running = 0
-        self.close_handle(self.pipe)
         self.pipe = self.open_pipe('rw')
         self.parent_chan = self.parent.chan
         BarstChannel.open_channel(self)
 
     cpdef object close_channel_server(FTDIDevice self):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.close_channel_server` for
+        details. However, you cannot delete a FTDI peripheral device on
+        the server, but instead have to delete the whole :class:`FTDIChannel`
+        channel. Therefore, this method doesn't do anything.
+        '''
         pass
 
-    cpdef close_channel_client(FTDIDevice self):
-        # Super must be called in inherited classes.
-        #self.close_handle(self.pipe)
-        #self.pipe = NULL
-        BarstChannel.close_channel_client(self)
-
-    cpdef object set_state(FTDIDevice self, int state):
+    cpdef object set_state(FTDIDevice self, int state, flush=False):
         '''
-        Sets the state of the device. Each device in a channel can be
-        activated / inactivated independently. Activation is different than
-        opening the channel. After a channel is opened all the devices are
-        inactivated. That is even after :meth:`open_channel` is called on a
-        device, trying to write or read from the device will cause an error.
-        To enable the device, it has to be activated. When inactive, resources
-        are reduced significantly so it should be in an inactive state when not
-        used.
+        See :meth:`~pybarst.core.server.BarstChannel.set_state` for details.
 
-        This method is different than :meth:`open_channel` because
-        :meth:`open_channel` opens the communication between a client and
-        the device. This method sets the state of the device for all the
-        clients connected to it. Therefore, the proper order is for a client
-        to connect to the device with :meth:`open_channel` and then activate
-        or  inactivate it with this method.
-
-        :Parameters:
-
-            `state`: int
-                The state to which to set the device. True to activate, False
-                to inactivate.
+        See the class description for the derived class for more details on
+        how to manipulate state.
         '''
         cdef SBaseIn base, base_read
         cdef int nes
@@ -566,7 +573,8 @@ cdef class FTDIDevice(BarstChannel):
         cdef EQueryType base_type = eNone
 
         base.dwSize = sizeof(SBaseIn)
-        self.running = 0
+        if state or flush:
+            self.running = 0
         if state:
             base_type = eActivate
         else:

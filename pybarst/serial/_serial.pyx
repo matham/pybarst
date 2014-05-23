@@ -354,7 +354,7 @@ timeout=10000)
         order on which they were received.
 
         The read request is initiated when this method is called and it waits
-        until the server sends data back or returns an error.
+        until the server sends data back, returns an error, or times out.
         To terminate the waiting client, from another thread you must call
         :meth:`~pybarst.core.BarstChannel.close_channel_client`, or just close
         the channel or server, which will cause this method to return with an
@@ -525,9 +525,9 @@ text written
 
         return t, read_val
 
-    cpdef object set_state(SerialChannel self, int state):
+    cpdef object set_state(SerialChannel self, int state, flush=False):
         '''
-        See :meth:`~pybarst.core.BarstChannel.set_state` for details.
+        See :meth:`~pybarst.core.server.BarstChannel.set_state` for details.
 
         .. note::
             For the serial channel, this method doesn't do anything, since

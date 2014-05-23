@@ -1,3 +1,13 @@
+'''
+FTDI ADC device
+================
+
+The FTDI ADC module controls an CPL ADC device connected to the FTDI
+channel's digital pins. You can connect multiple ADC devices in parallel to
+different pins, and they can be configured to be connected to a variable
+number of channel pins.
+'''
+
 
 __all__ = ('ADCSettings', 'ADCData', 'FTDIADC')
 
@@ -22,9 +32,9 @@ cdef class ADCSettings(FTDISettings):
     '''
     The settings for a CPL ADC device connected to the the FTDI channel.
 
-    When an instance of this class is passed to a :class:`FTDIChannel` in the
-    `channels` parameter, it will create a :class:`FTDIADC` in
-    :attr:`~pybarst.ftdi.FTDIChannel.devices`.
+    When an instance of this class is passed to a
+    :class:`~pybasrt.ftdi.FTDIChannel` in the `channels` parameter, it will
+    create a :class:`FTDIADC` in :attr:`~pybarst.ftdi.FTDIChannel.devices`.
 
     This settings class indicates and controls how the device is connected
     to the FTDI bus as well as the settings used to configure the ADC device.
@@ -85,7 +95,7 @@ cdef class ADCSettings(FTDISettings):
     .. note::
         The settings can not be changed after they have been passed to the
         constructor. I.e. setting the properties directly might result in
-        incorrect settings.
+        incorrect states.
     '''
 
     def __init__(ADCSettings self, clock_bit, lowest_bit, num_bits,
@@ -280,6 +290,9 @@ desc='Birch Board rev1 B')
     '''
 
     cpdef object open_channel(FTDIADC self):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for details.
+        '''
         cdef int res
         cdef DWORD read_size, pos = 0
         cdef SBaseIn *pbase
@@ -287,7 +300,6 @@ desc='Birch Board rev1 B')
         cdef SADCInit *adc_init = NULL
         cdef SInitPeriphFT *ft_init = NULL
         cdef unsigned char mutltiplier, constant, bottom, twin = 1
-        self.close_channel_client()
         FTDIDevice.open_channel(self)
 
         read_size = (sizeof(SBaseOut) + 2 * sizeof(SBase) +
@@ -386,18 +398,26 @@ desc='Birch Board rev1 B')
     cpdef object read(FTDIADC self):
         '''
         Requests the server to read and send the next available data from the
-        ADC. This method will wait until the server sends data or an error
-        message tying up this thread. To cancel a this read, from another
-        thread you must call :attr:`close_channel_client`, or
-        :attr:`close_channel_server`, or just close the channel or the server,
-        which will cause this method to return with an error.
+        ADC. This method will wait until the server sends data, or an error
+        message, thereby tying up this thread.
 
         After the first call to :meth:`read` the server will continuously read
         from the device and send the results back to the client. This means
         that if the client doesn't call :meth:`read` frequently enough data
-        will accumulate in the pipe. To stop the server from reading and
-        sending data back to the client, set :meth:`set_state` to inactive for
-        this device.
+        will accumulate in the pipe.
+
+        To cancel a read request while the read is still waiting, from another
+        thread you must call
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_client`, or
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_server`, or just
+        delete the server, which will cause this method to return with an
+        error.
+
+        A more gentle way of canceling a read request while not currently
+        waiting in :meth:`read`, is to call
+        :meth:`~pybarst.core.server.BarstChannel.set_state` to set it inactive,
+        which will cause the next read operation to return with an error, but
+        will not delete/close the channel. See that methods for more details.
 
         :returns:
             Each call to this method returns the next data read from the active
@@ -408,18 +428,37 @@ desc='Birch Board rev1 B')
 
         .. warning::
             Before this method can be called, :meth:`open_channel` must be
-            called and the device must be set to active with :meth:`set_state`.
-            This method must be called immediately after :meth:`set_state` is
-            called to activate this device, otherwise the device will time out
-            and / or lose initial data and might cause this method to return an
-            error or never return since no data will be forthcoming.
+            called and then device must be set to active using
+            :meth:`~pybarst.core.server.BarstChannel.set_state`.
+
+            :meth:`read` may/should be called immediately after
+            :meth:`~pybarst.core.server.BarstChannel.set_state` is
+            called activating this device. When the state is activated,
+            the device immediately starts sampling the ADC port, however, data
+            only begins to be sent back to the client after :meth:`read` is
+            called the first time. So any data sampled before :meth:`read` is
+            called for the first time is lost. Once :meth:`read` is called, if
+            :meth:`read` is not called frequently enough, it just accumulates
+            in the pipe, but does not get discarded.
 
         .. note::
             The error attributes of :class:`ADCData`
             (:attr:`ADCData.chan1_oor`, :attr:`ADCData.chan2_oor`,
             :attr:`ADCData.noref`, :attr:`ADCData.bad_count`,
             :attr:`ADCData.overflow_count`) should be checked for every
-            instance to detect issues with the ADC device.
+            returned instance to detect errors with the ADC device.
+
+        .. note::
+            Although multiple clients can simultaneously connect to the same
+            FTDI channel, and FTDI peripheral devices; e.g. 2 clients instances
+            can open the same ADC channel at the same time. Only one client is
+            allowed to read at any time. That is after activation, once a
+            client has called :meth:`read`, no other client is allowed to
+            call :meth:`read` until the initial client set the state to
+            inactive with :meth:`~pybarst.core.server.BarstChannel.set_state`.
+            After that, any client can activate the state and call
+            :meth:`read` again.
+            ::
         '''
         cdef DWORD bytes_size, read_size
         cdef DWORD *data
@@ -463,6 +502,7 @@ desc='Birch Board rev1 B')
             # chan is inactive
             res = SIZE_MISSMATCH
         if res:
+            self.running = 0
             free(header)
             raise BarstException(res)
         if (header.dwCount1 and not chan1) or (header.dwCount2 and not chan2):

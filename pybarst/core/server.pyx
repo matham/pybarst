@@ -6,6 +6,12 @@ significant time before the method returns.
 The point is that the channel exists on the server, so deleting a client
 instance will not delete the channel from the server, even if no client is
 connected to the server.
+
+
+Typical usage
+--------------
+
+you open and close with open_channel, close client/server.
 '''
 
 __all__ = ('BarstPipe', 'BarstServer', 'BarstChannel')
@@ -674,7 +680,7 @@ cdef class BarstChannel(BarstPipe):
         self.connected = 0
 
     cdef object _set_state(BarstChannel self, int state, HANDLE pipe=NULL,
-                           int chan=-1):
+                           int chan=-1, flush=False):
         '''
         Sets the state of the channel.
         '''
@@ -711,7 +717,11 @@ cdef class BarstChannel(BarstPipe):
         if res:
             raise BarstException(res)
 
-    cpdef object set_state(BarstChannel self, int state):
+        if not state and flush:
+            self.close_handle(self.pipe)
+            self.pipe = self.open_pipe('rw')
+
+    cpdef object set_state(BarstChannel self, int state, object flush=False):
         '''
         Sets the state of the channel to True or False (active, inactive).
         After a channel is opened, before you can read / write to it, the
@@ -719,6 +729,52 @@ cdef class BarstChannel(BarstPipe):
         from reading or writing data you set the channel to an inactive state.
 
         Reading or writing to an inactive channel will result in an error.
+
+        When inactivating, all the reading requests will be canceled.
+        diference between cancel and state, is state affects the whole channel,
+        while cancel only that pipe
+
+        you can set the state in cycles.
+
+        Sets the state of the peripheral device. Each device in the channel can
+        be activated / deactivated independently. Activation is different than
+        opening the channel. After a channel is opened all the devices are
+        deactivated. That is even after :meth:`open_channel` is called on a
+        device, trying to write or read from the device will cause an error.
+        To enable the device, it has to be activated. When inactive, resources
+        are reduced significantly so it should be in an inactive state when not
+        used.
+
+        This method is different than :meth:`open_channel` because
+        :meth:`open_channel` opens the communication between a client and
+        the device. This method sets the state of the device for all the
+        clients connected to it. Therefore, the proper order is for a client
+        to connect to the device with :meth:`open_channel` and then activate
+        or  inactivate it with this method.
+
+        :Parameters:
+
+            `flush`: bool
+                Whether any data queued by the server waiting to be sent will
+                be discarded. When inactivating, no new data will be queued by
+                the server, however, any already queued data will still be
+                sent.
+
+                If `flush` is `False`, that data will be available to the
+                client when it calls read, until the server has no more data
+                available and read will return an error. The device will only
+                be considered inactive again, after the last read once that
+                error is raised.
+
+                If `flush` is `True`, then all data waiting to be sent will
+                be discarded. In addition, the channel will instantly become
+                inactive. If the channel is in a :meth:`read`, then that read
+                will return with an exception.
+
+                `flush` is only used when `state` is `False`. `flush` defaults
+                to `False`.
+
+                The effect is similar to calling close_channel_client.
 
         .. note::
 
@@ -729,4 +785,17 @@ cdef class BarstChannel(BarstPipe):
             show up in later read requests. You can flush this by closing the
             client's end of the pipe with :math:`close_channel_client`.
         '''
-        return self._set_state(state)
+        return self._set_state(state, pipe=NULL, chan=-1, flush=flush)
+
+    cdef object _cancel_read(BarstChannel self, flush=False):
+        '''
+        All the devices that support it, you send the cancel request from the
+        same pipe that has scheduled the reading. Then, the user can read
+        '''
+        pass
+
+    cpdef object cancel_read(BarstChannel self, flush=False):
+        '''
+        Doesn't do anything yet. Only active when explicitly said.
+        '''
+        pass

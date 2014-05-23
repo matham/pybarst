@@ -63,7 +63,6 @@ cdef class SerializerSettings(FTDISettings):
 
 cdef class FTDISerializer(FTDIDevice):
     cdef SValveInit serial_settings
-    #cdef public SerializerSettings settings
 
 
 cdef class FTDISerializerIn(FTDISerializer):
@@ -118,7 +117,6 @@ cdef class PinSettings(FTDISettings):
 
 cdef class FTDIPin(FTDIDevice):
     cdef SPinInit pin_settings
-    #cdef public PinSettings settings
 
 
 cdef class FTDIPinIn(FTDIPin):

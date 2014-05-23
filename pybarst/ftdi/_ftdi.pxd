@@ -15,7 +15,6 @@ cdef class FTDISettings(object):
 cdef class FTDIChannel(BarstChannel):
     cdef SChanInitFTDI ft_init
     cdef FT_DEVICE_LIST_INFO_NODE_OS ft_info
-    cdef LARGE_INTEGER timer
     cdef list channels
     cdef object serial
     cdef object desc
@@ -142,7 +141,6 @@ cdef class FTDIChannel(BarstChannel):
     was opened. Read only.
     '''
 
-    #cpdef open_channel(FTDIChannel self, alloc=*)
     cdef object _populate_settings(FTDIChannel self)
 
 

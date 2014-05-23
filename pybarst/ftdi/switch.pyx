@@ -1,3 +1,13 @@
+'''
+FTDI Switch
+============
+
+The FTDI switch module controls digital switching devices that are connected to
+a FTDI digital port. These devices could be the FTDI digital input and output
+pins themselves, or digital input and output devices connected and controlled
+by the FTDI digital pins.
+'''
+
 
 cdef extern from "stdlib.h" nogil:
     void *malloc(size_t)
@@ -17,15 +27,21 @@ cdef class SerializerSettings(FTDISettings):
     and 74HC589 for input.
 
     These devices are controlled as serial devices by the controlling system
-    but read / write as parallel ports. They are controlled by 3 digital lines,
+    but read / write as parallel ports. They are controlled by 3 digital lines;
     a clock line, a latch line, and a data line. The clock line is used to
     clock in / out the data and the latch line is used to perform a
     read / write from the pins of the device. To control such a device,
-    you only need to indicate which pins on the FTDI channel are connected to
-    the clock, latch and data lines.
+    you only need to indicate which pins on the FTDI digital port are connected
+    to the clock, latch and data lines.
 
-    When an instance of this class is passed to a :class:`FTDIChannel` in the
-    `channels` parameter, it will create a :class:`FTDISerializerIn` or
+    Although these devices are controlled without only 3 digital lines, each
+    of these device typically controls 8 digital input or output lines.
+    Therefore, with only 3 lines connected to the FTDI port, once can control
+    many more digital ports.
+
+    When an instance of this class is passed to a
+    :class:`~pybarst.ftdi.FTDIChannel` in the `channels` parameter, it will
+    create a :class:`FTDISerializerIn` or
     :class:`FTDISerializerOut` in :attr:`~pybarst.ftdi.FTDIChannel.devices`,
     depending on the value of the :attr:`output` parameter.
 
@@ -74,7 +90,7 @@ cdef class SerializerSettings(FTDISettings):
             If the device connected is output device (74HC595) or a input
             device (74HC589). If True, a :class:`FTDISerializerOut` will be
             created, otherwise a :class:`FTDISerializerIn` will be created
-            by the :class:`FTDIChannel`.
+            by the :class:`~pybarst.ftdi.FTDIChannel`.
     '''
 
     def __init__(SerializerSettings self, clock_bit, data_bit, latch_bit,
@@ -124,13 +140,15 @@ cdef class FTDISerializer(FTDIDevice):
     '''
 
     cpdef object open_channel(FTDISerializer self):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for details.
+        '''
         cdef DWORD read_size, pos = 0
         cdef int res
         cdef SBaseIn *pbase
         cdef char *pbase_out
         cdef SValveInit *multi_init = NULL
         cdef SInitPeriphFT *ft_init = NULL
-        self.close_channel_client()
         FTDIDevice.open_channel(self)
 
         read_size = (sizeof(SBaseOut) + 2 * sizeof(SBase) + sizeof(SValveInit)
@@ -210,9 +228,9 @@ cdef class FTDISerializerIn(FTDISerializer):
     '''
     Controls a serial to parallel (74HC589) input device connected to the
     :class:`~pybarst.ftdi.FTDIChannel`. See :class:`SerializerSettings` for
-    details on the device type.
+    details on this device type.
 
-    ::
+    For example::
 
         >>> # create a settings class for the input device which has 2 74HC589
         >>> # connected in a daisy chain fashion.
@@ -239,10 +257,7 @@ cdef class FTDISerializerIn(FTDISerializer):
     cpdef object read(FTDISerializerIn self):
         ''' Requests the server to read from the serial to parallel input
         device. This method will wait until the server sends data or an error
-        message, tying up this thread. To cancel a this read, from another
-        thread you must call :attr:`close_channel_client`, or
-        :attr:`close_channel_server`, or just close the channel or the server,
-        which will cause this method to return with an error.
+        message, thereby tying up this thread.
 
         If :attr:`SerializerSettings.continuous` is `False`, each call triggers
         the server to read from the device which is then sent to the client. If
@@ -250,24 +265,39 @@ cdef class FTDISerializerIn(FTDISerializer):
         to :meth:`read` the server will continuously read from the device and
         send the results back to the client. This means that if the client
         doesn't call :meth:`read` frequently enough data will accumulate in the
-        pipe. Also, the data returned might have been acquired before
-        :meth:`read` was called.
+        pipe. Also, the data returned might have been acquired before the
+        current :meth:`read` was called.
 
-        Before this method can be called, :meth:`open_channel` must be called
-        and the device must be set to active with :meth:`set_state`.
+        To cancel a read request while the read is still waiting, from another
+        thread you must call
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_client`, or
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_server`, or just
+        delete the server, which will cause this method to return with an
+        error.
 
-        If :attr:`SerializerSettings.continuous` is `True`, to stop the server
-        from reading and sending data back to the client, set :meth:`set_state`
-        to inactive for this device.
+        A more gentle way of canceling a read request while not currently
+        waiting in :meth:`read`, is to call
+        :meth:`~pybarst.core.server.BarstChannel.set_state` to set it inactive,
+        or :meth:`cancel_read`, both of which will cause the next read
+        operation to return with an error, but will not delete/close the
+        channel. For the latter method, once :meth:`read` returned with an
+        error, a further call to :meth:`read` will cause the reading to start
+        again. See those methods for more details.
+
+        Before this method can be called, :meth:`FTDISerializer.open_channel`
+        must be called and the device must be set to active with
+        :meth:`~pybarst.core.server.BarstChannel.set_state`.
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`pybarst.core.BarstServer.clock`.
+            read in server time,
+            :meth:`pybarst.core.server.BarstServer.clock`.
             `data` is a list of size 8 * :attr:`SerializerSettings.num_boards`,
             where each element corresponds (True / False) to the state of the
             corresponding pin on the 75HC589.
 
-            The order in the list is for the lowest element, 0, to represent?
+            The order in the list is for the lowest element, 0, to represent
+            the closest (farthest)? port in the device.
         '''
         cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
             self.serial_settings.dwBoards * 8 * sizeof(bool))
@@ -279,9 +309,24 @@ cdef class FTDISerializerIn(FTDISerializer):
         cdef char *states
         cdef tuple result
 
+        '''
+        This is only important for continuous mode.
+        The logic is that running is set to zero when activating/inactivating,
+        and when opening the channel. So to do a read, we always have to
+        trigger. So if we're inactive/bad state, the server will return an
+        error. If there's no error in response to the trigger, then we can
+        assume the device is active and WILL send data. Once in this state,
+        we're guaranteed that the server will always send data back, and if
+        it becomes inactive, all the waiting read pipes will get a
+        device closing error response at which point we set running to zero.
+        this ensures that whenever we do a read without triggering, there's
+        always something that will be sent back to us, and that the pipe will
+        not hang waiting forever.
+        '''
         if (not self.serial_settings.bContinuous) or not self.running:
             self._send_trigger()
-            self.running = 1
+            if self.serial_settings.bContinuous:
+                self.running = 1
 
         pbase = <SBaseOut *>malloc(read_size)
         if pbase == NULL:
@@ -299,16 +344,21 @@ cdef class FTDISerializerIn(FTDISerializer):
              read_size_out != read_size) or
             ((read_size_out == sizeof(SBaseIn) or
               read_size_out == sizeof(SBaseOut)) and
-             (not pbase.sBaseIn.nError)) or
+             (not pbase.sBaseIn.nError) and
+             pbase.sBaseIn.eType != eCancelReadRequest) or
             (read_size_out == read_size and
              (not pbase.sBaseIn.nError) and
+             pbase.sBaseIn.eType != eCancelReadRequest and
              (pbase.sBaseIn.eType != eResponseExD or
               (<SBase *>(<char *>pbase +
                          sizeof(SBaseOut))).eType != eFTDIMultiReadData))):
             res = UNEXPECTED_READ
         elif pbase.sBaseIn.nError:
             res = pbase.sBaseIn.nError
+        elif pbase.sBaseIn.eType == eCancelReadRequest:
+            res = DEVICE_CLOSING
         if res:
+            self.running = 0
             free(pbase)
             raise BarstException(res)
 
@@ -319,14 +369,43 @@ cdef class FTDISerializerIn(FTDISerializer):
         free(pbase)
         return result
 
+    cpdef object cancel_read(FTDISerializerIn self, flush=False):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.cancel_read` for details.
+
+        This method is only callable when :attr:`SerializerSettings.continuous`
+        is `True`.
+
+        .. note::
+            When `flush` is `False`, the server will continue sending data that
+            has already been queued, but it will not add new data to the queue.
+            After the last valid read, :meth:`read` will return with error
+            indicating there's no new data coming. After there error, a further
+            call to :meth:`read` will cause a new read request and data will
+            start coming again.
+
+            If `flush` is `True`, the server will discard all data waiting to
+            be sent, and the client will not receive the final error message
+            if calling :meth:`read`. Instead, a subsequent call to
+            :meth:`read` will cause a new read request to be sent to the server
+            and data will start coming again.
+        '''
+        if self.running:
+            self._cancel_read(flush)
+            if flush:
+                self.running = 0
+        else:
+            raise BarstException(msg='The device has not scheduled a read '
+                                 'so there\'s nothing to cancel')
+
 
 cdef class FTDISerializerOut(FTDISerializer):
     '''
-    Controls a serial to parallel (74HC589) input device connected to the
+    Controls a serial to parallel (74HC595) output device connected to the
     :class:`~pybarst.ftdi.FTDIChannel`. See :class:`SerializerSettings` for
-    details on the device type.
+    details on that device type.
 
-    ::
+    For example::
 
         >>> # create a settings class for the output device which has 2 74HC595
         >>> # connected in a daisy chain fashion.
@@ -357,8 +436,10 @@ cdef class FTDISerializerOut(FTDISerializer):
         Tells the server to update the states of some pins on the 74HC595.
         Indices not listed in `set_high` or `set_low` remain unchanged.
 
-        Before this method can be called, :meth:`open_channel` must be called
-        and the device must be set to active with :meth:`set_state`.
+        Before this method can be called,
+        :meth:`FTDISerializer.open_channel` must be called
+        and the device must be set to active with
+        :meth:`~pybarst.core.server.BarstChannel.set_state`.
 
         :Parameters:
 
@@ -374,7 +455,9 @@ cdef class FTDISerializerOut(FTDISerializer):
                 0. Defaults to `[]`.
 
         :returns:
-            float. The channel time at which the data was written.
+            float. The server time,
+            :meth:`pybarst.core.server.BarstServer.clock`, when the data was
+            written.
         '''
         cdef SBaseIn *pbase
         cdef SBaseIn *pbase_out
@@ -438,14 +521,15 @@ cdef class FTDISerializerOut(FTDISerializer):
 cdef class PinSettings(FTDISettings):
 
     '''
-    The settings class for reading and writing directly to the FTDI
+    The settings class for reading and writing directly to the FTDI digital
     pins. Each FTDI channel has digital pins which can be set as output or
     input and can then be read from or written to independently.
 
-    When an instance of this class is passed to a :class:`FTDIChannel` in the
-    `channels` parameter, it will create a :class:`FTDIPinIn` or
-    :class:`FTDIPinOut` in :attr:`~pybarst.ftdi.FTDIChannel.devices`,
-    depending on the value of the :attr:`output` parameter.
+    When an instance of this class is passed to a
+    :class:`~pybarst.ftdi.FTDIChannel` in the `channels` parameter, it will
+    create a :class:`FTDIPinIn` or :class:`FTDIPinOut` in
+    :attr:`~pybarst.ftdi.FTDIChannel.devices`, depending on the value of the
+    :attr:`output` parameter.
 
     :Parameters:
 
@@ -486,7 +570,7 @@ cdef class PinSettings(FTDISettings):
         `output`: bool
             If the active pins of this device are inputs or outputs. If True, a
             :class:`FTDIPinOut` will be created, otherwise a :class:`FTDIPinIn`
-            will be created by the :class:`FTDIChannel`.
+            will be created by the :class:`~pybarst.ftdi.FTDIChannel`.
     '''
 
     def __init__(PinSettings self, bitmask, num_bytes=1, init_val=0,
@@ -533,13 +617,15 @@ cdef class FTDIPin(FTDIDevice):
     '''
 
     cpdef object open_channel(FTDIPin self):
+        '''
+        See :meth:`~pybarst.core.server.BarstChannel.open_channel` for details.
+        '''
         cdef DWORD read_size, pos = 0
         cdef int res
         cdef SBaseIn *pbase
         cdef char *pbase_out
         cdef SPinInit *pin_init = NULL
         cdef SInitPeriphFT *ft_init = NULL
-        self.close_channel_client()
         FTDIDevice.open_channel(self)
 
         read_size = (sizeof(SBaseOut) + 2 * sizeof(SBase) + sizeof(SPinInit) +
@@ -616,7 +702,7 @@ cdef class FTDIPin(FTDIDevice):
 
 cdef class FTDIPinIn(FTDIPin):
     '''
-    Reads the states of the pins on the FTDI channel controlled by
+    Reads the states of the digital pins on the FTDI channel controlled by
     :class:`~pybarst.ftdi.FTDIChannel`. See :class:`PinSettings` for
     details on the device type.
 
@@ -659,33 +745,43 @@ byte1, byte2)
     cpdef object read(FTDIPinIn self):
         '''
         Requests the server to read the pins from the FTDI channel. This method
-        will wait until the server sends data or an error
-        message, tying up this thread. To cancel a this read, from another
-        thread you must call :attr:`close_channel_client`, or
-        :attr:`close_channel_server`, or just close the channel or the server,
-        which will cause this method to return with an error.
+        will wait until the server sends data, or an error
+        message, thereby tying up this thread.
 
         If :attr:`PinSettings.continuous` is `False`, each call triggers
-        the server to read the device which is then sent to the client. If
-        :attr:`PinSettings.continuous` is `True`, after the first call to
-        :meth:`read` the server will continuously read from the device and
+        the server to read from the device which is then sent to the client. If
+        :attr:`PinSettings.continuous` is `True`, after the first call
+        to :meth:`read` the server will continuously read from the device and
         send the results back to the client. This means that if the client
         doesn't call :meth:`read` frequently enough data will accumulate in the
-        pipe. Also, the data returned might have been acquired before
-        :meth:`read` was called.
+        pipe. Also, the data returned might have been acquired before the
+        current :meth:`read` was called.
 
-        Before this method can be called, :meth:`open_channel` must be called
-        and the device must be set to active with :meth:`set_state`.
+        To cancel a read request while the read is still waiting, from another
+        thread you must call
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_client`, or
+        :meth:`~pybarst.core.server.BarstChannel.close_channel_server`, or just
+        delete the server, which will cause this method to return with an
+        error.
 
-        If :attr:`PinSettings.continuous` is `True`, to stop the server
-        from reading and sending data back to the client, set :meth:`set_state`
-        to inactive for this device.
+        A more gentle way of canceling a read request while not currently
+        waiting in :meth:`read`, is to call
+        :meth:`~pybarst.core.server.BarstChannel.set_state` to set it inactive,
+        or :meth:`cancel_read`, both of which will cause the next read
+        operation to return with an error, but will not delete/close the
+        channel. For the latter method, once :meth:`read` returned with an
+        error, a further call to :meth:`read` will cause the reading to start
+        again. See those methods for more details.
+
+        Before this method can be called, :meth:`FTDIPin.open_channel` must be
+        called and the device must be set to active with
+        :meth:`~pybarst.core.server.BarstChannel.set_state`.
 
         :returns:
             2-tuple of (`time`, `data`). `time` is the time that the data was
-            read in channel time, :meth:`pybarst.core.BarstServer.clock`.
+            read in server time, :meth:`pybarst.core.server.BarstServer.clock`.
             `data` is a list of size :attr:`PinSettings.num_bytes`,
-            where each element corresponds to a bit mask of the states of the
+            where each element corresponds to a bit field of the states of the
             pins. See class description.
         '''
         cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
@@ -700,7 +796,8 @@ byte1, byte2)
 
         if (not self.pin_settings.bContinuous) or not self.running:
             self._send_trigger()
-            self.running = 1
+            if self.pin_settings.bContinuous:
+                self.running = 1
 
         pbase = <SBaseOut *>malloc(read_size)
         if pbase == NULL:
@@ -717,16 +814,21 @@ byte1, byte2)
              read_size_out != read_size) or
             ((read_size_out == sizeof(SBaseIn) or
               read_size_out == sizeof(SBaseOut)) and
-             (not pbase.sBaseIn.nError)) or
+             (not pbase.sBaseIn.nError) and
+             pbase.sBaseIn.eType != eCancelReadRequest) or
             (read_size_out == read_size and
              (not pbase.sBaseIn.nError) and
+             pbase.sBaseIn.eType != eCancelReadRequest and
              (pbase.sBaseIn.eType != eResponseExD or
               (<SBase *>(<char *>pbase +
                          sizeof(SBaseOut))).eType != eFTDIPinRDataArray))):
             res = UNEXPECTED_READ
         elif pbase.sBaseIn.nError:
             res = pbase.sBaseIn.nError
+        elif pbase.sBaseIn.eType == eCancelReadRequest:
+            res = DEVICE_CLOSING
         if res:
+            self.running = 0
             free(pbase)
             raise BarstException(res)
 
@@ -736,6 +838,21 @@ byte1, byte2)
         result = (pbase.dDouble, vals)
         free(pbase)
         return result
+
+    cpdef object cancel_read(FTDIPinIn self, flush=False):
+        '''
+        See :meth:`FTDISerializerIn.cancel_read` for details.
+
+        This method is only callable when :attr:`PinSettings.continuous` is
+        `True`.
+        '''
+        if self.running:
+            self._cancel_read(flush)
+            if flush:
+                self.running = 0
+        else:
+            raise BarstException(msg='The device has not scheduled a read '
+                                 'so there\'s nothing to cancel')
 
 
 cdef class FTDIPinOut(FTDIPin):
@@ -768,30 +885,34 @@ desc='Birch Board rev1 A')
     cpdef object write(FTDIPinOut self, object data=[],
                        object buff_mask=None, object buffer=[]):
         '''
-        Tells the server to update the states of some pins on the FTDI
+        Tells the server to update the states of some digital pins on the FTDI
         channel.
 
-        Before this method can be called, :meth:`open_channel` must be called
-        and the device must be set to active with :meth:`set_state`.
+        Before this method can be called, :meth:`FTDIPin.open_channel` must be
+        called and the device must be set to active with
+        :meth:`~pybarst.core.server.BarstChannel.set_state`.
 
         There are two parameters by which data can be written, `data`, or
-        `buff_mask` with `buffer`. In each, you can specify which of the pins
-        this device controls should be changed, as well as the exact values
-        they should take. The total number of bytes written cannot exceed
-        :attr:`PinSettings.num_bytes`.
+        alternatively `buff_mask` combined with `buffer`. In each case, you can
+        specify which of the pins this device controls should be changed, as
+        well as the exact values they should take. The total number of bytes
+        written cannot exceed :attr:`PinSettings.num_bytes`.
 
         :Parameters:
             `data`: list
                 `data` is a list of 3-tuples to be written. Each tuple has 3
                 elements: (`repeat`, `value`, `mask`).
 
-                `repeat`: is the number
-                    of times this data point will be replicated, i.e. if it's
-                    5, the byte will be written 5 times in succession.
-                `value` is the bit-mask to set the pins that this device
-                    control to. I.e. 0b01001000 will set pins 3 and 6 to high
-                    and the remaining low.
-                `mask` indicates which pins to leave untouched (0), or update
+                `repeat`: int
+                    The number of times this data point will be replicated,
+                    i.e. if it's 5, the byte will be written 5 times in
+                    succession.
+                `value`: 8-bit int
+                    The bit-mask to set the pins controlled by this device.
+                    I.e. 0b01001000 will set pins 3 and 6 to high and the
+                    remaining low.
+                `mask`: 8-bit int
+                    Indicates which pins to leave untouched (0), or update
                     according to `value` (1). For example, if `value` is
                     `0b01001000` and `mask` is `0b01110000`, then pins 0 - 3,
                     and 7 will remain unchanged, while pins 4, and 5 will be
@@ -803,18 +924,27 @@ desc='Birch Board rev1 A')
                 written in order at the channel's
                 :attr:`~pybarst.ftdi.FTDIChannel.chan_baudrate` according to
                 the `buff_mask` mask. The `buff_mask` parameter functions
-                similarly to the `data`, `mask` parameter. Only pins which
+                similarly to the `data` 's, `mask` parameter. Only pins which
                 have a high value in `buff_mask` will be changed by the values
                 in `buffer`, the others will remain the same.
 
-                Each element in `buffer` is similar to the `data`, `value`
+                Each element in `buffer` is similar to `data` 's, `value`
                 parameter. A high value for the corresponding pin will set the
                 pin high, and low otherwise.
-            `buff_mask`: unsigned char
+            `buff_mask`: 8-bit int
                 The mask which controls which pin's state will be changed by
                 the elements in `buffer`. E.g. a value of 0b01000001 means that
                 only pin 0, and pin 6 can be changed by `buffer`, all the other
                 pins will remain unchanged no matter their value in `buffer`.
+
+        :returns:
+            float. The server time,
+            :meth:`pybarst.core.server.BarstServer.clock`, when the data was
+            written.
+
+        .. note::
+            Pins not controlled by this channel, will never be changed, no
+            matter what their values were set here.
 
         For example::
 

@@ -197,7 +197,8 @@ cdef class ADCData(object):
     '''
     cdef public double ts
     '''
-    The time stamp, in channel time :meth:`~pybarst.core.BarstServer.clock`
+    The time stamp, in server time
+    :meth:`~pybarst.core.server.BarstServer.clock`
     that the :attr:`chan1_ts_idx` and :attr:`chan2_ts_idx` data points were
     approximately taken. See :attr:`chan1_ts_idx`.
 
@@ -208,7 +209,7 @@ cdef class ADCData(object):
     '''
     cdef public DWORD count
     '''
-    The packet number of this instance. Everytime the server send data to the
+    The packet number of this instance. Everytime the server sends data to the
     client (every time :meth:`FTDIADC.read` is called) the internal index gets
     incremented and stored here. This allows us to recognize if a data packet
     is missing, since this index should be a continuous value.
@@ -288,6 +289,5 @@ cdef class FTDIADC(FTDIDevice):
     cdef double subtractend
     cdef double divisor
     cdef SADCInit adc_settings
-    #cdef public ADCSettings settings
 
     cpdef object read(FTDIADC self)
