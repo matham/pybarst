@@ -787,12 +787,44 @@ cdef class BarstChannel(BarstPipe):
         '''
         return self._set_state(state, pipe=NULL, chan=-1, flush=flush)
 
-    cdef object _cancel_read(BarstChannel self, flush=False):
+    cdef object _cancel_read(BarstChannel self, HANDLE *pipe, flush=False,
+                             int parent_pipe=0):
         '''
         All the devices that support it, you send the cancel request from the
         same pipe that has scheduled the reading. Then, the user can read
+        parent pipe is if this is a sub-parent channel.
         '''
-        pass
+        cdef SBaseIn *base_write = <SBaseIn *>malloc(2 * sizeof(SBaseIn))
+        cdef int res
+        cdef DWORD read_size = 0
+        if base_write == NULL:
+            raise BarstException(NO_SYS_RESOURCE)
+
+        if parent_pipe:
+            base_write.dwSize = 2 * sizeof(SBaseIn)
+            base_write.eType = ePassOn
+            base_write.nChan = self.parent_chan
+            (<SBaseIn *>(<char *>base_write + sizeof(SBaseIn))).dwSize = sizeof(SBaseIn)
+            (<SBaseIn *>(<char *>base_write + sizeof(SBaseIn))).eType = eCancelReadRequest
+            (<SBaseIn *>(<char *>base_write + sizeof(SBaseIn))).nChan = self.chan
+            (<SBaseIn *>(<char *>base_write + sizeof(SBaseIn))).nError = 0
+        else:
+            base_write.dwSize = sizeof(SBaseIn)
+            base_write.eType = eCancelReadRequest
+            base_write.nChan = self.chan
+
+        base_write.nError = 0
+        res = self.write_read(pipe[0],
+        (2 * sizeof(SBaseIn)) if parent_pipe else sizeof(SBaseIn),
+        base_write, &read_size, NULL)
+
+        free(base_write)
+        if res:
+            raise BarstException(res)
+
+        if flush:
+            self.close_handle(pipe[0])
+            pipe[0] = self.open_pipe('rw')
 
     cpdef object cancel_read(BarstChannel self, flush=False):
         '''

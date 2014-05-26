@@ -847,7 +847,7 @@ byte1, byte2)
         `True`.
         '''
         if self.running:
-            self._cancel_read(flush)
+            self._cancel_read(&self.pipe, flush, 1)
             if flush:
                 self.running = 0
         else:
