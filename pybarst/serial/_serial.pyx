@@ -209,7 +209,7 @@ max_write=32, max_read=32)
             if ((<SBaseIn *>(<char *>phead_in + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(<char *>phead_in + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(<char *>phead_in + pos)).eType == eResponseEx):
-                self.basrt_chan_type = (<SBaseOut *>(<char *>phead_in + pos)).szName
+                self.barst_chan_type = (<SBaseOut *>(<char *>phead_in + pos)).szName
                 pos += sizeof(SBaseOut)
             elif ((<SBaseIn *>(<char *>phead_in + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(<char *>phead_in + pos)).dwSize >= sizeof(SBaseOut) and
@@ -343,6 +343,9 @@ timeout=10000)
         t = pbase_read.dDouble
         amount_wrote = (<SSerialData *>(<char *>pbase_read + sizeof(SBaseOut)
                                         + sizeof(SBase))).dwSize
+        free(pbase_write)
+        free(pbase_read)
+
         return t, amount_wrote
 
     cpdef object read(SerialChannel self, DWORD read_len, timeout=0,

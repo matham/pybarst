@@ -133,7 +133,7 @@ cdef class BarstChannel(BarstPipe):
     channel then it's parent channel is the FTDI manager and this value will
     represent the FTDI manager's channel number in the server. Read only.
     '''
-    cdef public str basrt_chan_type
+    cdef public str barst_chan_type
     '''
     The string ID given to the channel type by barst. Each channel type
     has a unique string assigned by barst. Read only.
@@ -158,6 +158,7 @@ cdef class BarstChannel(BarstPipe):
     cpdef object cancel_read(BarstChannel self, flush=*)
     #cpdef object is_active(BarstChannel self)
 
-    cdef object _cancel_read(BarstChannel self, flush=*)
+    cdef object _cancel_read(BarstChannel self, HANDLE *pipe, flush=*,
+                             int parent_pipe=*)
     cdef object _set_state(BarstChannel self, int state, HANDLE pipe=*,
                            int chan=*, object flush=*)

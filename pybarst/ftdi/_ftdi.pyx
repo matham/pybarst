@@ -180,7 +180,7 @@ cdef class FTDIChannel(BarstChannel):
         cdef SBaseOut *pbase_out
         cdef FT_DEVICE_LIST_INFO_NODE_OS *ft_dev_info = NULL
         cdef int i = 0, chan = -1    # i is position in list
-        cdef bool found = False
+        cdef int found = 0
         cdef SChanInitFTDI *init_struct
         cdef object chan_class
         cdef list dev_list = []
@@ -408,7 +408,7 @@ cdef class FTDIChannel(BarstChannel):
             if ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(pbase_out + pos)).eType == eResponseEx):
-                self.basrt_chan_type = (<SBaseOut *>(pbase_out + pos)).szName
+                self.barst_chan_type = (<SBaseOut *>(pbase_out + pos)).szName
                 pos += sizeof(SBaseOut)
             elif ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
@@ -555,9 +555,10 @@ cdef class FTDIDevice(BarstChannel):
         See :meth:`~pybarst.core.server.BarstChannel.close_channel_server` for
         details. However, you cannot delete a FTDI peripheral device on
         the server, but instead have to delete the whole :class:`FTDIChannel`
-        channel. Therefore, this method doesn't do anything.
+        channel. Therefore, this method raises an exception when called.
         '''
-        pass
+        raise BarstException(msg='A FTDI peripheral device cannot be deleted '
+        'from the server, you can only delete the whole channel')
 
     cpdef object set_state(FTDIDevice self, int state, flush=False):
         '''
@@ -599,7 +600,7 @@ cdef class FTDIDevice(BarstChannel):
         cdef SBaseIn *pbase_out = <SBaseIn *>malloc(2 * sizeof(SBaseIn))
         cdef SBaseIn *pbase
         cdef int res
-        cdef DWORD read_size = sizeof(SBaseIn)
+        cdef DWORD read_size = 0
         if pbase_out == NULL:
             raise BarstException(NO_SYS_RESOURCE)
 
@@ -615,11 +616,7 @@ cdef class FTDIDevice(BarstChannel):
         pbase.nError = 0
         res = self.write_read(self.pipe, 2 * sizeof(SBaseIn), pbase_out,
                               &read_size, NULL)
-        if not res:
-            if read_size != sizeof(SBaseIn):
-                res = UNEXPECTED_READ
-            else:
-                res = (<SBaseIn *>pbase_out).nError
+
         free(pbase_out)
         if res:
             raise BarstException(res)

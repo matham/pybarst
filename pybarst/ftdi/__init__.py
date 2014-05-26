@@ -16,9 +16,9 @@ Driver requirements
 
 In order to create ftdi channels, the ftdi D2XX drivers
 (http://www.ftdichip.com/Drivers/D2XX.htm) must be installed. In
-particular, the server dynamically loads either `ftd2xx64.dll` or `ftd2xx.dll`,
-depending if the server is a 64-bit or 32-bit compiled binary, respectively
-from the system path.
+particular, the server dynamically loads the `ftd2xx.dll` dll from the
+system path. The server automatically loads the 64 or 32-bit version,
+depending on whether the server is 32 or 64-bit.
 
 If driver errors arise, either, the driver is not installed, an older version
 of the driver is installed, or the incorrect 64/32-bit version is installed.

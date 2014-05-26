@@ -42,7 +42,7 @@ cdef class SerializerSettings(FTDISettings):
     '''
     cdef public int continuous
     '''
-    Whether, when reading, we should continuously read and send data
+    Whether, when reading, the server should continuously read and send data
     back to the client. This is only used for a input device
     (`output` is `False`). When `True`,  a single call to
     :meth:`FTDISerializerIn.read` after the device is activated will
@@ -97,7 +97,7 @@ cdef class PinSettings(FTDISettings):
     '''
     cdef public int continuous
     '''
-    Whether, when reading, we should continuously read and send data
+    Whether, when reading, the server should continuously read and send data
     back to the client. This is only used for a input device
     (`output` is `False`). When `True`,  a single call to
     :meth:`FTDIPin.read` after the device is activated will

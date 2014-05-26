@@ -179,7 +179,7 @@ cdef class FTDISerializer(FTDIDevice):
             if ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(pbase_out + pos)).eType == eResponseEx):
-                self.basrt_chan_type = str((<SBaseOut *>(pbase_out +
+                self.barst_chan_type = str((<SBaseOut *>(pbase_out +
                                                          pos)).szName)
                 pos += sizeof(SBaseOut)
             elif ((<SBase *>(pbase_out + pos)).dwSize <= read_size - pos and
@@ -220,7 +220,7 @@ cdef class FTDISerializer(FTDIDevice):
         clock_size=multi_init.dwClkPerData, clock_bit=multi_init.ucClk,
         data_bit=multi_init.ucData, latch_bit=multi_init.ucLatch,
         continuous=multi_init.bContinuous,
-        output=self.basrt_chan_type == 'MltWBrd')
+        output=self.barst_chan_type == 'MltWBrd')
         free(pbase_out)
 
 
@@ -300,7 +300,7 @@ cdef class FTDISerializerIn(FTDISerializer):
             the closest (farthest)? port in the device.
         '''
         cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
-            self.serial_settings.dwBoards * 8 * sizeof(bool))
+            self.serial_settings.dwBoards * 8 * sizeof(char))
         cdef DWORD read_size_out = read_size, i
         cdef int res = 0
         cdef SBaseOut *pbase
@@ -379,19 +379,19 @@ cdef class FTDISerializerIn(FTDISerializer):
         .. note::
             When `flush` is `False`, the server will continue sending data that
             has already been queued, but it will not add new data to the queue.
-            After the last valid read, :meth:`read` will return with error
-            indicating there's no new data coming. After there error, a further
+            After the last valid read, :meth:`read` will return with an error
+            indicating there's no new data coming. After that error, a further
             call to :meth:`read` will cause a new read request and data will
             start coming again.
 
             If `flush` is `True`, the server will discard all data waiting to
             be sent, and the client will not receive the final error message
-            if calling :meth:`read`. Instead, a subsequent call to
+            when calling :meth:`read`. Instead, a subsequent call to
             :meth:`read` will cause a new read request to be sent to the server
             and data will start coming again.
         '''
         if self.running:
-            self._cancel_read(flush)
+            self._cancel_read(&self.pipe, flush, 1)
             if flush:
                 self.running = 0
         else:
@@ -656,7 +656,7 @@ cdef class FTDIPin(FTDIDevice):
             if ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(pbase_out + pos)).eType == eResponseEx):
-                self.basrt_chan_type = str((<SBaseOut *>(pbase_out +
+                self.barst_chan_type = str((<SBaseOut *>(pbase_out +
                                                          pos)).szName)
                 pos += sizeof(SBaseOut)
             elif ((<SBase *>(pbase_out + pos)).dwSize <= read_size - pos and
@@ -696,7 +696,7 @@ cdef class FTDIPin(FTDIDevice):
         self.settings = PinSettings(num_bytes=pin_init.usBytesUsed,
         bitmask=pin_init.ucActivePins, init_val=pin_init.ucInitialVal,
         continuous=pin_init.bContinuous,
-        output=self.basrt_chan_type == 'PinWBrd')
+        output=self.barst_chan_type == 'PinWBrd')
         free(pbase_out)
 
 
@@ -785,7 +785,7 @@ byte1, byte2)
             pins. See class description.
         '''
         cdef DWORD read_size = (sizeof(SBaseOut) + sizeof(SBase) +
-            self.pin_settings.usBytesUsed * sizeof(bool))
+            self.pin_settings.usBytesUsed * sizeof(char))
         cdef DWORD read_size_out = read_size
         cdef int res = 0
         cdef SBaseOut *pbase

@@ -219,7 +219,7 @@ cdef class BarstServer(BarstPipe):
                            NULL, OPEN_EXISTING, 0, NULL)
         if pipe != INVALID_HANDLE_VALUE or GetLastError() == ERROR_PIPE_BUSY:
             if pipe != INVALID_HANDLE_VALUE:
-                CloseHandle(pipe)
+                self.close_handle(pipe)
             return
 
         if not self.pipe_name.startswith('\\\\.\\'):
@@ -281,7 +281,7 @@ cdef class BarstServer(BarstPipe):
         base.nChan = -1  # -1 tells barst itself to close
         base.nError = 0
         self.write_read(pipe, sizeof(SBaseIn), &base, NULL, NULL)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         self.managers = {}
 
         t_start = time.clock()
@@ -313,7 +313,7 @@ cdef class BarstServer(BarstPipe):
         base.nError = 0
         pbase = <SBaseIn *>malloc(MIN_BUFF_OUT)
         if pbase == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             raise BarstException(NO_SYS_RESOURCE)
         res = self.write_read(pipe, sizeof(SBaseIn), &base, &read_size, pbase)
         if not res:
@@ -326,7 +326,7 @@ cdef class BarstServer(BarstPipe):
                 res = UNEXPECTED_READ
 
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res:
             raise BarstException(res)
         return version
@@ -381,7 +381,7 @@ cdef class BarstServer(BarstPipe):
         base.nError = 0
         pbase = <SBaseIn *>malloc(MIN_BUFF_OUT)
         if pbase == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             raise BarstException(NO_SYS_RESOURCE)
 
         res = self.write_read(pipe, sizeof(SBaseIn), &base, &read_size, pbase)
@@ -393,7 +393,7 @@ cdef class BarstServer(BarstPipe):
                 res = UNEXPECTED_READ
 
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res and res != ALREADY_OPEN:
             raise BarstException(res)
         self.managers[manager] = {'chan': chan,
@@ -429,7 +429,7 @@ cdef class BarstServer(BarstPipe):
         pbase = <SBaseIn *>malloc(sizeof(SBaseIn))
         phead_in = malloc(sizeof(SBaseIn))
         if pbase == NULL or phead_in == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             free(pbase)
             free(phead_in)
             raise BarstException(NO_SYS_RESOURCE)
@@ -447,7 +447,7 @@ cdef class BarstServer(BarstPipe):
 
         free(phead_in)
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         del self.managers[manager]
         if res:
             raise BarstException(res)
@@ -468,7 +468,7 @@ cdef class BarstServer(BarstPipe):
         pbase_write = <SBaseIn *>malloc(2 * sizeof(SBaseIn))
         pbase = <SBaseIn *>malloc(sizeof(SBaseIn))
         if pbase == NULL or pbase_write == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             free(pbase_write)
             free(pbase)
             raise BarstException(NO_SYS_RESOURCE)
@@ -495,7 +495,7 @@ cdef class BarstServer(BarstPipe):
 
         free(pbase_write)
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res:
             raise BarstException(res)
         return version
@@ -518,7 +518,7 @@ cdef class BarstServer(BarstPipe):
         base.nError = 0
         pbase = <SBaseOut *>malloc(MIN_BUFF_OUT)
         if pbase == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             raise BarstException(NO_SYS_RESOURCE)
 
         res = self.write_read(pipe, sizeof(SBaseIn), &base, &read_size, pbase)
@@ -535,7 +535,7 @@ cdef class BarstServer(BarstPipe):
                 res = UNEXPECTED_READ
 
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res:
             raise BarstException(res)
         return man_id
@@ -560,7 +560,7 @@ cdef class BarstServer(BarstPipe):
         base.nError = 0
         pbase = <SBaseIn *>malloc(read_size)
         if pbase == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             raise BarstException(NO_SYS_RESOURCE)
 
         res = self.write_read(pipe, sizeof(SBaseIn), &base, &read_size, pbase)
@@ -583,7 +583,7 @@ cdef class BarstServer(BarstPipe):
                 res = UNEXPECTED_READ
 
         free(pbase)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res:
             raise BarstException(res)
         return ret
@@ -600,7 +600,7 @@ cdef class BarstChannel(BarstPipe):
         self.parent_chan = -1
         self.pipe = NULL
         self.server = None
-        self.basrt_chan_type = ''
+        self.barst_chan_type = ''
         self.connected = 0
 
     def __dealloc__(BarstChannel self):
@@ -641,7 +641,7 @@ cdef class BarstChannel(BarstPipe):
         self.close_handle(self.pipe)
         self.pipe = NULL
         if phead_out == NULL or phead_in == NULL:
-            CloseHandle(pipe)
+            self.close_handle(pipe)
             free(phead_out)
             free(phead_in)
             raise BarstException(NO_SYS_RESOURCE)
@@ -665,7 +665,7 @@ cdef class BarstChannel(BarstPipe):
                 res = (<SBaseIn *>phead_in).nError
         free(phead_in)
         free(phead_out)
-        CloseHandle(pipe)
+        self.close_handle(pipe)
         if res:
             raise BarstException(res)
 
@@ -713,7 +713,7 @@ cdef class BarstChannel(BarstPipe):
             else:
                 res = base_read.nError
         if pipe == NULL:
-            CloseHandle(local_pipe)
+            self.close_handle(local_pipe)
         if res:
             raise BarstException(res)
 
@@ -731,7 +731,7 @@ cdef class BarstChannel(BarstPipe):
         Reading or writing to an inactive channel will result in an error.
 
         When inactivating, all the reading requests will be canceled.
-        diference between cancel and state, is state affects the whole channel,
+        difference between cancel and state, is state affects the whole channel,
         while cancel only that pipe
 
         you can set the state in cycles.

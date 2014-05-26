@@ -330,7 +330,7 @@ desc='Birch Board rev1 B')
             if ((<SBaseIn *>(pbase_out + pos)).dwSize <= read_size - pos and
                 (<SBaseIn *>(pbase_out + pos)).dwSize >= sizeof(SBaseOut) and
                 (<SBase *>(pbase_out + pos)).eType == eResponseEx):
-                self.basrt_chan_type = str((<SBaseOut *>(pbase_out +
+                self.barst_chan_type = str((<SBaseOut *>(pbase_out +
                                                          pos)).szName)
                 pos += sizeof(SBaseOut)
             elif ((<SBase *>(pbase_out + pos)).dwSize <= read_size - pos and
