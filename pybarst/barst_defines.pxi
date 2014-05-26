@@ -259,3 +259,12 @@ cdef extern from "cpl defs.h":
     struct SPerfTime:
         double dRelativeTime
         double dUTCTime
+
+    struct SChanInitMCDAQ:
+        unsigned char ucDirection
+        unsigned short usInitialVal
+        bool bContinuous
+
+    struct SMCDAQWData:
+        unsigned short usValue
+        unsigned short usBitSelect

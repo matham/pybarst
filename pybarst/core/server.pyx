@@ -34,7 +34,7 @@ cdef int SW_HIDE = 0
 cdef DWORD DETACHED_PROCESS = 0x00000008
 
 cdef dict manager_map = {'ftdi': eFTDIMan, 'rtv': eRTVMan,
-                         'serial': eSerialMan}
+                         'serial': eSerialMan, 'mcdaq': eMCDAQMan}
 
 
 cdef class BarstPipe(object):
@@ -354,8 +354,8 @@ cdef class BarstServer(BarstPipe):
 
         :Parameters:
             `manager`: str
-                The name of the manager to create. Can be one of `ftdi`, `rtv`,
-                `serial`.
+                The name of the manager to create. Can be one of `'ftdi'`,
+                `'rtv'`, `'serial'`, `'mcdaq'`.
 
         :Returns:
             a dict describing the manager. See :attr:`managers`.

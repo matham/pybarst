@@ -11,3 +11,4 @@
    ftdi.rst
    rtv.rst
    serial.rst
+   mcdaq.rst

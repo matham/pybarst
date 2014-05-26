@@ -19,7 +19,8 @@ sources = ['core/server.pyx',
            'ftdi/switch.pyx',
            'ftdi/adc.pyx',
            'rtv/_rtv.pyx',
-           'serial/_serial.pyx'
+           'serial/_serial.pyx',
+           'mcdaq/_mcdaq.pyx'
            ]
 
 dependencies = {
@@ -32,7 +33,9 @@ dependencies = {
                         'ftdi/adc.pxd'],
     'rtv/_rtv.pyx': ['core/server.pyx', 'core/exception.pyx', 'rtv/_rtv.pxd'],
     'serial/_serial.pyx': ['core/server.pyx', 'core/exception.pyx',
-                           'serial/_serial.pxd']}
+                           'serial/_serial.pxd'],
+    'mcdaq/_mcdaq.pyx': ['core/server.pyx', 'core/exception.pyx',
+                           'mcdaq/_mcdaq.pxd']}
 
 
 def get_modulename_from_file(filename):
@@ -94,5 +97,5 @@ setup(
     ext_modules=ext_modules,
     cmdclass={'build_ext': build_ext},
     packages=['pybarst', 'pybarst.core', 'pybarst.ftdi', 'pybarst.rtv',
-              'pybarst.serial']
+              'pybarst.serial', 'pybarst.mcdaq']
       )
