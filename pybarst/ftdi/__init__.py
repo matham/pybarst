@@ -63,6 +63,15 @@ server unchanged.
 Finally, some peripherals support the
 :meth:`~pybarst.core.server.BarstChannel.cancel_read` method, to cancel
 a continuous read triggered by this client.
+
+.. warning::
+    An FTDI channel supports the activation and deactivation of its
+    peripherals independently of each other. When a peripheral is activated,
+    the FTDI channel may change it hardware settings to run as efficiently as
+    possible. As a consequence, the state of the internal buffers may
+    be interrupted. In particular, it's not recommended to change the state
+    of any peripheral while an :class:`~pybarst.ftdi.adc.FTDIADC` is actively
+    sampling because it will disrupt the device.
 '''
 
 __all__ = ('FTDISettings', 'FTDIChannel', 'FTDIDevice')

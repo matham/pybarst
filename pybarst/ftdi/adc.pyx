@@ -399,7 +399,8 @@ desc='Birch Board rev1 B')
         '''
         Requests the server to read and send the next available data from the
         ADC. This method will wait until the server sends data, or an error
-        message, thereby tying up this thread.
+        message, thereby tying up this thread. Depending on how often data is
+        sent, this might take a while under error conditions.
 
         After the first call to :meth:`read` the server will continuously read
         from the device and send the results back to the client. This means

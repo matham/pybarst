@@ -135,10 +135,18 @@ cdef class FTDIChannel(BarstChannel):
     Debug information. Describes the number of bytes allocated for the
     pipe for reading from the server. Read only.
     '''
-    cdef public DWORD chan_baudrate
+    cdef public DWORD baudrate
     '''
-    Debug information. Describes the baud rate used when the FTDI device
-    was opened. Read only.
+    The baud rate used by the FTDI channel. The FTDI peripherals run at a
+    specific clock rate controlled by the baud rate. By default, the server
+    sets the channel baudrate to the maximum supported by the devices
+    connected to the channel, as well based on the FTDI channel type.
+
+    When supplying a none-zero value for this attribute, the channel baud rate
+    will not exceed that value. Although it is not recommend to change this
+    value, it might be necessary to lower the baud rate here in the face of
+    hardware issues. However, a lower baud rate may adversely affect the
+    devices, in particular the :class:`~pybarst.ftdi.adc.FTDIADC` peripheral.
     '''
 
     cdef object _populate_settings(FTDIChannel self)

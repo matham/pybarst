@@ -86,14 +86,18 @@ cdef class FTDIChannel(BarstChannel):
             The descriptions used to identify the device to open.
             Either the `serial` number or the device description, `desc`, must
             be provided. See :attr:`dev_description` for more details.
+        `baudrate`: unsigned int
+            The maximum baud rate this channel can use. See :attr:`baudrate`
+            for more details. Defaults to `0`. It is not recommended that
+            this be changed.
     '''
 
     def __init__(FTDIChannel self, list channels, BarstServer server,
-                  bytes serial=None, bytes desc=None, **kwargs):
+                  bytes serial=None, bytes desc=None, baudrate=0, **kwargs):
         pass
 
     def __cinit__(FTDIChannel self, list channels, BarstServer server,
-                  bytes serial=None, bytes desc=None, **kwargs):
+                  bytes serial=None, bytes desc=None, baudrate=0, **kwargs):
         self.server = server
         self.serial = serial
         self.desc = desc
@@ -109,7 +113,7 @@ cdef class FTDIChannel(BarstChannel):
         self.dev_description = ''
         self.chan_min_buff_in = 0
         self.chan_min_buff_out = 0
-        self.chan_baudrate = 0
+        self.baudrate = baudrate
 
     cpdef object open_channel(FTDIChannel self, alloc=False):
         '''
@@ -268,9 +272,9 @@ cdef class FTDIChannel(BarstChannel):
             else:
                 res = UNEXPECTED_READ
                 break
-            found = (self.desc and
+            found = (self.desc is not None and
                      bytes(ft_dev_info.Description) == self.desc)
-            found = found or (self.serial and
+            found = found or (self.serial is not None and
                 bytes(ft_dev_info.SerialNumber) == self.serial)
             dev_list.append(dictify_ft_info(ft_dev_info))
             if found:
@@ -312,7 +316,7 @@ cdef class FTDIChannel(BarstChannel):
             init_struct = <SChanInitFTDI *>(<char *>pbase + sizeof(SBase))
             init_struct.dwBuffIn = 0
             init_struct.dwBuffOut = 0
-            init_struct.dwBaud = 0
+            init_struct.dwBaud = self.baudrate
             init_struct += 1
             settings_buff = init_struct
             memset(settings_buff, 0, bytes_count)
@@ -447,7 +451,7 @@ cdef class FTDIChannel(BarstChannel):
             setattr(self, k, v)
         self.chan_min_buff_in = ft_init.dwBuffIn
         self.chan_min_buff_out = ft_init.dwBuffOut
-        self.chan_baudrate = ft_init.dwBaud
+        self.baudrate = ft_init.dwBaud
 
         # now get the devices info and create them
         self.channels = []
