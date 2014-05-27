@@ -211,7 +211,7 @@ A simple example::
     >>> from pybarst.core.server import BarstServer
     >>> from pybarst.rtv import RTVChannel
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('rtv'))
     {'version': 1080L, 'chan': 1, 'chan_id': 'RTVMan'}
@@ -267,7 +267,8 @@ A simple example::
 
     >>> serial.close_channel_server()
 
-A more complex example using two clients open simultaneously::
+A more complex example using two clients to read and write simultaneously to
+a single port::
 
     >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
     >>> server.open_server()
@@ -302,3 +303,75 @@ A more complex example using two clients open simultaneously::
     >>> serial1.close_channel_client()
     >>> # now delete the channel from the server as well
     >>> serial2.close_channel_server()
+
+
+Measurement Computing DAQ Examples
+-----------------------------------
+
+A simple example of writing and reading a DAQ device::
+
+    >>> from pybarst.core.server import BarstServer
+    >>> from pybarst.mcdaq import MCDAQChannel
+
+    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server.open_server()
+    >>> print(server.get_manager('mcdaq'))
+    {'version': 50000L, 'chan': 0, 'chan_id': 'DAQMan'}
+
+    >>> # open a daq device enumerated in InstaCal at chan 0. Assume the device
+    >>> # supports both reading and writing
+    >>> daq = MCDAQChannel(chan=0, server=server, direction='rw', init_val=0)
+    >>> # open the channel on the server
+    >>> daq.open_channel()
+    >>> print(daq)
+    <pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EA0>
+
+    >>> # read the input port
+    >>> print(daq.read())
+    (4.198078126514167, 0)
+    >>> # write to the output port, set the lowest 4 lines high
+    >>> print(daq.write(mask=0x00FF, value=0x000F))
+    4.2000482891
+    >>> # set the lowest line to low and leave the other lines unchanged
+    >>> print(daq.write(mask=0x0001, value=0x0000))
+    4.20168009947
+
+    >>> # close the channel on the server
+    >>> daq.close_channel_server()
+
+A more complex example using **2 clients** to read and write simultaneously to
+a single device. Starting with server of the last example::
+
+    >>> # open a daq device enumerated in InstaCal at chan 0. Assume the device
+    >>> # supports both reading and writing
+    >>> daq = MCDAQChannel(chan=0, server=server, direction='rw', init_val=0)
+    >>> # open the channel on the server
+    >>> daq.open_channel()
+    >>> print(daq)
+    <pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EF8>
+
+    >>> # open another client to the same device. The devices settings will be
+    >>> # automatically initialized from the values of the first client that created the channel
+    >>> daq2 = MCDAQChannel(chan=0, server=server)
+    >>> daq2.open_channel()
+    >>> print(daq2)
+    <pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269F50>
+
+    >>> # read the input port with clients 1 and 2
+    >>> print(daq.read())
+    (5.088585868374414, 0)
+    >>> print(daq2.read())
+    (5.096653351575884, 0)
+
+    >>> # write to the output port with client 1
+    >>> print(daq.write(mask=0x00FF, value=0x000F))
+    5.09761174246
+    >>> # now with client 2
+    >>> print(daq2.write(mask=0x0001, value=0x0000))
+    5.09911174329
+
+    >>> # close the channel on the server using client 1
+    >>> daq.close_channel_server()
+    >>> # for client 2, we now only have to close the local connection since client 1
+    >>> # already deleted the channel from the server
+    >>> daq2.close_channel_client()

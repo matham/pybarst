@@ -12,7 +12,7 @@ server.open_server()
 val = server.get_version()
 print(val)
 assert val >= pybarst.__min_barst_version__
-# in case program terminated incorrectly, make sure no rtv devices are
+# in case program terminated incorrectly, make sure no ftdi devices are
 # still running
 server.close_manager('ftdi')
 print(server.get_manager('ftdi'))

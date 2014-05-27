@@ -28,6 +28,10 @@ from the system path.
 
 If driver errors arise, either, the driver is not installed, an older version
 of the driver is installed, or the incorrect 64/32-bit version is installed.
+The dlls seem to be installed in `C:\Program Files\Measurement Computing\DAQ`.
+If this path is not in the system path and the dlls fail to be loaded, one can
+manually copy the dlls to the same folder as Barst.exe file, making it
+available for Barst.
 
 Finally, in order to be able to use a particular device, that device must
 be loaded from `InstaCal` and assigned a channel number. Then channel number

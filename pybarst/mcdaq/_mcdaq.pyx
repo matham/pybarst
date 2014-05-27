@@ -41,9 +41,23 @@ cdef class MCDAQChannel(BarstChannel):
             be sent back to the client continuously. See :attr:`continuous`.
             Defaults to `False`.
 
-        For example::
+        For example with a Switch & Sense 8/8 connected and enumerated as
+        port 0::
 
-            >>> print
+            >>> # open the channel, which supports both input / output
+            >>> daq = MCDAQChannel(chan=0, server=server, direction='rw', \
+init_val=0)
+            >>> # create it on the server
+            >>> daq.open_channel()
+            >>> print(daq)
+            <pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EF8>
+            >>> # now read the port
+            >>> print(daq.read())
+            (4.913095627208118, 0)
+            >>> # all ports at the input are low
+            >>> # now set output line 1 to high
+            >>> print(daq.write(mask=0x00FF, value=0x0002))
+            4.91410123958
     '''
 
     def __init__(MCDAQChannel self, int chan, BarstServer server,
@@ -240,6 +254,15 @@ cdef class MCDAQChannel(BarstChannel):
             float. The server time,
             :meth:`pybarst.core.server.BarstServer.clock`, when the data was
             written.
+
+        For example::
+
+            >>> # set the lines 0-3 to high
+            >>> print(daq.write(mask=0x00FF, value=0x000F))
+            3.58502208323
+            >>> # set only line 0 low, the remaining lines are unchanged
+            >>> print(daq.write(mask=0x0001, value=0x0000))
+            3.58652372654
         '''
         cdef DWORD write_size = (sizeof(SBaseIn) + sizeof(SBase) +
                                  sizeof(SMCDAQWData))
@@ -320,6 +343,12 @@ cdef class MCDAQChannel(BarstChannel):
             read in server time, :meth:`pybarst.core.server.BarstServer.clock`.
             `data` is a unsigned short (16-bit) value indicating the states of
             each pin of the input port. See class description.
+
+        For example::
+
+            >>> print(daq.read())
+            (3.5920170227303707, 15)
+            >>> # input lines 0-3 are high
         '''
         cdef DWORD read_size = sizeof(SBaseOut) + sizeof(SBaseIn)
         cdef DWORD read_size_out = read_size
