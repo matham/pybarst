@@ -92,6 +92,35 @@ cdef class ADCSettings(FTDISettings):
     controls both channels. The available sampling rates is a function of all
     the other device options.
     '''
+    cdef public unsigned char rate_filter
+    '''
+    The internal code indicating the current sampling rate of the device.
+    :attr:`sampling_rate` gets converted to the closest :attr:`rate_filter`
+    value which controls the final sampling rate of the device.
+
+    Following, is the meaning of :attr:`rate_filter`:
+
+    * If :attr:`chop` is `True`, :attr:`rate_filter` can range between 2-127,
+      inclusive. Therefore:
+
+      * If only one of :attr:`chan1`, :attr:`chan2` is enabled then the
+        sampling rate is ``Freq / (rate_filter * 128 + 248)``.
+      * If both :attr:`chan1` and :attr:`chan2` are enabled then the
+        sampling rate is ``Freq / (rate_filter * 128 + 249)``.
+    * If :attr:`chop` is `False`, :attr:`rate_filter` can range between 3-127,
+      inclusive. Therefore:
+
+      * If only one of :attr:`chan1`, :attr:`chan2` is enabled then the
+        sampling rate is ``Freq / (rate_filter * 64 + 206)``.
+      * If both :attr:`chan1` and :attr:`chan2` are enabled then the
+        sampling rate is ``Freq / (rate_filter * 64 + 207)``.
+
+    In all cases, if both channels are enabled, the sampling rate above is for
+    both channels, therefore the sampling rate per channel is half the rate
+    quoted above. Also, `Freq` is the crystal frequency of the ADC board.
+    This is controlled by the `crystal_freq` parameter. The resulting sampling
+    rate is expressed in Hz.
+    '''
     cdef public double min_rate
     '''
     Indicates the lowest possible sampling rate possible for the current device
@@ -101,10 +130,6 @@ cdef class ADCSettings(FTDISettings):
     '''
     Indicates the highest possible sampling rate possible for the current
     device settings.
-    '''
-    cdef public unsigned char rate_filter
-    '''
-    The internal code indicating the current sampling rate of the device.
     '''
 
 

@@ -83,11 +83,15 @@ cdef class ADCSettings(FTDISettings):
         `sampling_rate`: float
             The sampling rate that should be used by the ADC device for
             each channel. See :attr:`sampling_rate`. If `None`, it'll use
-            `rate_filter` filter instead. Defaults to `None`.
+            `rate_filter` filter instead. Defaults to `None`. Note, the device
+            will try to find to closest sampling rate possible, which
+            is not likely to be equal to `sampling_rate`.
         `rate_filter`: int
             The sampling rate code used by the device to set the sampling rate.
             See :attr:`rate_filter`. If `None`, it'll use `sampling_rate`
-            filter instead. Defaults to `None`.
+            filter instead. Defaults to `None`. This controls the actual
+            sampling rate, and the `sampling_rate` parameter, if supplied, gets
+            first converted to `rate_filter` internally.
         `crystal_freq`: float
             The frequency of the crystal on the ADC device. Defaults to
             6000000.
