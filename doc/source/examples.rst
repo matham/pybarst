@@ -236,9 +236,180 @@ FTDI ADC device
 ++++++++++++++++
 
 
-A example of reading from an ADC device::
+For the following examples, the ADC clock line was connected to pin 7 of the FTDI
+channel and the ADC data lines 1-7 were connected to pins 0-6 of the channel
+in their parallel direction.
 
-    >>> print()
+From the ADC's point of view at least data lines
+6, and 7 must be used. One can then further connect data lines below 6, e.g.
+connecting lines 4-7 will result in 4 data lines, connecting lines 5-7 will
+only use 3 data lines. The number of data lines connected determine how
+quickly data is sent, because if 7 data lines are connected, it will send
+data at a faster rate than when only 2 data lines are connected.
+
+On the FTDI channel, the ADC data lines must be connected in a block, e.g. ADC
+data lines 5-7 can be connected at pins 2-4, at pins 5-7 etc. The ADC clock line
+must also be connected to any of the FTDI pins, which in the examples below
+happens to be at pin 7.
+
+Since ADC data lines 1-7 are connected to to FTDI pins 0-6, we can use some or
+all of the the 1-7 ADC data lines. I.e. we can send between 2-7 data bits at a
+time.
+
+An example of sampling just one channel at 11k with 16-bit data points::
+
+    >>> from pybarst.core.server import BarstServer
+    >>> from pybarst.ftdi import FTDIChannel
+    >>> from pybarst.ftdi.adc import ADCSettings
+
+    >>> server = BarstServer(barst_path=r'C:\\Program Files\\Barst\\Barst.exe',
+    ... pipe_name=r'\\\\.\\pipe\\TestPipe')
+    >>> server.open_server()
+    >>> print(server.get_manager('ftdi'))
+    {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
+
+    >>> # send only 4 bits at a time, using only ADC data lines 4-7, connected to
+    >>> # FTDI pins 3-6. Only one channel is enabled with a sampling rate of 11k
+    >>> # the server sends 100 data points at a time. The ADC returned data points
+    >>> # is 16 bits.
+    >>> adc = ADCSettings(clock_bit=7, lowest_bit=3, num_bits=4, sampling_rate=11000,
+    ... chan1=True, chan2=False, transfer_size=100, data_width=16)
+    >>> # FT2232H connected, using channel B of it.
+    >>> ftdi = FTDIChannel(channels=[adc], server=server, desc='Birch Board rev1 B')
+
+    >>> # create the channel and open the adc peripheral and activate it
+    >>> adc, = ftdi.open_channel(alloc=True)
+    >>> print(adc)
+    <pybarst.ftdi.adc.FTDIADC object at 0x021C8DF8>
+    >>> # the actual sampling rate is not 11k, but the closest valid rate
+    >>> print(adc.settings.sampling_rate)
+    11904.7619048
+    >>> adc.open_channel()
+    >>> adc.set_state(True)
+
+    # now read for bit and print the values of the last group read
+    >>> for i in range(500):
+    ...     d = adc.read()
+    >>> # the voltage data is in chan1_data.
+    >>> print('T: {:.4f}, Channel 1 len/value: {}, {:.4f}, raw {}-bit value: {}'
+    ...       .format(d.ts, len(d.chan1_data), d.chan1_data[0],
+    ...               adc.settings.data_width, d.chan1_raw[0]))
+    T: 0.0000, Channel 1 len/value: 100, -0.0012, raw 16-bit value: 32764
+    >>> # how full the FTDI read buffers were.
+    >>> print('Fullness: {:.2f}%'.format(d.fullness)
+    Fullness: 7.65%
+
+    >>> # deactivate and close
+    >>> adc.set_state(False)
+    >>> ftdi.close_channel_server()
+    >>> server.close_server()
+
+As can be seen from the example, one can set the bit width of the sampled ADC
+data points to 16 or 24-bit. One can set whether channel 1 or 2 or both are
+active, the sampling rate of each channel, and other parameters.
+
+There's one limiting factor on the settings; the USB has to be fast enough
+to be able to communicate with the ADC device. This is reflected in the
+fullness parameter as well as in the data points error parameters, e.g.
+overflow. In particular, if the fullness is close to 100%, it is likely that the
+USB cannot keep up and that data is lost.
+
+Fullness is a function of the data rate, which is controlled by the combined
+sampling rate of channels 1 and 2, the hw_buff_size value, the data width (16
+or 24-bit) and the number of ADC data lines connected to the FTDI channel.
+In the example above, fullness was 7.65%, which is fairly good. Following
+is a table showing some example fullness values tested on Win7.
+
+The top header row indicates the values of for ``hw_buff_size``. The second
+header row indicates the sampling rate for channel 1, and the third header
+row indicates the number of bits per ADC sample:
+
++-------+-------------------------------+----------------------------------+
+| Buffer|        25                     |    100                           |
++-------+------------+------------------+-----------------+----------------+
+|       |    499Hz   |11905Hz           |      499Hz      |  11905Hz       |
++-------+-----+------+---------+--------+--------+--------+--------+-------+
+|# pins |  16 | 24   |   16    | 24     |    16  |24      |  16    |  24   |
++=======+=====+======+=========+========+========+========+========+=======+
+|2      |0.63%| 0.84%|   15.99%|  20.68%|  0.62% |  0.82% |  14.79%| 19.64%|
++-------+-----+------+---------+--------+--------+--------+--------+-------+
+|4      |0.31%| 0.43%|   7.55% |  10.06%|  0.31% |  0.41% |  7.38% |  9.85%|
++-------+-----+------+---------+--------+--------+--------+--------+-------+
+|7      |0.18%| 0.24%|   4.29% |  5.72% |  0.18% |  0.24% |  4.19% |  5.62%|
++-------+-----+------+---------+--------+--------+--------+--------+-------+
+
+As can be seen, the ``hw_buff_size`` doesn't have much an effect for this
+device. Nonetheless, this value may be important for slower computers.
+
+The ``hw_buff_size`` parameter becomes important when combining other
+peripheral devices on a single channel with an ADC device. ``hw_buff_size``
+is the buffer size used when writing to the USB bus. If the value is large
+it is more efficient for the ADC because more data is sent at once, however, it
+also means that other devices on the same channel which share the buffer will
+have to wait for the buffer to be written before they can operate on the bus.
+So with larger buffers, it takes more time between reads/writes.
+
+Following is an example of the ``hw_buff_size`` effect on the reading rate of a
+:class:`~pybarst.ftdi.FTDICahnnel` containing two peripherals, a
+:class:`~pybarst.ftdi.adc.ADCCahnnel` and
+:class:`~pybarst.ftdi.switch.FTDIPinIn`::
+
+    >>> # the ADC peripheral send only 4 bits at a time, using only ADC data lines 4-7,
+    >>> # connected to FTDI pins 3-6.
+    >>> adc = ADCSettings(clock_bit=7, lowest_bit=3, num_bits=4, sampling_rate=11000,
+    ...                   chan1=True, chan2=False, transfer_size=100, data_width=24,
+    ...                   hw_buff_size=0)
+    >>> # on the same channel use pin 0 as an input pin that we read directly
+    >>> # do continuous read to read as fast as possible.
+    >>> pin = PinSettings(bitmask=0x01, num_bytes=1, output=False, continuous=True)
+    >>> # FT2232H connected, using channel B of it.
+    >>> ftdi = FTDIChannel(channels=[adc, pin], server=server, desc='Birch Board rev1 B')
+
+    >>> # create the channel and open the peripherals and activate them
+    >>> adc, pin = ftdi.open_channel(alloc=True)
+    >>> pin.open_channel()
+    >>> pin.set_state(True)
+    >>> adc.open_channel()
+    >>> adc.set_state(True)
+
+    >>> # This prints the current buffer size
+    >>> print(pin.ft_write_buff_size)
+    1530L
+
+    >>> # read the adc device
+    >>> adc.read()
+    >>> # ...
+    >>> # read the pin device
+    >>> pin.read()
+    >>> # ...
+    >>> # now find the difference in time between the reads.
+    >>> t, val = pin.read()
+    >>> t2, val = pin.read()
+    >>> print('Read rate: {:.2f} Hz'.format(1 / (t2 = t)))
+    Read rate: 522.70 Hz
+
+Following is a table showing the effect ``hw_buff_size`` on the read rate of
+the pin device using the code above.
+
+==================  ========================    ====================
+``hw_buff_size``    ``ft_write_buff_size``      Reading rate (Hz)
+==================  ========================    ====================
+0                   1530L                       522.7
+1                   1530L                       555.39
+5                   3060L                       285.98
+10                  6120L                       150.63
+25                  16320L                      58.28
+50                  32640L                      8.25
+100                 65280L                      6.34
+==================  ========================    ====================
+
+As one can see, larger ``hw_buff_size`` decreases the rate. Therefore, it is
+recommended that if other peripherals share the same channel with an ADC channel
+that the ``hw_buff_size`` should be reduced to a lower value than the default of
+25%. Also note, that a pin device on its own can achieve more than 1k reading
+rate because on its own its ``ft_write_buff_size`` is 510L.
+
+
 
 
 RTV Channel Examples
