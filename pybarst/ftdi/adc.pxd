@@ -52,7 +52,7 @@ cdef class ADCSettings(FTDISettings):
     cdef public unsigned char chop
     '''
     Indicates whether chopping mode (noise reduction) should be active on the
-    ADC device. It typically lowers the sampling rate, see the manual.
+    ADC device. It typically lowers the sampling rate when enabled.
     '''
     cdef public unsigned char chan1
     '''

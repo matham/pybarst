@@ -142,48 +142,65 @@ cdef class BarstPipe(object):
 
 cdef class BarstServer(BarstPipe):
     '''
-    An instance of a client of a Barst server. If the pipe name is local, and
-    a server with that name has not been created, a new server will be created.
-    Multiple clients may connect to a single server.
+    The server class that controls and provides client based access to a
+    remote server. A Barst server provides access to devices connected
+    to the server's system. Using a server client, a client can open,
+    read/write, and close those channels in the server.
 
-    The server is used to create hardware managers, which in turn create
-    channels. E.g. to create a serial port channel, one creates the server's
-    serial manager, through which one can open a serial port channel. Each
-    channel gets its own pipe after creation and communication occurs through
-    that pipe, not the server's main pipe.
+    If the pipe name used to communicate with the server is local and
+    a server with that name has not been created, a new server instance will
+    be created on this system.
 
-    Arguments should be passed as a keyword argument, i.e. `pipe_name=...`.
+    Multiple clients may connect safely to a single server. However, the
+    server's main pipe is single threaded, therefore, reading and writing to it
+    can only be done by a single client at any time. So while a client is
+    e.g. creating a new channel, other clients cannot create other channels.
+    Once a channel is created, the channel gets its own pipe. A channel pipe is
+    fully multithreaded allowing many clients to communicate with the channel
+    at any time. See individual channels, e.g.
+    :class:`~pybarst.ftdi.FTDIChannel` for details.
+
+    A server can control different device types. Before each device type can
+    be created, a manager for it must be created on the server. For example, to
+    create a serial port channel, one first creates the server's serial manager
+    using :meth:`get_manager`. Then, using the manager one can create new
+    serial channels. Typically, when a new channel instance is created, its
+    manager is automatically created first. As mentioned, each new channel
+    created gets its own pipe, leaving the server's main pipe for channel
+    creation/deletion.
 
     :Parameters:
 
         `barst_path`: str
             The full path to the Barst executable. It only needs to be provided
             when the server is local and has not been created yet. If None, we
-            look for the executable in `Program Files\\\\Barst\\\\`. Defaults
-            to None.
+            look for the executable in `Program Files\\\\Barst\\\\` (or the
+            x86 program files if the server is 32-bit). Defaults
+            to None. See :attr:`barst_path` for details.
         `curr_dir`: str
-            The working directory of the server. Can be None, in which case it
-            defaults to the barst_path directory. Defaults to None.
+            The working directory of the server. See :attr:`curr_dir` for
+            details. Defaults to None.
         `write_size`: int
             The size of the buffer used to write to the server's main pipe.
-            If None it defaults to 256 bytes. Defaults to None. See
-            :attr:`write_size`.
+            If None it defaults to 1024 bytes. Defaults to None. See
+            :attr:`write_size` for details.
         `read_size`: int
             The size of the buffer used to read from the server's main pipe.
-            If None it defaults to 256 bytes. Defaults to None. See
-            :attr:`read_size`.
+            If None it defaults to 1024 bytes. Defaults to None. See
+            :attr:`read_size` for details.
         `max_server_size`: 64-bit integer
             The maximum number of bytes that the server can queue to send to
-            clients at any time. Defaults to -1. See :attr:`max_server_size`.
+            clients at any time, if not `-1`. Defaults to `-1`. See
+            :attr:`max_server_size`.
 
         .. warning::
 
-            In cases where messages to the server are larger than 256 bytes,
-            e.g. if many FTDI devices are connected to the computer, the
-            buffer sizes should be enlarged. Windows might return an error
-            saying that not all data could be read if the buffer is too small.
-            All manager and channel creation is passed through the server's
-            main pipe.
+            In cases where messages to/from the server's main pipe are larger
+            than 1024 bytes, the buffer sizes should be enlarged. Windows might
+            return an error saying that all data could not be read if the
+            buffer is too small. Channel pipe are guaranteed to be large
+            enough to hold the data required for reading/writing, only the
+            server's main pipe size can not be predicted.
     '''
 
     def __init__(BarstServer self, barst_path=None, curr_dir=None,
@@ -196,10 +213,10 @@ cdef class BarstServer(BarstPipe):
                   **kwargs):
         self.barst_path = barst_path
         self.curr_dir = curr_dir
-        self.write_size = max(MIN_BUFF_IN, write_size if write_size else
-                              MIN_BUFF_IN)
-        self.read_size = max(MIN_BUFF_OUT, read_size if read_size else
-                             MIN_BUFF_OUT)
+        self.write_size = max(max(MIN_BUFF_IN, write_size if write_size else
+                                  MIN_BUFF_IN), 1024)
+        self.read_size = max(max(MIN_BUFF_OUT, read_size if read_size else
+                                 MIN_BUFF_OUT), 1024)
         self.managers = {}
         self.connected = 0
         self.max_server_size = max_server_size
@@ -207,9 +224,9 @@ cdef class BarstServer(BarstPipe):
     cpdef object open_server(BarstServer self):
         '''
         Opens the server with the settings specified when creating the
-        :class:`BarstServer` instance. If a server doesn't exist yet, one
-        will be created, provided the pipe is local and :attr:`barst_path` was
-        provided.
+        :class:`BarstServer` instance. If a server with this pipe name doesn't
+        exist yet, one will be created, provided the pipe is local and
+        :attr:`barst_path` was provided.
         '''
         cdef HANDLE pipe
         cdef DWORD version = 0
@@ -265,10 +282,11 @@ cdef class BarstServer(BarstPipe):
 
     cpdef object close_server(BarstServer self):
         '''
-        Closes the server.
+        Notifies the server to shut down.
 
-        Shuts down the server and all its open managers and channels. To open
-        the server again call :meth:`open_server`.
+        Shuts down the server and all its open managers and channels.
+        Afterwards, the server process should have closed. To open
+        the server again, call :meth:`open_server`.
         '''
         cdef HANDLE pipe
         cdef SBaseIn base
@@ -294,12 +312,12 @@ cdef class BarstServer(BarstPipe):
         raise BarstException(msg="Could not close the server")
 
     cpdef DWORD get_version(BarstServer self) except *:
-        """
+        '''
         Returns Barst's version.
 
         :Returns:
             int. The version in the form where e.g. 10000 means 1.00.00.
-        """
+        '''
         cdef DWORD version = 0
         cdef int res
         cdef HANDLE pipe = self.open_pipe('rw')
@@ -333,29 +351,30 @@ cdef class BarstServer(BarstPipe):
 
     cpdef object get_manager(BarstServer self, str manager):
         '''
-        Creates a manager in the server if it hasn't been created.
+        Creates a manager in the server if it has not been created yet.
 
-        As described in the module description, a server is constructed
-        from a single main pipe through which you create managers which manage
-        different devices libraries. Once a manager is created, we can
-        create channels using that driver. By default, creating a channel
-        will automatically create its manager.
+        As described in the class description, a server is constructed
+        from a single main pipe through which you create managers which
+        in turn manage and create specific channels, e.g. a serial port
+        channel. Once the manager is created, we can create channels using that
+        driver. By default, creating a channel will automatically create its
+        manager.
 
-        ::
+        For example::
 
-            >>> server = BarstServer(barst_path=r'path_to_barst/Barst.exe',
-            ... pipe_name=r'\\\\.\pipe\TestPipe')
+            >>> server = BarstServer(barst_path=r'path_to_barst',
+            ... pipe_name=r'\\\\.\\pipe\\TestPipe')
             >>> print(server)
             <pybarst.barst_core.BarstServer object at 0x02C77F30>
             >>> print(server.get_version())
-            10000
+            20000
             >>> print(server.get_manager('ftdi'))
             {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
 
         :Parameters:
             `manager`: str
                 The name of the manager to create. Can be one of `'ftdi'`,
-                `'rtv'`, `'serial'`, `'mcdaq'`.
+                `'rtv'`, `'serial'`, or `'mcdaq'`.
 
         :Returns:
             a dict describing the manager. See :attr:`managers`.
@@ -403,10 +422,11 @@ cdef class BarstServer(BarstPipe):
 
     cpdef object close_manager(BarstServer self, str manager):
         '''
-        Closes a manager. If the manager has not been created locally,
-        we will create the manager and then close it. The reason is that
-        another client could have created the manager, even if it has not been
-        created locally.
+        Closes a manager. If the manager has not been created yet by this
+        instance of the server's client, we will create the manager and then
+        close it. The reason is that another client elsewhere could have
+        created the manager, even if it has not been created locally. So we
+        need to ensure we close it on the server.
 
         If the manager had any open channels, those channels will also be
         closed by the server.
@@ -502,7 +522,7 @@ cdef class BarstServer(BarstPipe):
 
     cdef object _get_man_ID(BarstServer self, int chan):
         '''
-        Returns the Barst 8char string id of the manager.
+        Returns the Barst 8-char string id of the manager.
         '''
         cdef HANDLE pipe
         cdef int res
@@ -542,8 +562,51 @@ cdef class BarstServer(BarstPipe):
 
     cpdef object clock(BarstServer self):
         '''
-        The server time stamps the data it sends back to clients using a high
-        precision global server clock.
+        Returns the current server time using a high precision clock on the
+        server.
+
+        The server has a single global high precision clock that it uses
+        for time stamping data. All channels pass some data from/to the server.
+        For example, the :class:`~pybarst.mcdaq.MCDAQChannel` channel can read
+        and write to the channel. Each read/write is time stamped by the server
+        with the time it occurred. This method returns the current time as
+        measured using that clock.
+
+        :returns:
+            a 2-tuple of (`server_time`, `utc_time`).
+
+            `server_time`: double
+                The current server time measured using the high precision
+                clock. This clock starts running when the server is created.
+                This is the clock used to time stamp data sent by the server.
+            `utc_time`: double
+                The current utc time measured by the server's system. This
+                clock is much less precise/accurate. By calling this many
+                times, one can correlate time between the server time, utc
+                time, and the time of a clients system. For example, one can
+                call it repeatedly to try to find on average what time on a
+                clients system corresponds to a particular time stamp of the
+                server.
+
+                The value represents the number of second that has passed since
+                12:00 A.M. January 1, 1601 Coordinated Universal Time (UTC).
+                This is commonly called Windows file time
+                (http://msdn.microsoft.com/en-us/library/windows/desktop/\
+ms724284%28v=vs.85%29.aspx).
+
+        For example::
+
+            >>> import time
+            >>> server = BarstServer(barst_path=path, \
+pipe_name=r'\\\\.\\pipe\\TestPipe')
+            >>> server.open_server()
+            >>> print(server.clock())
+            (0.027729689422222512, 13045704696.357197)
+            >>> print(server.clock())
+            (0.02788367253417604, 13045704696.357197)
+            >>> time.sleep(1.5)
+            >>> print(server.clock())
+            (1.528171928919753, 13045704697.857283)
         '''
         cdef HANDLE pipe
         cdef int res
@@ -591,8 +654,12 @@ cdef class BarstServer(BarstPipe):
 
 cdef class BarstChannel(BarstPipe):
     '''
-    An abstract representation of a channel in the server. You do not
-    instantiate this class directly.
+    An abstract representation class of a client connected to a channel on
+    the server. This class is never instantiated directly.
+
+    See derived classes, e.g. :class:`~pybarst.rtv.RTVChannel` for examples.
+
+    The class provides methods commonly used by the client classes.
     '''
 
     def __cinit__(BarstChannel self, **kwargs):
@@ -608,26 +675,35 @@ cdef class BarstChannel(BarstPipe):
 
     cpdef object open_channel(BarstChannel self):
         '''
-        Opens the channel in the server. If the channel doesn't exist yet
-        it creates it first, otherwise it just opens a link to the channel.
+        Opens the client's connection to this channel on the server. If the
+        channel doesn't exist yet it creates it first, otherwise it just opens
+        a new client for the channel.
 
         Before any other operations can be done on the channel, this method
         must be called.
 
-        All channels are designed such that when the instance is created no
-        server communication occurs. To actually create / open the channel,
-        this method must be called. Similarly, after closing a channel with
-        :meth:`close_channel_server` or :meth:`close_channel_client` you can
-        reopen it with this method.
+        All channels are designed such that when the class instance is created,
+        no client/server communication occurs. Then, to actually create/open
+        the channel, this method must be called.
+
+        Similarly, after closing a channel with
+        :meth:`close_channel_server` or :meth:`close_channel_client` one can
+        recreate or reopen the client's connection to the channel using this
+        method.
         '''
         self.connected = 1
 
     cpdef object close_channel_server(BarstChannel self):
         '''
-        Closes the channel. This deletes the channel in the server for
-        all the clients that may be connected to it. To just close the
-        connection of this client call :meth:`close_channel_client`. After
-        this is called, the channel will not exist anymore on the server.
+        Closes the channel on the server. This deletes the channel from the
+        server. Therefore any other clients that may be connected to the
+        channel will return an error when they try to communicate with it after
+        this method has been called.
+
+        This method internally also calls :meth:`close_channel_client`.
+
+        To only close the connection of this client without affecting the state
+        of the channel on the server, call :meth:`close_channel_client`.
         '''
         cdef int man_chan = self.parent_chan
         cdef HANDLE pipe = self.server.open_pipe('rw')
@@ -671,9 +747,18 @@ cdef class BarstChannel(BarstPipe):
 
     cpdef close_channel_client(BarstChannel self):
         '''
-        Closes the local instance of this channel without deleting the
-        channel in the server. After this is called, the channel will still
-        exist on the server, but this instance won't be connected to it.
+        Closes this client's connection to the channel without
+        affecting the channel on the server. Other clients are not affected
+        by this.
+
+        After this is called, the channel will still exist on the server, but
+        this instance won't be connected to it. Therefore, calling other
+        channel methods will likely raise an exception until
+        :meth:`open_channel` is called again.
+
+        If a class method, e.g. a read or write operation got stuck
+        communicating with the server, calling this method from another thread
+        will force the waiting method to return, possibly with an error.
         '''
         self.close_handle(self.pipe)
         self.pipe = NULL
@@ -723,67 +808,60 @@ cdef class BarstChannel(BarstPipe):
 
     cpdef object set_state(BarstChannel self, int state, object flush=False):
         '''
-        Sets the state of the channel to True or False (active, inactive).
-        After a channel is opened, before you can read / write to it, the
-        channel must be set to active. Similarly, to stop an active channel
-        from reading or writing data you set the channel to an inactive state.
+        Sets the state of the channel to active or inactive (True or False).
+        The activation state of a channel is global, and therefore affects
+        all the clients of a channel.
 
-        Reading or writing to an inactive channel will result in an error.
+        For most channels, after the channel is created on the server with
+        :meth:`open_channel`, before you can read/write to it, the channel
+        must be activated. Because the state is global, once activated, further
+        clients opening the channel will already be in a activate state.
 
-        When inactivating, all the reading requests will be canceled.
-        difference between cancel and state, is state affects the whole channel,
-        while cancel only that pipe
+        Similarly, to stop an active channel from reading or writing data, you
+        set the channel into an inactive state. Typically, the channel uses
+        less resource when inactive because e.g. sampling is disabled etc. so
+        it is preferred to deactivate channels that are not used. Again, once
+        deactivated, the channel will be inactive for all the clients.
 
-        you can set the state in cycles.
-
-        Sets the state of the peripheral device. Each device in the channel can
-        be activated / deactivated independently. Activation is different than
-        opening the channel. After a channel is opened all the devices are
-        deactivated. That is even after :meth:`open_channel` is called on a
-        device, trying to write or read from the device will cause an error.
-        To enable the device, it has to be activated. When inactive, resources
-        are reduced significantly so it should be in an inactive state when not
-        used.
-
-        This method is different than :meth:`open_channel` because
-        :meth:`open_channel` opens the communication between a client and
-        the device. This method sets the state of the device for all the
-        clients connected to it. Therefore, the proper order is for a client
-        to connect to the device with :meth:`open_channel` and then activate
-        or  inactivate it with this method.
+        When deactivating, all the read or write requests being performed
+        will be canceled. Also, reading or writing data to an inactive channel
+        will result in an error. Typically, one sets the state to
+        active/inactive in cycles as they are needed.
 
         :Parameters:
 
+            `state`: bool
+                The state to set the channel in. Can be either True for
+                activation and False for inactivation.
             `flush`: bool
-                Whether any data queued by the server waiting to be sent will
-                be discarded. When inactivating, no new data will be queued by
-                the server, however, any already queued data will still be
-                sent.
+                Whether any data waiting to be sent, or read by the client
+                will be discarded. This forces a disconnection and
+                reconnection with the server for this client.
+
+                Typically, this is only used for channels that continuously
+                send data back to clients, e.g.
+                :class:`~pybarst.rtv.RTVChannel`. Always, when deactivating,
+                the server will not queue any new data to be sent to a client.
+                However, the server might have already queued data to be sent
+                to the client. This parameter controls whether that data will
+                sill be sent.
 
                 If `flush` is `False`, that data will be available to the
                 client when it calls read, until the server has no more data
-                available and read will return an error. The device will only
-                be considered inactive again, after the last read once that
-                error is raised.
+                available and read will return an error. For channels that
+                support that, the channel will only be considered inactive
+                after the last read once that error is raised.
 
                 If `flush` is `True`, then all data waiting to be sent will
                 be discarded. In addition, the channel will instantly become
-                inactive. If the channel is in a :meth:`read`, then that read
-                will return with an exception.
+                inactive. If the channel is in a read or write, then that
+                method will return with an exception.
 
                 `flush` is only used when `state` is `False`. `flush` defaults
                 to `False`.
 
-                The effect is similar to calling close_channel_client.
-
-        .. note::
-
-            Many channels have a continuous reading mode in which the server
-            continuously reads and sends data aback to the client. To stop it,
-            you can set the state to inactive. However, if the server has
-            already queued data to be sent, they will still be sent and might
-            show up in later read requests. You can flush this by closing the
-            client's end of the pipe with :math:`close_channel_client`.
+                See :meth:`cancel_read` for an alternative method to cancel
+                ongoing server reads.
         '''
         return self._set_state(state, pipe=NULL, chan=-1, flush=flush)
 
@@ -828,6 +906,45 @@ cdef class BarstChannel(BarstPipe):
 
     cpdef object cancel_read(BarstChannel self, flush=False):
         '''
-        Doesn't do anything yet. Only active when explicitly said.
+        Cancels a continuous read.
+
+        This method is only implemented for for the classes that indicate that
+        e.g. :class:`~pybarst.mcdaq.MCDAQChannel`. For other classes, it
+        doesn't do anything.
+
+        Some classes offer an option where the server continuously sends data
+        read back to the client. For those classes, one can stop the read
+        operation by setting the state to inactive with :meth:`set_state`,
+        which will affect all the clients connected, or by calling this
+        method. With this method, the read operation is only canceled for this
+        client.
+
+        :Parameters:
+
+            `flush`: bool
+                Whether any data already waiting to be read by the client
+                will be discarded. This forces a disconnection and
+                reconnection with the server for this client. `flush` defaults
+                to `False`.
+
+                After canceling, the server will not queue any new data to be
+                sent to the client. However, the server might have already
+                queued data to be sent to the client. This parameter controls
+                whether that data will sill be sent.
+
+                If `flush` is `False`, that data will be available to the
+                client when it calls read, until the server has no more data
+                available and read will then return an error once. Calling read
+                after the error, will trigger the server to start sending new
+                data again.
+
+                If `flush` is `True`, then all data waiting to be sent will
+                be discarded. In addition, no error will be raised upon a
+                subsequent call to read, but instead it will trigger the server
+                to start sending data to the client again.
+
+        .. note::
+            Calling this method while a read operation is not ongoing may
+            result in an exception.
         '''
         pass

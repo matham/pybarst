@@ -45,6 +45,8 @@ class BarstException(Exception):
     Barst exception class. Accepts Barst error codes and/or error messages.
     It converts Barst error codes to messages where possible.
 
+    Barst classes raise this class for Barst exceptions.
+
     :Parameters:
         `value`: int
             a `Barst` error code. Can be zero if only `msg` is provided.

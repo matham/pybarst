@@ -7,16 +7,17 @@ cdef class BarstPipe(object):
     cdef public DWORD timeout
     '''
     The amount of time to wait when connecting to the server before a
-    timeout occurs. Defaults to :attr:`pybarst.core.default_server_timeout` ms.
+    timeout occurs. Defaults to :attr:`~pybarst.core.default_server_timeout`
+    ms. This only effects the initial connection wait.
     '''
     cdef public bytes pipe_name
     '''
     The name of the pipe used to communicate with the server for the
-    channel. See :class:`BarstPipe` description. This is read only and is set
-    by the channel.
+    channel. See :class:`BarstPipe` description. This is read only and is
+    automatically set by the channel.
 
     .. note::
-        Unicode is currently not supported.
+        Unicode pipe names are not currently supported.
     '''
 
     cdef inline HANDLE open_pipe(BarstPipe self, str access) except NULL
@@ -28,9 +29,9 @@ cdef class BarstPipe(object):
 cdef class BarstServer(BarstPipe):
     cdef public dict managers
     '''
-    A dictionary containing the managers currently open in the server.
-    Read only. See :meth:`get_manager`. :attr:`managers` is a dict, defaults
-    to `{}`. Read only.
+    A dictionary containing the managers opened with this server instance.
+    Other managers can be open on the server, even if not contained here.
+    Read only. See :meth:`get_manager`.
 
     For example, after the FTDI manager is opened::
 
@@ -39,23 +40,26 @@ cdef class BarstServer(BarstPipe):
         >>> print(server.managers)
         {'ftdi': {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}}
 
-    For each manager, the values in the dict are:
+    For each manager, the values in the dict is:
 
-        `version`: the version of that manager's driver.
-        `chan`: the channel number of the manager in the server.
-        `chan_id`: the string ID given to that manager by barst.
+        `version`: int
+            The version of that manager's driver.
+        `chan`: int
+            The channel number of the manager in the server.
+        `chan_id`: str
+            The string ID given to that manager by barst.
     '''
     cdef public object barst_path
     '''
-    The full path to the Barst binary. When the server doesn't exist,
+    The full path to the Barst binary. When the server doesn't exist yet,
     we launch a server instance using this binary when :meth:`open_server` is
     called. :attr:`barst_path` is a string, defaults to `''`.
     '''
     cdef public object curr_dir
     '''
-    When we launch the binary at :attr:`barst_path` which creates the
-    server, :attr:`curr_dir` is the directory used by the binray as the current
-    directory.
+    When we launch the binary at :attr:`barst_path`, which creates the
+    server, :attr:`curr_dir` is the directory used by the binary as the current
+    directory. Defaults to :attr:`barst_path` if `None` or empty.
     '''
     cdef public DWORD write_size
     '''
@@ -66,8 +70,10 @@ cdef class BarstServer(BarstPipe):
 
     .. note::
         The value only affects the server's main pipe, not the pipes of the
-        individual channels. This parameter is only used when the server is
-        launched by the client, not when the server already exists.
+        individual channels. Individual channels will always create pipes
+        large enough for their data. If there are issues, errors would arise
+        when creating/opening a channel. This parameter is only used when the
+        server is launched by the client, not when the server already exists.
     '''
     cdef public DWORD read_size
     '''
@@ -78,8 +84,10 @@ cdef class BarstServer(BarstPipe):
 
     .. note::
         The value only affects the server's main pipe, not the pipes of the
-        individual channels. This parameter is only used when the server is
-        launched by the client, not when the server already exists.
+        individual channels. Individual channels will always create pipes
+        large enough for their data. If there are issues, errors would arise
+        when creating/opening a channel. This parameter is only used when the
+        server is launched by the client, not when the server already exists.
     '''
     cdef public long long max_server_size
     '''
@@ -88,8 +96,8 @@ cdef class BarstServer(BarstPipe):
     when requested, the server will continuously send data to clients, e.g.
     RTV channels. When `-1`, if the client never reads, the server will still
     continuously queue more data, exhausting its RAM after some time. Using
-    this value, once the server has exceeded this many bytes in its queue, new
-    data waiting to be sent will simply be discarded.
+    this value, once the server has exceeded :attr:`max_server_size` bytes in
+    its queue, new data waiting to be sent will simply be discarded.
 
     .. note::
         This is a global server wide value. That is, the write queues of all
@@ -120,12 +128,11 @@ cdef class BarstServer(BarstPipe):
 
 
 cdef class BarstChannel(BarstPipe):
-    # each channel type has corresponding ctype struct(s) for settings
     cdef public int chan
     '''
-    The channel number of this channel in the server. For example, an FTDI
-    channel is one channel among many in the FTDI manager - each channel
-    gets a channel number. Read only.
+    The channel number assigned to this channel by the server. For example, an
+    FTDI channel may be one channel among many in the FTDI manager - each
+    channel gets its own channel number. Read only.
     '''
     cdef public int parent_chan
     '''
@@ -135,7 +142,7 @@ cdef class BarstChannel(BarstPipe):
     '''
     cdef public str barst_chan_type
     '''
-    The string ID given to the channel type by barst. Each channel type
+    The string ID given to the channel type by the server. Each channel type
     has a unique string assigned by barst. Read only.
     '''
     cdef public BarstServer server
@@ -150,13 +157,16 @@ cdef class BarstChannel(BarstPipe):
     False. Read only.
     '''
     cdef HANDLE pipe
+    '''
+    This pipe holds the currently open pipe used by this channel for comm with
+    the server.
+    '''
 
     cpdef object open_channel(BarstChannel self)
     cpdef object close_channel_server(BarstChannel self)
     cpdef object close_channel_client(BarstChannel self)
     cpdef object set_state(BarstChannel self, int state, object flush=*)
     cpdef object cancel_read(BarstChannel self, flush=*)
-    #cpdef object is_active(BarstChannel self)
 
     cdef object _cancel_read(BarstChannel self, HANDLE *pipe, flush=*,
                              int parent_pipe=*)

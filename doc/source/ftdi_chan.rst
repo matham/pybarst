@@ -1,8 +1,8 @@
 .. _ftdi-chan-api:
 
-*******
-FTDI
-*******
+******************************
+FTDI Channel and Base Classes
+******************************
 
 
 :mod:`pybarst.ftdi`

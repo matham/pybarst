@@ -1,8 +1,8 @@
 .. _ftdi-switch-api:
 
-************
-FTDI switch
-************
+***********************
+FTDI Switching Devices
+***********************
 
 :mod:`pybarst.ftdi.switch`
 =============================

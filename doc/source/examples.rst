@@ -1,9 +1,47 @@
-
 PyBarst Examples
 =================
 
+For more example see the tests in `pybarst/tests/`.
 
-See `pybarst/tests/` for more tests/examples.
+Server Examples
+----------------
+
+Using a server::
+
+    >>> # create a local server instance with a pipe named TestPipe
+    >>> server = BarstServer(barst_path=r'C:\\Program Files\\Barst\\Barst.exe',
+    ... pipe_name=r'\\.\pipe\TestPipe')
+    >>> # now actually create the server and start it running
+    >>> server.open_server()
+    >>> # Connect to a server running on remote computer named PC_Name using a pipe named TestPipe
+    >>> server2 = BarstServer(barst_path='', pipe_name=r'\\PC_Name\pipe\TestPipe')
+    >>> # now open the connection to the remote server
+    >>> server2.open_server()
+
+Get the current server time::
+    >>> server.clock()
+    (1.5206475727928106, 13045896424.049448)
+
+Creating managers::
+
+    >>> print(server.get_manager('ftdi'))
+    {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
+    >>> print(server.get_manager('serial'))
+    {'version': 498139398L, 'chan': 1, 'chan_id': 'SerMan'}
+    >>> print(server.get_manager('mcdaq'))
+    {'version': 50000L, 'chan': 2, 'chan_id': 'DAQMan'}
+    >>> print(server.managers)
+    {'serial': {'version': 498139398L, 'chan': 1, 'chan_id': 'SerMan'},
+    'mcdaq': {'version': 50000L, 'chan': 2, 'chan_id': 'DAQMan'},
+    'ftdi': {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}}
+
+Closing managers and the server::
+
+    >>> # now close the ftdi manager
+    >>> server.close_manager('ftdi')
+    >>> # now shut down the server
+    >>> server.close_server()
+
 
 FTDI Channel Examples
 ----------------------

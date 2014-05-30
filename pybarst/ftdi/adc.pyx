@@ -60,7 +60,7 @@ cdef class ADCSettings(FTDISettings):
             The number of data pins connected to the ADC device. See
             :attr:`num_bits`.
         `chop`: bool
-            Whether chopping (sampling smoothing) is enabled. See
+            Whether chopping (hardware sampling smoothing) is enabled. See
             :attr:`chop`. Defaults to `True`.
         `chan1`: bool
             Whether channel 1 of the ADC device is enabled and sampled. Each
