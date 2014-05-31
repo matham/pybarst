@@ -1,4 +1,4 @@
-.. _pybarst-api:
+.. _pybarst:
 
 ********
 PyBarst

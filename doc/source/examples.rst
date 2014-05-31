@@ -1,3 +1,5 @@
+.. _pybarst-examples:
+
 PyBarst Examples
 =================
 
@@ -9,7 +11,7 @@ Server Examples
 Using a server::
 
     >>> # create a local server instance with a pipe named TestPipe
-    >>> server = BarstServer(barst_path=r'C:\\Program Files\\Barst\\Barst.exe',
+    >>> server = BarstServer(barst_path=r'C:\Program Files\Barst\Barst.exe',
     ... pipe_name=r'\\.\pipe\TestPipe')
     >>> # now actually create the server and start it running
     >>> server.open_server()
@@ -55,7 +57,7 @@ A example of writing and reading back from the pins::
     >>> from pybarst.ftdi import FTDIChannel
     >>> from pybarst.ftdi.switch import PinSettings
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('ftdi'))
     {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
@@ -167,7 +169,7 @@ to the FTDI channel::
     >>> from pybarst.ftdi import FTDIChannel
     >>> from pybarst.ftdi.switch import SerializerSettings
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('ftdi'))
     {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
@@ -204,7 +206,7 @@ connected to the FTDI channel::
     >>> from pybarst.ftdi import FTDIChannel
     >>> from pybarst.ftdi.switch import SerializerSettings
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('ftdi'))
     {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
@@ -262,8 +264,8 @@ An example of sampling just one channel at 11k with 16-bit data points::
     >>> from pybarst.ftdi import FTDIChannel
     >>> from pybarst.ftdi.adc import ADCSettings
 
-    >>> server = BarstServer(barst_path=r'C:\\Program Files\\Barst\\Barst.exe',
-    ... pipe_name=r'\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=r'C:\Program Files\Barst\Barst.exe',
+    ... pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('ftdi'))
     {'version': 197127L, 'chan': 0, 'chan_id': 'FTDIMan'}
@@ -420,7 +422,7 @@ A simple example::
     >>> from pybarst.core.server import BarstServer
     >>> from pybarst.rtv import RTVChannel
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('rtv'))
     {'version': 1080L, 'chan': 1, 'chan_id': 'RTVMan'}
@@ -457,7 +459,7 @@ A simple example::
     >>> from pybarst.core.server import BarstServer
     >>> from pybarst.serial import SerialChannel
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('serial'))
     {'version': 498139398L, 'chan': 0, 'chan_id': 'SerMan'}
@@ -479,7 +481,7 @@ A simple example::
 A more complex example using two clients to read and write simultaneously to
 a single port::
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('serial'))
     {'version': 498139398L, 'chan': 0, 'chan_id': 'SerMan'}
@@ -522,7 +524,7 @@ A simple example of writing and reading a DAQ device::
     >>> from pybarst.core.server import BarstServer
     >>> from pybarst.mcdaq import MCDAQChannel
 
-    >>> server = BarstServer(barst_path=the_path, pipe_name='\\\\.\\pipe\\TestPipe')
+    >>> server = BarstServer(barst_path=the_path, pipe_name=r'\\.\pipe\TestPipe')
     >>> server.open_server()
     >>> print(server.get_manager('mcdaq'))
     {'version': 50000L, 'chan': 0, 'chan_id': 'DAQMan'}

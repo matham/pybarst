@@ -1,6 +1,8 @@
 Installation
 =============
 
+.. _requirements:
+
 Requirements
 --------------
 
@@ -13,14 +15,14 @@ PyBarst
 
 To use PyBarst, the following software is required:
 
-#   Python. Although it should work with version 3 of python, it has only been
+#.  Python. Although it should work with version 3 of python, it has only been
     tested with Python 2.7.
-#   A C++ compiler. It has been tested only with the MinGW G++ compiler.
+#.  A C++ compiler. It has been tested only with the MinGW G++ compiler.
     The compiler needs to be in the system path so that we can find it
     when compiling.
-#   The Barst server header file, ``cpl defs.h``. By default, the system looks
-    for this file in ``C:\\Program Files\\Barst\\api`` (or
-    ``C:\\Program Files (x86)\\Barst\\api`` if running from 32 bit python).
+#.  The Barst server header file, ``cpl defs.h``. By default, the system looks
+    for this file in ``C:\Program Files\Barst\api`` (or
+    ``C:\Program Files (x86)\Barst\api`` if running from 32 bit python).
     However, the path to the file can be specified by setting the environmental
     variable ``BARST_INCLUDE``, to that path.
 
@@ -38,6 +40,8 @@ only runs on Windows from XP and above.
 
 Installing it
 -------------
+
+.. _install-pybarst:
 
 PyBarst
 ++++++++
@@ -63,32 +67,34 @@ This will compile and and install PyBarst to your preinstalled python path.
 Alternatively, to just compile PyBarst and not install it to Python, from
 the command line while in that folder type ``make`` or ``make force``.
 
+.. _install-barst:
+
 Barst
 ++++++
 
 To install Barst, simply copy the Barst.exe file to your desired location,
-a good path is ``C:\\Program Files\\Barst\\`` for the 64-bit version and
-``C:\\Program Files (x86)\\Barst\\`` for the 32-bit version.
+a good path is ``C:\Program Files\Barst\`` for the 64-bit version and
+``C:\Program Files (x86)\Barst\`` for the 32-bit version.
 
 To run the server
 you can either provide the path to PyBarst in :class:`~pybarst.core.BarstServer`
 and have PyBarst launch it if it's local, or manually start it from the command
 line by typing::
 
-    start "" "C:\\Program Files\\Barst\\Barst.exe" "\\\\.\\pipe\\PipeName" 1024 1024 -1
+    start "" "C:\Program Files\Barst\Barst.exe" "\\.\pipe\PipeName" 1024 1024 -1
 
-Where ``C:\\Program Files\\Barst\\Barst.exe`` is the full path to Barst and
+Where ``C:\Program Files\Barst\Barst.exe`` is the full path to Barst and
 ``PipeName`` is the pipe name that this server will have.
 
 Alternatively, you can create a file called ``autostart.bat`` and in it put::
 
     @ECHO OFF
-    start "" "C:\\Program Files\\Barst\\Barst.exe" "\\\\.\\pipe\\PipeName" 1024 1024 -1
+    start "" "C:\Program Files\Barst\Barst.exe" "\\.\pipe\PipeName" 1024 1024 -1
 
 Running this file will start the Barst server.
 
 Furthermore, you can place this ``autostart.bat`` file in this path:
-``%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\`` and Windows
+``%AppData%\Microsoft\Windows\Start Menu\Programs\Startup\`` and Windows
 will automatically launch the server whenever Windows starts.
 
 Drivers
@@ -96,7 +102,7 @@ Drivers
 
 In order to be able to create channels of specific types, the drivers for
 those channels must be installed on the system running the Barst server.
-See the individual PyBarst channels for their requirments.
+See the individual PyBarst channels for their requirements.
 
 Testing
 --------
