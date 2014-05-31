@@ -21,6 +21,7 @@ Using a server::
     >>> server2.open_server()
 
 Get the current server time::
+
     >>> server.clock()
     (1.5206475727928106, 13045896424.049448)
 
