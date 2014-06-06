@@ -52,7 +52,6 @@ clean:
 html:
 	@cd ../; python setup.py build_ext --inplace; @cd doc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	python source/post_proccess.py
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

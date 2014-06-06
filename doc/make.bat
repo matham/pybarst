@@ -64,7 +64,6 @@ if "%1" == "html" (
 	cd .. & python setup.py build_ext --inplace & cd doc
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%/html
 	if errorlevel 1 exit /b 1
-	python source/post_proccess.py
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
 	goto end

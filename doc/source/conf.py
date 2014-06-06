@@ -261,3 +261,17 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+from sphinx.ext.autodoc import ClassDocumenter
+
+
+class MyClassDocumenter(ClassDocumenter):
+
+    def add_line(self, line, source, *lineno):
+        line = line.replace('._ftdi', '')
+        super(MyClassDocumenter, self).add_line(line, source, *lineno)
+
+
+def setup(app):
+    app.add_autodocumenter(MyClassDocumenter)
+
