@@ -9,4 +9,5 @@ PyBarst
 
 .. automodule:: pybarst
    :members:
+   :undoc-members:
    :show-inheritance:

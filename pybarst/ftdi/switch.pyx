@@ -8,6 +8,10 @@ pins themselves, or digital input and output devices connected and controlled
 by the FTDI digital pins.
 '''
 
+_all__ = ('SerializerSettings', 'FTDISerializer', 'FTDISerializerIn',
+          'FTDISerializerOut', 'PinSettings', 'FTDIPin', 'FTDIPinIn',
+          'FTDIPinOut')
+
 
 cdef extern from "stdlib.h" nogil:
     void *malloc(size_t)

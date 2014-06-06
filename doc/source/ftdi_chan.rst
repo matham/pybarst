@@ -10,4 +10,5 @@ FTDI Channel and Base Classes
 
 .. automodule:: pybarst.ftdi
    :members:
+   :undoc-members:
    :show-inheritance:

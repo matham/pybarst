@@ -10,3 +10,4 @@ Serial
 .. automodule:: pybarst.serial
    :members:
    :undoc-members:
+   :show-inheritance:

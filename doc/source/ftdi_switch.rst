@@ -9,4 +9,5 @@ FTDI Switching Devices
 
 .. automodule:: pybarst.ftdi.switch
    :members:
+   :undoc-members:
    :show-inheritance:

@@ -10,3 +10,4 @@ Measurement Computing DAQ
 .. automodule:: pybarst.mcdaq
    :members:
    :undoc-members:
+   :show-inheritance:

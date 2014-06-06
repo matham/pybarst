@@ -9,4 +9,5 @@ Server
 
 .. automodule:: pybarst.core.server
    :members:
+   :undoc-members:
    :show-inheritance:

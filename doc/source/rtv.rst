@@ -10,3 +10,4 @@ RTV
 .. automodule:: pybarst.rtv
    :members:
    :undoc-members:
+   :show-inheritance:

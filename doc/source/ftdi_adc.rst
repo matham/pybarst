@@ -9,4 +9,5 @@ FTDI ADC Device
 
 .. automodule:: pybarst.ftdi.adc
    :members:
+   :undoc-members:
    :show-inheritance:
