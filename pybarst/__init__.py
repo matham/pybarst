@@ -25,6 +25,6 @@ safe across instances.
 '''
 
 
-__version__ = '1.0.0'
+__version__ = '2.0'
 
 __min_barst_version__ = 20000
