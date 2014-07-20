@@ -90,11 +90,15 @@ cdef class SerializerSettings(FTDISettings):
             of the device. If it's `False`, each call to
             :meth:`FTDISerializerIn.read` will trigger a new read resulting in
             a much slower reading rate.
+
+            Defaults to `False`.
         `output`: bool
             If the device connected is output device (74HC595) or a input
             device (74HC589). If True, a :class:`FTDISerializerOut` will be
             created, otherwise a :class:`FTDISerializerIn` will be created
             by the :class:`~pybarst.ftdi.FTDIChannel`.
+
+            Defaults to `False`.
     '''
 
     def __init__(SerializerSettings self, clock_bit, data_bit, latch_bit,
