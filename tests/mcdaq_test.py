@@ -78,19 +78,6 @@ daq2 = MCDAQChannel(chan=0, server=server, direction='r')
 daq.open_channel()
 daq2.open_channel()
 
-print('Canceling without a read request should cause an exception')
-try:
-    daq.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
-try:
-    daq2.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
 
 # set it high
 val = []
@@ -109,14 +96,6 @@ while 1:
         t, v = daq.read()
         val.append((t, v))
         if not start2:
-            print("Client2 hasn't read so it should still not be able to "
-            "cancel.")
-            try:
-                daq2.cancel_read(flush=True)
-            except Exception, e:
-                print(e)
-            else:
-                assert False
             start2 = True
         t, v = daq2.read()
         val2.append((t, v))
@@ -131,19 +110,6 @@ while 1:
         break
 # and stop client 2 as well
 daq2.cancel_read(flush=True)
-print('After a cancel with flush, another cancel should fail.')
-try:
-    daq.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
-try:
-    daq2.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
 
 
 # the second client reads should start 3 sec after first

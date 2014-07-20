@@ -398,9 +398,6 @@ cdef class FTDISerializerIn(FTDISerializer):
             self._cancel_read(&self.pipe, flush, 1)
             if flush:
                 self.running = 0
-        else:
-            raise BarstException(msg='The device has not scheduled a read '
-                                 'so there\'s nothing to cancel')
 
 
 cdef class FTDISerializerOut(FTDISerializer):
@@ -854,9 +851,6 @@ byte1, byte2)
             self._cancel_read(&self.pipe, flush, 1)
             if flush:
                 self.running = 0
-        else:
-            raise BarstException(msg='The device has not scheduled a read '
-                                 'so there\'s nothing to cancel')
 
 
 cdef class FTDIPinOut(FTDIPin):

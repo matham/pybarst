@@ -112,19 +112,6 @@ for device in channels:
 '---------------------------- now test ------------------------------'
 client1_in, client2_in, client1_out, client2_out = (channels[0], channels2[0],
                                                     channels[1], channels2[1])
-print('Canceling without a read request should cause an exception')
-try:
-    client1_in.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
-try:
-    client2_in.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
 
 # write
 client1_out.write(set_high=[3], set_low=[5, 1])
@@ -146,14 +133,6 @@ while 1:
         val.append((t, v))
         assert len(v) == 16
         if not start2:
-            print("Client2 hasn't read so it should still not be able to "
-            "cancel.")
-            try:
-                client2_in.cancel_read(flush=True)
-            except Exception, e:
-                print(e)
-            else:
-                assert False
             start2 = True
         t, v = client2_in.read()
         val2.append((t, v))
@@ -170,19 +149,6 @@ while 1:
         break
 # and stop client 2 as well
 client2_in.cancel_read(flush=True)
-print('After a cancel with flush, another cancel should fail.')
-try:
-    client1_in.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
-try:
-    client2_in.cancel_read(flush=True)
-except Exception, e:
-    print(e)
-else:
-    assert False
 
 
 # the second client reads should start 3 sec after first

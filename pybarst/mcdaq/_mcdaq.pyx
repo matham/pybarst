@@ -440,9 +440,6 @@ init_val=0)
             self._cancel_read(&self.read_pipe, flush, 0)
             if flush:
                 self.reading = 0
-        else:
-            raise BarstException(msg='The device has not scheduled a read '
-                                 'so there\'s nothing to cancel')
 
     cpdef object set_state(MCDAQChannel self, int state, flush=False):
         '''
