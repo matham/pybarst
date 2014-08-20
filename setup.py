@@ -1,5 +1,5 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, find_packages
+from setuptools.extension import Extension
 import Cython.Compiler.Options
 #Cython.Compiler.Options.annotate = True
 from Cython.Distutils import build_ext
@@ -96,6 +96,6 @@ setup(
         'An interface to Barst.'),
     ext_modules=ext_modules,
     cmdclass={'build_ext': build_ext},
-    packages=['pybarst', 'pybarst.core', 'pybarst.ftdi', 'pybarst.rtv',
-              'pybarst.serial', 'pybarst.mcdaq']
-      )
+    packages=find_packages(),
+    install_requires=['cython']
+    )
