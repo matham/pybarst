@@ -28,10 +28,9 @@ cdef class SerialChannel(BarstChannel):
     '''
     The baud rate to use for the serial port when opening it.
     '''
-    cdef public unsigned char stop_bits
+    cdef public float stop_bits
     '''
-    The number of stop bits to use. Can be one of 0, 1, or 2. 0 means 1 bit,
-    1, means 1.5 bits, and 2 means 2 bit.
+    The number of stop bits to use. Can be one of 1, 1.5, or 2.
     '''
     cdef public str parity
     '''

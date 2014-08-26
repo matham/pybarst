@@ -38,9 +38,9 @@ cdef class SerialChannel(BarstChannel):
         `baud_rate`: unsigned int
             The baud rate to use for the port. See :attr:`baud_rate`. Defaults
             to 9600.
-        `stop_bits`: unsigned char
+        `stop_bits`: float
             The number of stop bits to use. See :attr:`stop_bits`. Defaults to
-            `0` (`1` stop bit).
+            `1`.
         `parity`: str
             The parity scheme to use. See :attr:`parity`. Defaults to 'none'.
         `byte_size`: unsigned char
@@ -67,12 +67,12 @@ max_write=32, max_read=32)
     '''
 
     def __init__(SerialChannel self, BarstServer server, port_name, max_write,
-                 max_read, baud_rate=9600, stop_bits=0, parity='none',
+                 max_read, baud_rate=9600, stop_bits=1, parity='none',
                  byte_size=8, **kwargs):
         pass
 
     def __cinit__(SerialChannel self, BarstServer server, port_name, max_write,
-                  max_read, baud_rate=9600, stop_bits=0, parity='none',
+                  max_read, baud_rate=9600, stop_bits=1, parity='none',
                   byte_size=8, **kwargs):
         self.server = server
         self.port_name = port_name
@@ -112,9 +112,10 @@ max_write=32, max_read=32)
             raise BarstException(msg='The port name, {} is longer than the '
                 'allowed length, {}'.format(self.port_name, SERIAL_MAX_LENGTH))
 
-        if self.stop_bits > 2:
-            raise BarstException(msg='The number of stop bit, {} is larger '
-                                 'than 2'.format(self.stop_bits))
+        if (self.stop_bits != 1 and self.stop_bits != 1.5 and
+            self.stop_bits != 2):
+            raise BarstException(msg='The number of stop bit, {}, is not 1, '
+                                 '1.5, or 2'.format(self.stop_bits))
 
         if self.byte_size > 8 or self.byte_size < 4:
             raise BarstException(msg='The byte size, {}, is not within the '
@@ -130,7 +131,8 @@ max_write=32, max_read=32)
         chan_init.dwMaxStrWrite = self.max_write
         chan_init.dwMaxStrRead = self.max_read
         chan_init.dwBaudRate = self.baud_rate
-        chan_init.ucStopBits = self.stop_bits
+        chan_init.ucStopBits = (0 if self.stop_bits == 1 else
+                                (1 if self.stop_bits == 1.5 else 2))
         chan_init.ucParity = _parity[self.parity]
         chan_init.ucByteSize = self.byte_size
 
@@ -226,7 +228,9 @@ max_write=32, max_read=32)
                 self.max_write = self.serial_init.dwMaxStrWrite
                 self.max_read = self.serial_init.dwMaxStrRead
                 self.baud_rate = self.serial_init.dwBaudRate
-                self.stop_bits = self.serial_init.ucStopBits
+                self.stop_bits = (1 if self.serial_init.ucStopBits == 0 else
+                                  (1.5 if self.serial_init.ucStopBits == 1
+                                   else 2))
                 self.parity = {v: k for k, v in _parity.iteritems()}[
                 self.serial_init.ucParity]
                 self.byte_size = self.serial_init.ucByteSize
