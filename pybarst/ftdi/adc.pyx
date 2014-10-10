@@ -399,6 +399,15 @@ desc='Birch Board rev1 B')
 
         free(pbase_out)
 
+    def get_conversion_factors(FTDIADC self):
+        '''Returns the factors used to scale the raw data into floating points.
+
+        Returns a 3-tuple of bit-depth, multiplier, and subtractend.
+
+        The formula is float = (raw / 2 ** bit_depth) * multiplier - subtractend.
+        '''
+        return self.adc_settings.ucBitsPerData, self.multiplier, self.subtractend
+
     cpdef object read(FTDIADC self):
         '''
         Requests the server to read and send the next available data from the
