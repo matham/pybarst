@@ -2,15 +2,17 @@
 
 __all__ = ('RTVChannel', )
 
+from cpython.ref cimport PyObject
+
 cdef extern from "stdlib.h" nogil:
     void *malloc(size_t)
     void free(void *)
 cdef extern from "string.h":
     void *memcpy(void *, const void *, size_t)
     void *memset (void *, int, size_t)
+cdef extern from "Python.h":
+    PyObject* PyByteArray_FromStringAndSize(const char *, Py_ssize_t)
 
-
-from cpython.array cimport array, clone
 from pybarst.core.exception import BarstException
 from pybarst.core import join as barst_join
 
@@ -288,7 +290,7 @@ frame_fmt='rgb24', lossless=False)
             2-tuple of (`time`, `data`). `time` is the time that the data was
             read in channel time,
             :meth:`~pybarst.core.server.BarstServer.clock`.
-            `data` is a python `array.array` of unsigned chars containing the
+            `data` is a python `bytearray` containing the
             raw image data as determined by the :attr:`video_fmt` and
             :attr:`frame_fmt` settings.
 
@@ -324,7 +326,7 @@ frame_fmt='rgb24', lossless=False)
                                 sizeof(SBase))
         cdef SBaseOut *pbase = <SBaseOut *>malloc(read_size)
         cdef double time
-        cdef array arr = None
+
         if pbase == NULL:
             raise BarstException(NO_SYS_RESOURCE)
         if not self.connected:
@@ -361,9 +363,9 @@ frame_fmt='rgb24', lossless=False)
             raise BarstException(res)
 
         time = pbase.dDouble
-        arr = clone(array('B'), self.rtv_init.dwBuffSize * sizeof(char), False)
-        memcpy(arr.data.as_chars, <char *>pbase + sizeof(SBaseOut) +
-               sizeof(SBase), self.rtv_init.dwBuffSize * sizeof(char))
+        arr = <object>PyByteArray_FromStringAndSize(
+            <char *>pbase + sizeof(SBaseOut) + sizeof(SBase),
+            self.rtv_init.dwBuffSize * sizeof(char))
 
         free(pbase)
         return time, arr
