@@ -393,9 +393,11 @@ frame_fmt='rgb24', lossless=False)
         # so the main pipe will only get the DEVICE_CLOSING response after the
         # last data, and the new pipe will only get the single response to
         # its inactivation request.
-        if (state != 0) and (self.active_state != 0):
+        if state and self.active_state:
             raise BarstException(msg='You cannot set an already active '
                                  'channel to be active')
+        if not state and not self.active_state:
+            return
 
         self._set_state(state, self.pipe if state else NULL, self.chan, flush)
         if state or flush:
