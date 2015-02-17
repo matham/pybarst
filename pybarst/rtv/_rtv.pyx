@@ -12,6 +12,7 @@ cdef extern from "string.h":
     void *memset (void *, int, size_t)
 cdef extern from "Python.h":
     PyObject* PyByteArray_FromStringAndSize(const char *, Py_ssize_t)
+    void Py_DECREF(PyObject *)
 
 from pybarst.core.exception import BarstException
 from pybarst.core import join as barst_join
@@ -326,6 +327,7 @@ frame_fmt='rgb24', lossless=False)
                                 sizeof(SBase))
         cdef SBaseOut *pbase = <SBaseOut *>malloc(read_size)
         cdef double time
+        cdef PyObject *cy_arr
 
         if pbase == NULL:
             raise BarstException(NO_SYS_RESOURCE)
@@ -363,9 +365,11 @@ frame_fmt='rgb24', lossless=False)
             raise BarstException(res)
 
         time = pbase.dDouble
-        arr = <object>PyByteArray_FromStringAndSize(
+        cy_arr = PyByteArray_FromStringAndSize(
             <char *>pbase + sizeof(SBaseOut) + sizeof(SBase),
             self.rtv_init.dwBuffSize * sizeof(char))
+        arr = <object>cy_arr
+        Py_DECREF(cy_arr)
 
         free(pbase)
         return time, arr
