@@ -21,6 +21,7 @@ cdef extern from "string.h":
 
 
 from cpython.array cimport array, clone
+from cython cimport view as cyview
 from pybarst.core.exception import BarstException
 
 
@@ -223,25 +224,36 @@ cdef class ADCData(object):
         self.chan2_data = None
         cdef DWORD i
         cdef DWORD *data = <DWORD *>(<char *>header + sizeof(SADCData))
+        cdef cyview.array arr
 
         if header.dwCount1:
-            self.chan1_raw = clone(array('L'), header.dwCount1, False)
-            self.chan1_data = clone(array('d'), header.dwCount1, False)
-            memcpy(self.chan1_raw.data.as_chars, data,
-                   header.dwCount1 * sizeof(DWORD))
+            arr = cyview.array(
+                shape=(header.dwCount1, ), itemsize=sizeof(DWORD), format="L",
+                mode="c", allocate_buffer=True)
+            memcpy(arr.data, data, header.dwCount1 * sizeof(DWORD))
+            self.chan1_raw = array('L', arr)
+            arr = cyview.array(
+                shape=(header.dwCount1, ), itemsize=sizeof(double), format="d",
+                mode="c", allocate_buffer=True)
             for i in range(header.dwCount1):
-                self.chan1_data.data.as_doubles[i] = (data[i] / divisor) *\
+                (<double *>arr.data)[i] = (data[i] / divisor) *\
                 multiplier - subtractend
+            self.chan1_data = array('d', arr)
 
         data += header.dwChan2Start
         if header.dwCount2:
-            self.chan2_raw = clone(array('L'), header.dwCount2, False)
-            self.chan2_data = clone(array('d'), header.dwCount2, False)
-            memcpy(self.chan2_raw.data.as_chars, data,
-                   header.dwCount2 * sizeof(DWORD))
+            arr = cyview.array(
+                shape=(header.dwCount2, ), itemsize=sizeof(DWORD), format="L",
+                mode="c", allocate_buffer=True)
+            memcpy(arr.data, data, header.dwCount2 * sizeof(DWORD))
+            self.chan2_raw = array('L', arr)
+            arr = cyview.array(
+                shape=(header.dwCount2, ), itemsize=sizeof(double), format="d",
+                mode="c", allocate_buffer=True)
             for i in range(header.dwCount2):
-                self.chan2_data.data.as_doubles[i] = (data[i] / divisor) *\
+                (<double *>arr.data)[i] = (data[i] / divisor) *\
                 multiplier - subtractend
+            self.chan2_data = array('d', arr)
 
         self.chan1_ts_idx = header.dwChan1S
         self.chan2_ts_idx = header.dwChan2S
