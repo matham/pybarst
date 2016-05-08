@@ -1,6 +1,7 @@
 version: 1.0.{build}
 environment:
   BARST_BUILD_DIR: C:\barst_build
+  BARST_RELEASE: https://github.com/matham/barst/releases/download/v2.1/
   DEPLOY_DIR: deploy
   access_token:
     secure: H8F1UMqC4QixM9NbnHewuineXTu860e3WhkpgMzui6xQmCv2qyXd4BDonVrrW5Iv
@@ -30,7 +31,9 @@ build_script:
 
     $env:PYTHONPATH = "$env:APPVEYOR_BUILD_FOLDER;$env:PYTHONPATH"
 
-    $env:BARST_INCLUDE = "$env:FLY_BUILD_DIR\include"
+    $env:BARST_INCLUDE = "$env:BARST_BUILD_DIR\include"
+
+    $env:PYBARST_BINARIES = "$env:BARST_BUILD_DIR\bin"
 
     if ($env:BITTNESS -eq "64") {
       $PYTHON_ROOT = "C:\Python$env:PYVER-x64"
@@ -51,6 +54,10 @@ build_script:
     Check-Error
 
     mkdir "$env:BARST_INCLUDE"
+
+    Check-Error
+
+    mkdir "$env:PYBARST_BINARIES"
 
     Check-Error
 
@@ -78,9 +85,23 @@ build_script:
 
     cd "$env:BARST_INCLUDE"
 
-    Invoke-WebRequest "https://raw.githubusercontent.com/matham/barst/master/Barst/cpl%20defs.h" -OutFile "cpl defs.h"
+    Invoke-WebRequest "$BARST_RELEASE`cpl.defs.h" -OutFile "cpl defs.h"
 
     Check-Error
+
+    cd "$env:PYBARST_BINARIES"
+
+    if ($env:BITTNESS -eq "64") {
+        Invoke-WebRequest "$BARST_RELEASE`barst64.exe" -OutFile "barst64.exe"
+        Check-Error
+        Invoke-WebRequest "$BARST_RELEASE`cbw64.dll" -OutFile "cbw64.dll"
+        Check-Error
+    } else {
+        Invoke-WebRequest "$BARST_RELEASE`barst.exe" -OutFile "barst.exe"
+        Check-Error
+        Invoke-WebRequest "$BARST_RELEASE`cbw32.dll" -OutFile "cbw32.dll"
+        Check-Error
+    }
 
 
 
