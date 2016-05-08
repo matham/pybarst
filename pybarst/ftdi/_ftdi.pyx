@@ -12,7 +12,9 @@ cdef extern from "string.h":
 
 from pybarst.core.exception import BarstException
 from pybarst.core import join as barst_join
+import sys
 
+PY3 = sys.version_info > (3, )
 
 cdef dict dictify_ft_info(FT_DEVICE_LIST_INFO_NODE_OS *ft_info):
     return {'is_open': ft_info.Flags & 1, 'is_high_speed': ft_info.Flags & 2,

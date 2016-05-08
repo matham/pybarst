@@ -19,6 +19,7 @@ __all__ = ('BarstPipe', 'BarstServer', 'BarstChannel')
 import os
 import subprocess
 import time
+import sys
 import itertools
 
 from pybarst.core.exception import BarstException
@@ -29,7 +30,7 @@ cdef extern from "stdlib.h":
     void* malloc(size_t)
     void free(void *)
 
-
+PY3 = sys.version_info > (3, )
 cdef DWORD default_timeout = default_server_timeout
 cdef DWORD min_barst_version = __min_barst_version__
 cdef int SW_HIDE = 0
@@ -265,12 +266,13 @@ cdef class BarstServer(BarstPipe):
         if (not self.curr_dir) and self.barst_path:
             self.curr_dir = os.path.split(self.barst_path)[0]
 
-        command_line = [str(self.barst_path), str(self.pipe_name), str(self.write_size),
-                        str(self.read_size), str(self.max_server_size)]
+        command_line = [
+            tdecode(self.barst_path), tdecode(self.pipe_name), tdecode(str(self.write_size)),
+            tdecode(str(self.read_size)), tdecode(str(self.max_server_size))]
         info = subprocess.STARTUPINFO()
         info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         info.wShowWindow = SW_HIDE
-        subprocess.Popen(command_line, cwd=self.curr_dir, startupinfo=info,
+        subprocess.Popen(command_line, cwd=tdecode(self.curr_dir), startupinfo=info,
                          close_fds=True, creationflags=DETACHED_PROCESS)
 
         t_start = time.clock()

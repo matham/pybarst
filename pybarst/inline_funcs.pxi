@@ -2,9 +2,8 @@
 ''' The error codes of each of the external libraries (e.g. FTDI driver) gets
 mapped into their own range.
 '''
-import sys
 
-cdef int PY3 = sys.version_info > (3, )
+cdef int PY3 = 0
 
 # 101 + 1-19 = (101 to 200)
 cdef inline int FT_ERROR(int val) nogil:

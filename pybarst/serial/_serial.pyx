@@ -12,8 +12,9 @@ cdef extern from "string.h":
 from cpython.array cimport array, clone
 from pybarst.core.exception import BarstException
 from pybarst.core import join as barst_join
+import sys
 
-
+PY3 = sys.version_info > (3, )
 cdef dict _parity = {'even': 2, 'odd': 1, 'mark': 3, 'none': 0, 'space': 4}
 
 
