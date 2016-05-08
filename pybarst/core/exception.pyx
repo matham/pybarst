@@ -8,9 +8,10 @@ include '../barst_defines.pxi'
 
 
 from cpython.ref cimport PyObject
+import sys
 
 cdef extern from "Python.h":
-    PyObject* PyString_FromString(const char *v)
+    PyObject* PyUnicode_FromString(const char *v)
 
 
 cdef dict err_codes = {BAD_INPUT_PARAMS: 'Bad inputs', NO_SYS_RESOURCE:
@@ -113,7 +114,9 @@ class BarstException(Exception):
                 FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, <DWORD>(value - 10000), 0, <LPSTR>&win_msg, 0, NULL)
             if res:
-                result = <object>PyString_FromString(win_msg)
+                result = <object>PyUnicode_FromString(win_msg)
+                if sys.version_info[0] == 2:
+                    result = result.encode('utf-8')
                 LocalFree(win_msg)
             else:
                 result = 'Unknown Windows error code'
