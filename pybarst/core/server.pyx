@@ -265,7 +265,7 @@ cdef class BarstServer(BarstPipe):
         if (not self.curr_dir) and self.barst_path:
             self.curr_dir = os.path.split(self.barst_path)[0]
 
-        command_line = [self.barst_path, self.pipe_name, str(self.write_size),
+        command_line = [str(self.barst_path), str(self.pipe_name), str(self.write_size),
                         str(self.read_size), str(self.max_server_size)]
         info = subprocess.STARTUPINFO()
         info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
