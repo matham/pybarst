@@ -140,7 +140,7 @@ test_script:
 
     Check-Error
 
-    python -c "from pybarst.core.server import BarstServer; server = BarstServer(pipe_name=r'\\.\pipe\TestPipe')"
+    python -c "from pybarst.core.server import BarstServer; server = BarstServer(pipe_name=r'\\.\pipe\TestPipe'); server.open_server(); server.clock(); server.close_server()"
 
     Check-Error
 
