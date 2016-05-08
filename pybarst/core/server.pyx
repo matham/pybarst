@@ -19,9 +19,11 @@ __all__ = ('BarstPipe', 'BarstServer', 'BarstChannel')
 import os
 import subprocess
 import time
+import itertools
+
 from pybarst.core.exception import BarstException
 from pybarst.core import default_server_timeout
-from pybarst import __min_barst_version__
+from pybarst import __min_barst_version__, dep_bins
 
 cdef extern from "stdlib.h":
     void* malloc(size_t)
@@ -174,7 +176,8 @@ cdef class BarstServer(BarstPipe):
         `barst_path`: str
             The full path to the Barst executable. It only needs to be provided
             when the server is local and has not been created yet. If None, we
-            look for the executable in `Program Files\\\\Barst\\\\` (or the
+            look for the executable in :attr:`pybarst.dep_bins` and then in
+            `Program Files\\\\Barst\\\\` (or the
             x86 program files if the server is 32-bit). Defaults
             to None. See :attr:`barst_path` for details.
         `curr_dir`: str
@@ -243,15 +246,21 @@ cdef class BarstServer(BarstPipe):
             raise BarstException(NO_CHAN, 'Could not open pipe "{}", and '
             "could also not create it because the pipe name is not local".
             format(self.pipe_name))
-        if (not self.barst_path) and 'ProgramFiles' in os.environ:
-            self.barst_path = os.path.join(os.environ['ProgramFiles'], 'Barst',
-                                      'Barst.exe')
-            if not os.path.isfile(self.barst_path):
-                raise BarstException(BAD_INPUT_PARAMS, "Could not find Barst "
-                                     "in {}".format(self.barst_path))
+
+        if not self.barst_path:
+            bins = dep_bins[:]
+            if 'ProgramFiles' in os.environ:
+                bins.append(os.path.join(os.environ['ProgramFiles'], 'Barst'))
+            fnames = ['barst.exe', 'barst32.exe', 'barst64.exe', 
+                      'Barst.exe', 'Barst32.exe', 'Barst64.exe']
+            for b, f in itertools.product(bins, fnames):
+                p = os.path.join(b, f)
+                if os.path.isfile(p):
+                    self.barst_path = p
+                    break
         if not self.barst_path:
             raise BarstException(BAD_INPUT_PARAMS,
-            "Barst path not provided and Barst was not found")
+            "Barst path not provided or Barst was not found")
 
         if (not self.curr_dir) and self.barst_path:
             self.curr_dir = os.path.split(self.barst_path)[0]

@@ -4,7 +4,8 @@ import Cython.Compiler.Options
 #Cython.Compiler.Options.annotate = True
 from Cython.Distutils import build_ext
 import os
-from os.path import join, sep, dirname, basename, abspath
+from os.path import join, sep, dirname, basename, abspath, isdir
+from os import listdir
 import pybarst
 
 
@@ -86,16 +87,39 @@ for e in ext_modules:
     e.cython_directives = {'embedsignature': True,
                            'c_string_encoding': 'utf-8'}
 
+with open('README.rst') as fh:
+    long_description = fh.read()
+
+
+def get_wheel_data():
+    data = []
+    bin = os.environ.get('PYBARST_BINARIES')
+    if bin and isdir(bin):
+        data.append(
+            ('share/pybarst/bin', [join(bin, f) for f in listdir(bin)]))
+    return data
+
 setup(
     name='PyBarst',
     version=pybarst.__version__,
     author='Matthew Einhorn',
     author_email='moiein2000@gmail.com',
     license='MIT',
-    description=(
-        'An interface to Barst.'),
+    description='An interface to Barst.',
+    url='http://matham.github.io/pybarst/',
+    long_description=long_description,
+    classifiers=['License :: OSI Approved :: MIT License',
+                 'Topic :: Scientific/Engineering',
+                 'Topic :: System :: Hardware',
+                 'Programming Language :: Python :: 2.7',
+                 'Programming Language :: Python :: 3.3',
+                 'Programming Language :: Python :: 3.4',
+                 'Programming Language :: Python :: 3.5',
+                 'Operating System :: Microsoft :: Windows',
+                 'Intended Audience :: Developers'],
     ext_modules=ext_modules,
+    data_files=get_wheel_data(),
     cmdclass={'build_ext': build_ext},
     packages=find_packages(),
-    install_requires=['cython']
+    setup_requires=['cython']
     )
