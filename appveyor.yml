@@ -5,8 +5,6 @@ environment:
   DEPLOY_DIR: deploy
   access_token:
     secure: H8F1UMqC4QixM9NbnHewuineXTu860e3WhkpgMzui6xQmCv2qyXd4BDonVrrW5Iv
-  wheel_token:
-    secure: QHWNQIhdUM3nR/Tj9wkVIQ==
   matrix:
   - PYVER: 27
     BITTNESS: 32
