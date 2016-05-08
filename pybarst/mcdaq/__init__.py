@@ -26,6 +26,8 @@ particular, the server dynamically loads either `CBW32.dll` or `CBW64.dll`,
 depending if the server is a 64-bit or 32-bit compiled binary, respectively
 from the system path.
 
+When installing from a wheel, the server comes with these dlls preinstalled.
+
 If driver errors arise, either, the driver is not installed, an older version
 of the driver is installed, or the incorrect 64/32-bit version is installed.
 The dlls seem to be installed in `C:\Program Files\Measurement Computing\DAQ`.

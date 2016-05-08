@@ -1,50 +1,51 @@
+.. _install-pybarst:
+
+*************
 Installation
-=============
-
-.. _requirements:
-
-Requirements
---------------
+*************
 
 Since PyBarst is a python client, no drivers are required to be
 installed on the system. However, drivers need to be installed on the system
 that runs the server.
-
-PyBarst
-++++++++
-
-To use PyBarst, the following software is required:
-
-#.  Python. Although it should work with version 3 of python, it has only been
-    tested with Python 2.7.
-#.  A C++ compiler. It has been tested only with the MinGW G++ compiler.
-    The compiler needs to be in the system path so that we can find it
-    when compiling.
-#.  The Barst server header file, ``cpl defs.h``. By default, the system looks
-    for this file in ``C:\Program Files\Barst\api`` (or
-    ``C:\Program Files (x86)\Barst\api`` if running from 32 bit python).
-    However, the path to the file can be specified by setting the environmental
-    variable ``BARST_INCLUDE``, to that path.
-
-Although it has only been tested on Windows, PyBarst should be to run on any
-system that runs python.
-
-Barst Server
-+++++++++++++
 
 PyBarst is only a client to a Barst server. To run a Barst server, one
 simply launches the pre-compiled Barst exe file directly with the proper
 parameters or one can launch it from PyBarst. The Barst server itself, however,
 only runs on Windows from XP and above.
 
+Although it has only been tested on Windows, PyBarst should be to run on any
+system that runs python.
 
-Installing it
--------------
+Using binary wheels
+-------------------
 
-.. _install-pybarst:
+On windows 7+, compiled pybarst wheels can be installed for python 2.7 and 3.4,
+on either a 32 or 64 bit system using::
+
+    pip install pybarst
+
+The wheels come with the barst server, and do not need to be installed separately.
+
+Compiling PyBarst
+-----------------
+
+.. _requirements:
+
+Requirements
+============
+
+To compile PyBarst rather than using pre-compiled wheels, the following software is required:
+
+#.  Cython (``pip install --upgrade cython``).
+#.  A c compiler e.g. MinGW  (``pip install mingwpy`` on windows).
+#.  The Barst server header file, ``cpl defs.h``. By default, the system looks
+    for this file in ``C:\Program Files\Barst\api`` (or
+    ``C:\Program Files (x86)\Barst\api`` if running from 32 bit python).
+    However, the path to the file can be specified by setting the environmental
+    variable ``BARST_INCLUDE``, to that path.
 
 PyBarst
-++++++++
+=======
 
 PyBarst is written in python using cython. Cython is a project that converts
 python code to c. Therefore, before using PyBarst one must compile it with
@@ -69,12 +70,12 @@ the command line while in that folder type ``make`` or ``make force``.
 
 .. _install-barst:
 
-Barst
-++++++
+Running Barst Server
+====================
 
-To install Barst, simply copy the Barst.exe file to your desired location,
-a good path is ``C:\Program Files\Barst\`` for the 64-bit version and
-``C:\Program Files (x86)\Barst\`` for the 32-bit version.
+When not using a wheel, to install Barst, simply copy the Barst.exe file to your
+desired location, a good path is ``C:\Program Files\Barst\`` for the 64-bit version
+and ``C:\Program Files (x86)\Barst\`` for the 32-bit version.
 
 To run the server
 you can either provide the path to PyBarst in :class:`~pybarst.core.BarstServer`
@@ -96,6 +97,9 @@ Running this file will start the Barst server.
 Furthermore, you can place this ``autostart.bat`` file in this path:
 ``%AppData%\Microsoft\Windows\Start Menu\Programs\Startup\`` and Windows
 will automatically launch the server whenever Windows starts.
+
+When using a wheel, barst is included so the path does not need to be
+provided as we auto-discover it.
 
 Drivers
 ++++++++
