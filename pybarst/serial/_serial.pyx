@@ -27,7 +27,7 @@ cdef class SerialChannel(BarstChannel):
 
         `server`: :class:`~pybarst.core.BarstServer`
             An instance of a server through which this channel is opened.
-        `port_name`: bytes
+        `port_name`: str
             The name of the port this channel controls. See :attr:`port_name`.
         `max_write`: unsigned int
             The maximum number of bytes written to the port. See
@@ -75,7 +75,7 @@ max_write=32, max_read=32)
                   max_read, baud_rate=9600, stop_bits=1, parity='none',
                   byte_size=8, **kwargs):
         self.server = server
-        self.port_name = port_name
+        self.port_name = tencode(port_name)
         self.max_write = max_write
         self.max_read = max_read
         self.baud_rate = baud_rate
@@ -249,7 +249,7 @@ max_write=32, max_read=32)
 
         BarstChannel.open_channel(self)
 
-    cpdef object write(SerialChannel self, bytes value, timeout=0):
+    cpdef object write(SerialChannel self, object value, timeout=0):
         '''
         Requests the server to write `value` to the serial port.
 
@@ -264,7 +264,7 @@ max_write=32, max_read=32)
 
         :Parameters:
 
-            `value`: bytes
+            `value`: str
                 The byte string to write to the port. The length of the bytes
                 instance cannot exceed :attr:`max_write`.
             `timeout`: unsigned int
@@ -292,6 +292,7 @@ timeout=10000)
                                 sizeof(SSerialData))
         cdef SSerialData ser_data
         cdef double t
+        cdef bytes bvalue = tencode(value)
         cdef int amount_wrote
         cdef SBaseIn *pbase_write= <SBaseIn *>malloc(write_size)
         cdef SBaseOut *pbase_read= <SBaseOut *>malloc(read_size)
@@ -300,12 +301,12 @@ timeout=10000)
             free(pbase_read)
             raise BarstException(NO_SYS_RESOURCE)
 
-        if <DWORD>len(value) > self.max_write:
+        if <DWORD>len(bvalue) > self.max_write:
             raise BarstException(msg='The length of the string to write, {} '
             'is longer than the maximum write size indicated, {}'.
-            format(len(value), self.max_write))
+            format(len(bvalue), self.max_write))
 
-        ser_data.dwSize = len(value)
+        ser_data.dwSize = len(bvalue)
         ser_data.dwTimeout = timeout
         ser_data.cStop = 0
         ser_data.bStop = 0
@@ -320,7 +321,7 @@ timeout=10000)
         memcpy(<char *>pbase_write + sizeof(SBaseIn) + sizeof(SBase),
                &ser_data, sizeof(SSerialData))
         memcpy(<char *>pbase_write + sizeof(SBaseIn) + sizeof(SBase) +
-               sizeof(SSerialData), <char *>value, len(value))
+               sizeof(SSerialData), <char *>bvalue, len(bvalue))
 
         res = self.write_read(self.pipe, write_size, pbase_write, &read_size,
                               pbase_read)
@@ -353,7 +354,7 @@ timeout=10000)
         return t, amount_wrote
 
     cpdef object read(SerialChannel self, DWORD read_len, timeout=0,
-                      bytes stop_char=b''):
+                      object stop_char=''):
         '''
         Requests the server to read from the serial port and send the data back
         to *this* client. When multiple clients are connected simultaneously,
@@ -380,7 +381,7 @@ timeout=10000)
                 Defaults to `0`. After the timeout, if `read_len` chars was not
                 read, the method just returns the data read and does not raise
                 and exception.
-            `stop_char`: single character bytes object
+            `stop_char`: single character string
                 The character on which to finish the read, even if it's less
                 than `read_len`. When the server reads this character the
                 read is completed and whatever read is returned. If `stop_char`

@@ -62,7 +62,7 @@ cdef class BarstPipe(object):
         pass
 
     def __cinit__(BarstPipe self, pipe_name='', timeout=None, **kwargs):
-        self.pipe_name = pipe_name
+        self.pipe_name = tencode(pipe_name)
         if not timeout or timeout < 0:
             self.timeout = default_timeout
         else:
@@ -251,7 +251,7 @@ cdef class BarstServer(BarstPipe):
             bins = dep_bins[:]
             if 'ProgramFiles' in os.environ:
                 bins.append(os.path.join(os.environ['ProgramFiles'], 'Barst'))
-            fnames = ['barst.exe', 'barst32.exe', 'barst64.exe', 
+            fnames = ['barst.exe', 'barst32.exe', 'barst64.exe',
                       'Barst.exe', 'Barst32.exe', 'Barst64.exe']
             for b, f in itertools.product(bins, fnames):
                 p = os.path.join(b, f)

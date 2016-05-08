@@ -2,6 +2,10 @@
 ''' The error codes of each of the external libraries (e.g. FTDI driver) gets
 mapped into their own range.
 '''
+import sys
+
+cdef int PY3 = sys.version_info > (3, )
+
 # 101 + 1-19 = (101 to 200)
 cdef inline int FT_ERROR(int val) nogil:
     if val:
@@ -29,3 +33,13 @@ cdef inline int WIN_ERROR(int val) nogil:
         return val + 10000
     else:
         return 0
+
+cdef inline object tencode(object s):
+    if not isinstance(s, bytes):
+        return s.encode('utf8')
+    return s
+
+cdef inline object tdecode(object s):
+    if PY3 and isinstance(s, bytes):
+        return s.decode('utf8')
+    return s

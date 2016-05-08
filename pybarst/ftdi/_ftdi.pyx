@@ -93,14 +93,14 @@ cdef class FTDIChannel(BarstChannel):
     '''
 
     def __init__(FTDIChannel self, list channels, BarstServer server,
-                  bytes serial=None, bytes desc=None, baudrate=0, **kwargs):
+                  object serial=None, object desc=None, baudrate=0, **kwargs):
         pass
 
     def __cinit__(FTDIChannel self, list channels, BarstServer server,
-                  bytes serial=None, bytes desc=None, baudrate=0, **kwargs):
+                  object serial=None, object desc=None, baudrate=0, **kwargs):
         self.server = server
-        self.serial = serial
-        self.desc = desc
+        self.serial = tencode(serial)
+        self.desc = tencode(desc)
         self.channels = channels[:]
         self.devices = []
         self.is_open = 0

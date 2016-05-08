@@ -9,7 +9,7 @@ cdef class RTVChannel(BarstChannel):
     cdef SChanInitRTV rtv_init
     cdef int active_state
 
-    cdef public str video_fmt
+    cdef public object video_fmt
     '''
     The video format that the RTV driver should use to capture the video. This
     parameter determines the size of the video being captured. In all cases the
@@ -20,7 +20,7 @@ cdef class RTVChannel(BarstChannel):
     `CIF_NTSC` for 320x240, `CIF_PAL` for 384x288, `QCIF_NTSC` for 160x120,
     and `QCIF_PAL` for 192x144.
     '''
-    cdef public str frame_fmt
+    cdef public object frame_fmt
     '''
     Selects the image format in which the frames are returned by the
     driver. Can be one of `rgb16` (rgb565le in ffmpeg), `gray` (gray in

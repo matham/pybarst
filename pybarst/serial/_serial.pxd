@@ -8,7 +8,7 @@ from pybarst.core.server cimport BarstChannel, BarstServer
 cdef class SerialChannel(BarstChannel):
     cdef SChanInitSerial serial_init
 
-    cdef public bytes port_name
+    cdef public object port_name
     '''
     The name of the port this channel controls. E.g. COM1, COM5 etc.
     '''
@@ -32,7 +32,7 @@ cdef class SerialChannel(BarstChannel):
     '''
     The number of stop bits to use. Can be one of 1, 1.5, or 2.
     '''
-    cdef public str parity
+    cdef public object parity
     '''
     The parity scheme to use. Can be one of `'even'`, `'odd'`, `'mark'`,
     `'none'`, `'space'`.
@@ -43,6 +43,6 @@ cdef class SerialChannel(BarstChannel):
     4 and 8, including 4 and 8.
     '''
 
-    cpdef object write(SerialChannel self, bytes value, timeout=*)
+    cpdef object write(SerialChannel self, object value, timeout=*)
     cpdef object read(SerialChannel self, DWORD read_len, timeout=*,
-                      bytes stop_char=*)
+                      object stop_char=*)

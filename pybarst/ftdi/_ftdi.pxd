@@ -16,8 +16,8 @@ cdef class FTDIChannel(BarstChannel):
     cdef SChanInitFTDI ft_init
     cdef FT_DEVICE_LIST_INFO_NODE_OS ft_info
     cdef list channels
-    cdef object serial
-    cdef object desc
+    cdef bytes serial
+    cdef bytes desc
 
     cdef public list devices
     '''
@@ -94,7 +94,7 @@ cdef class FTDIChannel(BarstChannel):
         >>> ft.dev_loc
         29217
     '''
-    cdef public str dev_serial
+    cdef public object dev_serial
     '''
     The Serial number of this device. Read only.
 
@@ -109,7 +109,7 @@ cdef class FTDIChannel(BarstChannel):
         the channel in question, either an A or B is appended to the serial
         number.
     '''
-    cdef public str dev_description
+    cdef public object dev_description
     '''
     The description of the device. FTDI devices can be opened by their
     serial numbers and description strings. Read only.
