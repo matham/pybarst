@@ -1,7 +1,7 @@
 version: 1.0.{build}
 environment:
   BARST_BUILD_DIR: C:\barst_build
-  BARST_RELEASE: https://github.com/matham/barst/releases/download/v2.1/
+  BARST_RELEASE: https://github.com/matham/barst/releases/download/v2.1
   DEPLOY_DIR: deploy
   access_token:
     secure: H8F1UMqC4QixM9NbnHewuineXTu860e3WhkpgMzui6xQmCv2qyXd4BDonVrrW5Iv
@@ -83,21 +83,21 @@ build_script:
 
     cd "$env:BARST_INCLUDE"
 
-    Invoke-WebRequest "$env:BARST_RELEASE`cpl.defs.h" -OutFile "cpl defs.h"
+    Invoke-WebRequest "$env:BARST_RELEASE/cpl.defs.h" -OutFile "cpl defs.h"
 
     Check-Error
 
     cd "$env:PYBARST_BINARIES"
 
     if ($env:BITTNESS -eq "64") {
-        Invoke-WebRequest "$env:BARST_RELEASE`barst64.exe" -OutFile "barst64.exe"
+        Invoke-WebRequest "$env:BARST_RELEASE/barst64.exe" -OutFile "barst64.exe"
         Check-Error
-        Invoke-WebRequest "$env:BARST_RELEASE`cbw64.dll" -OutFile "cbw64.dll"
+        Invoke-WebRequest "$env:BARST_RELEASE/cbw64.dll" -OutFile "cbw64.dll"
         Check-Error
     } else {
-        Invoke-WebRequest "$env:BARST_RELEASE`barst.exe" -OutFile "barst.exe"
+        Invoke-WebRequest "$env:BARST_RELEASE/barst.exe" -OutFile "barst.exe"
         Check-Error
-        Invoke-WebRequest "$env:BARST_RELEASE`cbw32.dll" -OutFile "cbw32.dll"
+        Invoke-WebRequest "$env:BARST_RELEASE/cbw32.dll" -OutFile "cbw32.dll"
         Check-Error
     }
 
@@ -139,8 +139,6 @@ test_script:
     python -m wheel install "$name"
 
     Check-Error
-
-    dir $PYTHON_ROOT\share\pybarst\bin
 
     python -c "from pybarst.core.server import BarstServer; server = BarstServer(pipe_name=r'\\.\pipe\TestPipe'); server.open_server(); server.clock(); server.close_server()"
 
