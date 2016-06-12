@@ -4,3 +4,4 @@
 *.pyc
 *.pyd
 doc/build
+*egg-info
