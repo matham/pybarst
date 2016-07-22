@@ -19,7 +19,7 @@ from os.path import join, isdir
 
 __all__ = ('dep_bins', )
 
-__version__ = '2.1-dev'
+__version__ = '2.1'
 
 __min_barst_version__ = 20000
 
