@@ -1,0 +1,778 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PyBarst Examples &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The PyBarst API" href="api.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pybarst-examples">
+<span id="id1"></span><h1>PyBarst Examples<a class="headerlink" href="#pybarst-examples" title="Permalink to this headline">¶</a></h1>
+<p>For more example see the tests in <cite>pybarst/tests/</cite>.</p>
+<div class="section" id="server-examples">
+<h2>Server Examples<a class="headerlink" href="#server-examples" title="Permalink to this headline">¶</a></h2>
+<p>Using a server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a local server instance with a pipe named TestPipe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;C:\Program Files\Barst\Barst.exe&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now actually create the server and start it running</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Connect to a server running on remote computer named PC_Name using a pipe named TestPipe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server2</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">PC_Name\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now open the connection to the remote server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server2</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Get the current server time:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+<span class="go">(1.5206475727928106, 13045896424.049448)</span>
+</pre></div>
+</div>
+<p>Creating managers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;serial&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 498139398L, &#39;chan&#39;: 1, &#39;chan_id&#39;: &#39;SerMan&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;mcdaq&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 50000L, &#39;chan&#39;: 2, &#39;chan_id&#39;: &#39;DAQMan&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">managers</span><span class="p">)</span>
+<span class="go">{&#39;serial&#39;: {&#39;version&#39;: 498139398L, &#39;chan&#39;: 1, &#39;chan_id&#39;: &#39;SerMan&#39;},</span>
+<span class="go">&#39;mcdaq&#39;: {&#39;version&#39;: 50000L, &#39;chan&#39;: 2, &#39;chan_id&#39;: &#39;DAQMan&#39;},</span>
+<span class="go">&#39;ftdi&#39;: {&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}}</span>
+</pre></div>
+</div>
+<p>Closing managers and the server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># now close the ftdi manager</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">close_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now shut down the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">close_server</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ftdi-channel-examples">
+<h2>FTDI Channel Examples<a class="headerlink" href="#ftdi-channel-examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ftdi-pin-device">
+<h3>FTDI pin device<a class="headerlink" href="#ftdi-pin-device" title="Permalink to this headline">¶</a></h3>
+<p>A example of writing and reading back from the pins:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi</span> <span class="k">import</span> <span class="n">FTDIChannel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi.switch</span> <span class="k">import</span> <span class="n">PinSettings</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create setting instance for each peripheral device we want</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reads all pins on the port</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mb">0b11111111</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Write only pins 0-3 on the port and initialize it to 0b00001010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mb">0b00001111</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mb">0b00001010</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel A of it. We also connected pint 0 to 7,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and pin 1 to 6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">ft_in</span><span class="p">,</span> <span class="n">ft_out</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel. channels is the list of created peripherals</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">channels</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="p">,</span> <span class="n">ft_out</span> <span class="o">=</span> <span class="n">channels</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we need to open and activate each peripheral</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we should now read the initial value with which the channel was initialized</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">242.037815454, 0b01111010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now write an inverted pattern</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b00000101</span><span class="p">]))</span>
+<span class="go">242.293944272</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">242.54987969, 0b10110101</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># deactivate and close the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A example of writing and reading back from the pins using <strong>2 clients</strong> at the
+same time. Starting after creation of the server above:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reads all pins on the port</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mb">0b11111111</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Writes pins 0-3 on the port</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mb">0b00001111</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mb">0b00001010</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel A of it. We also connected pint 0 to 7,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and pin 1 to 6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">ft_in</span><span class="p">,</span> <span class="n">ft_out</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a second client for it, the devices will be auto filled in from the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># server when opening it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi2</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel from client 1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in1</span><span class="p">,</span> <span class="n">ft_out1</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the channel should now exist on the server, so open it client 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in2</span><span class="p">,</span> <span class="n">ft_out2</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we need to open each peripheral for each client, but we activate it only once</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in1</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in2</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in1</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out1</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out2</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out2</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we should now read the initial value with which the channel was initialized</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in1</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">2.15769243403, 0b01111010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now invert the pattern using client 2 and read it back with clients 1 and 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b00000101</span><span class="p">]))</span>
+<span class="go">2.4131564684</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in1</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">2.66907053519, 0b10110101</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in2</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">2.92512010446, 0b10110101</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now invert the pattern again client 1 and read it back with clients 1 and 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b00001010</span><span class="p">]))</span>
+<span class="go">2.92619673316</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in1</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">2.92721505473, 0b01111010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ft_in2</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">2.92826499355, 0b01111010</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># deactivate using one client (doesn&#39;t matter which) because state is global and close the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in2</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out1</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ftdi-serial-to-parallel-device">
+<h3>FTDI Serial to Parallel device<a class="headerlink" href="#ftdi-serial-to-parallel-device" title="Permalink to this headline">¶</a></h3>
+<p>A example of writing to a serial to parallel output peripheral device connected
+to the FTDI channel:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi</span> <span class="k">import</span> <span class="n">FTDIChannel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi.switch</span> <span class="k">import</span> <span class="n">SerializerSettings</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this is a serial to parallel type device connected to the FTDI port,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># there are two such boards daisy chained, so we control 16 output lines</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span> <span class="o">=</span> <span class="n">SerializerSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_bit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">latch_bit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_boards</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel A of it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">ft_out</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel and open the peripheral and activate it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="p">,</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out</span><span class="p">)</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDISerializerOut object at 0x0277C3B0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now set line 9 to low and lines 0, 4 to high.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">set_low</span><span class="o">=</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">set_high</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+<span class="go">30.7473420986</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now set line 6 to low and line 8 to high.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">set_low</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">set_high</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">]))</span>
+<span class="go">31.0028566384</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># deactivate and close</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_out</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A example of reading from a serial to parallel input peripheral device
+connected to the FTDI channel:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi</span> <span class="k">import</span> <span class="n">FTDIChannel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi.switch</span> <span class="k">import</span> <span class="n">SerializerSettings</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this is a serial to parallel type device connected to the FTDI port,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># there one such board connected, so we read 8 lines</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span> <span class="o">=</span> <span class="n">SerializerSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_bit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">latch_bit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_boards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel A of it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">ft_in</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel and open the peripheral and activate it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="p">,</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_in</span><span class="p">)</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDISerializerIn object at 0x0277C3B0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now read it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ft_in</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(1.8761614203943533, [False, False, True, False, False, False, True, False])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># deactivate using and close</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft_in</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">close_server</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ftdi-adc-device">
+<h3>FTDI ADC device<a class="headerlink" href="#ftdi-adc-device" title="Permalink to this headline">¶</a></h3>
+<p>For the following examples, the ADC clock line was connected to pin 7 of the FTDI
+channel and the ADC data lines 1-7 were connected to pins 0-6 of the channel
+in their parallel direction.</p>
+<p>From the ADC’s point of view at least data lines
+6, and 7 must be used. One can then further connect data lines below 6, e.g.
+connecting lines 4-7 will result in 4 data lines, connecting lines 5-7 will
+only use 3 data lines. The number of data lines connected determine how
+quickly data is sent, because if 7 data lines are connected, it will send
+data at a faster rate than when only 2 data lines are connected.</p>
+<p>On the FTDI channel, the ADC data lines must be connected in a block, e.g. ADC
+data lines 5-7 can be connected at pins 2-4, at pins 5-7 etc. The ADC clock line
+must also be connected to any of the FTDI pins, which in the examples below
+happens to be at pin 7.</p>
+<p>Since ADC data lines 1-7 are connected to to FTDI pins 0-6, we can use some or
+all of the the 1-7 ADC data lines. I.e. we can send between 2-7 data bits at a
+time.</p>
+<p>An example of sampling just one channel at 11k with 16-bit data points:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi</span> <span class="k">import</span> <span class="n">FTDIChannel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.ftdi.adc</span> <span class="k">import</span> <span class="n">ADCSettings</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;C:\Program Files\Barst\Barst.exe&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># send only 4 bits at a time, using only ADC data lines 4-7, connected to</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FTDI pins 3-6. Only one channel is enabled with a sampling rate of 11k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the server sends 100 data points at a time. The ADC returned data points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># is 16 bits.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span> <span class="o">=</span> <span class="n">ADCSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">lowest_bit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">11000</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">chan1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chan2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transfer_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">data_width</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel B of it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">adc</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 B&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel and open the adc peripheral and activate it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="p">,</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adc</span><span class="p">)</span>
+<span class="go">&lt;pybarst.ftdi.adc.FTDIADC object at 0x021C8DF8&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the actual sampling rate is not 11k, but the closest valid rate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adc</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">)</span>
+<span class="go">11904.7619048</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="go"># now read for bit and print the values of the last group read</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">d</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the voltage data is in chan1_data.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;T: </span><span class="si">{:.4f}</span><span class="s1">, Channel 1 len/value: </span><span class="si">{}</span><span class="s1">, </span><span class="si">{:.4f}</span><span class="s1">, raw </span><span class="si">{}</span><span class="s1">-bit value: </span><span class="si">{}</span><span class="s1">&#39;</span>
+<span class="gp">... </span>      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">ts</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">chan1_data</span><span class="p">),</span> <span class="n">d</span><span class="o">.</span><span class="n">chan1_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="n">adc</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">data_width</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">chan1_raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">T: 0.0000, Channel 1 len/value: 100, -0.0012, raw 16-bit value: 32764</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># how full the FTDI read buffers were.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fullness: </span><span class="si">{:.2f}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">fullness</span><span class="p">)</span>
+<span class="go">Fullness: 7.65%</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># deactivate and close</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">close_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As can be seen from the example, one can set the bit width of the sampled ADC
+data points to 16 or 24-bit. One can set whether channel 1 or 2 or both are
+active, the sampling rate of each channel, and other parameters.</p>
+<p>There’s one limiting factor on the settings; the USB has to be fast enough
+to be able to communicate with the ADC device. This is reflected in the
+fullness parameter as well as in the data points error parameters, e.g.
+overflow. In particular, if the fullness is close to 100%, it is likely that the
+USB cannot keep up and that data is lost.</p>
+<p>Fullness is a function of the data rate, which is controlled by the combined
+sampling rate of channels 1 and 2, the hw_buff_size value, the data width (16
+or 24-bit) and the number of ADC data lines connected to the FTDI channel.
+In the example above, fullness was 7.65%, which is fairly good. Following
+is a table showing some example fullness values tested on Win7.</p>
+<p>The top header row indicates the values of for <code class="docutils literal"><span class="pre">hw_buff_size</span></code>. The second
+header row indicates the sampling rate for channel 1, and the third header
+row indicates the number of bits per ADC sample:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="8%" />
+<col width="9%" />
+<col width="14%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Buffer</th>
+<th class="head" colspan="4">25</th>
+<th class="head" colspan="4">100</th>
+</tr>
+<tr class="row-even"><th class="head">&#160;</th>
+<th class="head" colspan="2">499Hz</th>
+<th class="head" colspan="2">11905Hz</th>
+<th class="head" colspan="2">499Hz</th>
+<th class="head" colspan="2">11905Hz</th>
+</tr>
+<tr class="row-odd"><th class="head"># pins</th>
+<th class="head">16</th>
+<th class="head">24</th>
+<th class="head">16</th>
+<th class="head">24</th>
+<th class="head">16</th>
+<th class="head">24</th>
+<th class="head">16</th>
+<th class="head">24</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2</td>
+<td>0.63%</td>
+<td>0.84%</td>
+<td>15.99%</td>
+<td>20.68%</td>
+<td>0.62%</td>
+<td>0.82%</td>
+<td>14.79%</td>
+<td>19.64%</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>0.31%</td>
+<td>0.43%</td>
+<td>7.55%</td>
+<td>10.06%</td>
+<td>0.31%</td>
+<td>0.41%</td>
+<td>7.38%</td>
+<td>9.85%</td>
+</tr>
+<tr class="row-even"><td>7</td>
+<td>0.18%</td>
+<td>0.24%</td>
+<td>4.29%</td>
+<td>5.72%</td>
+<td>0.18%</td>
+<td>0.24%</td>
+<td>4.19%</td>
+<td>5.62%</td>
+</tr>
+</tbody>
+</table>
+<p>As can be seen, the <code class="docutils literal"><span class="pre">hw_buff_size</span></code> doesn’t have much an effect for this
+device. Nonetheless, this value may be important for slower computers.</p>
+<p>The <code class="docutils literal"><span class="pre">hw_buff_size</span></code> parameter becomes important when combining other
+peripheral devices on a single channel with an ADC device. <code class="docutils literal"><span class="pre">hw_buff_size</span></code>
+is the buffer size used when writing to the USB bus. If the value is large
+it is more efficient for the ADC because more data is sent at once, however, it
+also means that other devices on the same channel which share the buffer will
+have to wait for the buffer to be written before they can operate on the bus.
+So with larger buffers, it takes more time between reads/writes.</p>
+<p>Following is an example of the <code class="docutils literal"><span class="pre">hw_buff_size</span></code> effect on the reading rate of a
+<code class="xref py py-class docutils literal"><span class="pre">FTDICahnnel</span></code> containing two peripherals, a
+<code class="xref py py-class docutils literal"><span class="pre">ADCCahnnel</span></code> and
+<a class="reference internal" href="ftdi_switch.html#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># the ADC peripheral send only 4 bits at a time, using only ADC data lines 4-7,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># connected to FTDI pins 3-6.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span> <span class="o">=</span> <span class="n">ADCSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">lowest_bit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">11000</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">chan1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chan2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transfer_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">data_width</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">hw_buff_size</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># on the same channel use pin 0 as an input pin that we read directly</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do continuous read to read as fast as possible.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pin</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mh">0x01</span><span class="p">,</span> <span class="n">num_bytes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># FT2232H connected, using channel B of it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftdi</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">adc</span><span class="p">,</span> <span class="n">pin</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 B&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel and open the peripherals and activate them</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="p">,</span> <span class="n">pin</span> <span class="o">=</span> <span class="n">ftdi</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pin</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pin</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This prints the current buffer size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">pin</span><span class="o">.</span><span class="n">ft_write_buff_size</span><span class="p">)</span>
+<span class="go">1530L</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the adc device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the pin device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now find the difference in time between the reads.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">pin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">pin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read rate: </span><span class="si">{:.2f}</span><span class="s1"> Hz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">t2</span> <span class="o">=</span> <span class="n">t</span><span class="p">)))</span>
+<span class="go">Read rate: 522.70 Hz</span>
+</pre></div>
+</div>
+<p>Following is a table showing the effect <code class="docutils literal"><span class="pre">hw_buff_size</span></code> on the read rate of
+the pin device using the code above.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="39%" />
+<col width="32%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><code class="docutils literal"><span class="pre">hw_buff_size</span></code></th>
+<th class="head"><code class="docutils literal"><span class="pre">ft_write_buff_size</span></code></th>
+<th class="head">Reading rate (Hz)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>1530L</td>
+<td>522.7</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1530L</td>
+<td>555.39</td>
+</tr>
+<tr class="row-even"><td>5</td>
+<td>3060L</td>
+<td>285.98</td>
+</tr>
+<tr class="row-odd"><td>10</td>
+<td>6120L</td>
+<td>150.63</td>
+</tr>
+<tr class="row-even"><td>25</td>
+<td>16320L</td>
+<td>58.28</td>
+</tr>
+<tr class="row-odd"><td>50</td>
+<td>32640L</td>
+<td>8.25</td>
+</tr>
+<tr class="row-even"><td>100</td>
+<td>65280L</td>
+<td>6.34</td>
+</tr>
+</tbody>
+</table>
+<p>As one can see, larger <code class="docutils literal"><span class="pre">hw_buff_size</span></code> decreases the rate. Therefore, it is
+recommended that if other peripherals share the same channel with an ADC channel
+that the <code class="docutils literal"><span class="pre">hw_buff_size</span></code> should be reduced to a lower value than the default of
+25%. Also note, that a pin device on its own can achieve more than 1k reading
+rate because on its own its <code class="docutils literal"><span class="pre">ft_write_buff_size</span></code> is 510L.</p>
+</div>
+</div>
+<div class="section" id="rtv-channel-examples">
+<h2>RTV Channel Examples<a class="headerlink" href="#rtv-channel-examples" title="Permalink to this headline">¶</a></h2>
+<p>A simple example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.rtv</span> <span class="k">import</span> <span class="n">RTVChannel</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;rtv&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 1080L, &#39;chan&#39;: 1, &#39;chan_id&#39;: &#39;RTVMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for the code below, there should be a RTV-4 like device connected, with</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># a port 0 available</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span> <span class="o">=</span> <span class="n">RTVChannel</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">video_fmt</span><span class="o">=</span><span class="s1">&#39;full_NTSC&#39;</span><span class="p">,</span> <span class="n">frame_fmt</span><span class="o">=</span><span class="s1">&#39;rgb24&#39;</span><span class="p">,</span> <span class="n">lossless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># data is a buffer containing the raw image data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">rtv</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">)</span>
+<span class="go">(12865.015067682945, 921600, 921600L)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">rtv</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">)</span>
+<span class="go">(12865.048412758983, 921600, 921600L)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># remove any data queued, otherwise read will return any waiting data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># activate again</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">rtv</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">)</span>
+<span class="go">(12865.281985012041, 921600, 921600L)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="serial-port-examples">
+<h2>Serial Port Examples<a class="headerlink" href="#serial-port-examples" title="Permalink to this headline">¶</a></h2>
+<p>A simple example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.serial</span> <span class="k">import</span> <span class="n">SerialChannel</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;serial&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 498139398L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;SerMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for this example, COM3 should have a loopback cable connected to it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span> <span class="o">=</span> <span class="n">SerialChannel</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">port_name</span><span class="o">=</span><span class="s1">&#39;COM3&#39;</span><span class="p">,</span> <span class="n">max_write</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_read</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;How are you today?&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">(1931.5567431509603, 18)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the exact number of chars written.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;How are you today?&#39;</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">(1931.5607736011307, &#39;How are you today?&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A more complex example using two clients to read and write simultaneously to
+a single port:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;serial&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 498139398L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;SerMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for this example, COM3 should have a loopback cable connected to it.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial1</span> <span class="o">=</span> <span class="n">SerialChannel</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">port_name</span><span class="o">=</span><span class="s1">&#39;COM3&#39;</span><span class="p">,</span> <span class="n">max_write</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_read</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial2</span> <span class="o">=</span> <span class="n">SerialChannel</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">port_name</span><span class="o">=</span><span class="s1">&#39;COM3&#39;</span><span class="p">,</span> <span class="n">max_write</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_read</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial1</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial2</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read and write from the same client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;How are you today?&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">(2362.7382840980176, 18)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial1</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;How are you today?&#39;</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mf">2362.7413268664427</span><span class="p">,</span> <span class="s1">&#39;How are you today?&#39;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now write using client 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;I&#39;m fine. How about you?&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">(2362.7702830786507, 24)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and read it using client 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">serial2</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;I&#39;m fine. How about you?&quot;</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">(2362.7743261346245, &quot;I&#39;m fine. How about you?&quot;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># only close the client now, otherwise when closing the channel on the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># server with serial2, the channel would not exists causing an error.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial1</span><span class="o">.</span><span class="n">close_channel_client</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now delete the channel from the server as well</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial2</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="measurement-computing-daq-examples">
+<h2>Measurement Computing DAQ Examples<a class="headerlink" href="#measurement-computing-daq-examples" title="Permalink to this headline">¶</a></h2>
+<p>A simple example of writing and reading a DAQ device:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.core.server</span> <span class="k">import</span> <span class="n">BarstServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pybarst.mcdaq</span> <span class="k">import</span> <span class="n">MCDAQChannel</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">the_path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;mcdaq&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 50000L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;DAQMan&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open a daq device enumerated in InstaCal at chan 0. Assume the device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># supports both reading and writing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span> <span class="o">=</span> <span class="n">MCDAQChannel</span><span class="p">(</span><span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;rw&#39;</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="p">)</span>
+<span class="go">&lt;pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EA0&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the input port</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(4.198078126514167, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># write to the output port, set the lowest 4 lines high</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x00FF</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x000F</span><span class="p">))</span>
+<span class="go">4.2000482891</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the lowest line to low and leave the other lines unchanged</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x0001</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x0000</span><span class="p">))</span>
+<span class="go">4.20168009947</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># close the channel on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A more complex example using <strong>2 clients</strong> to read and write simultaneously to
+a single device. Starting with server of the last example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># open a daq device enumerated in InstaCal at chan 0. Assume the device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># supports both reading and writing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span> <span class="o">=</span> <span class="n">MCDAQChannel</span><span class="p">(</span><span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;rw&#39;</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="p">)</span>
+<span class="go">&lt;pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EF8&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open another client to the same device. The devices settings will be</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># automatically initialized from the values of the first client that created the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq2</span> <span class="o">=</span> <span class="n">MCDAQChannel</span><span class="p">(</span><span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq2</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq2</span><span class="p">)</span>
+<span class="go">&lt;pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269F50&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the input port with clients 1 and 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(5.088585868374414, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq2</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(5.096653351575884, 0)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># write to the output port with client 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x00FF</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x000F</span><span class="p">))</span>
+<span class="go">5.09761174246</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now with client 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x0001</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x0000</span><span class="p">))</span>
+<span class="go">5.09911174329</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># close the channel on the server using client 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for client 2, we now only have to close the local connection since client 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># already deleted the channel from the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq2</span><span class="o">.</span><span class="n">close_channel_client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PyBarst Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#server-examples">Server Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ftdi-channel-examples">FTDI Channel Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rtv-channel-examples">RTV Channel Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#serial-port-examples">Serial Port Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measurement-computing-daq-examples">Measurement Computing DAQ Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">The PyBarst API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="getting_started.html" title="previous chapter">Getting Started</a></li>
+      <li>Next: <a href="api.html" title="next chapter">The PyBarst API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

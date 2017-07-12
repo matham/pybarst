@@ -1,0 +1,437 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Measurement Computing DAQ &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Serial" href="serial.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="measurement-computing-daq">
+<span id="mcdaq-api"></span><h1>Measurement Computing DAQ<a class="headerlink" href="#measurement-computing-daq" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.mcdaq">
+<span id="pybarst-mcdaq"></span><h2><a class="reference internal" href="#module-pybarst.mcdaq" title="pybarst.mcdaq"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.mcdaq</span></code></a><a class="headerlink" href="#module-pybarst.mcdaq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mcdaq-channel">
+<h3>MCDAQ channel<a class="headerlink" href="#mcdaq-channel" title="Permalink to this headline">¶</a></h3>
+<p>The Barst Measurement Computing DAQ device interface. A MC DAQ channel is a
+interface to a MC DAQ device, such as a Switch &amp; Sense 8/8 which has 8 input
+channels and 8 output channels. See <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> for details.</p>
+<p>This channel only supports MC DAQ devices that have ports that are permenataly
+input and/or output, but not those in which a single port can be configured for
+input or output.</p>
+<p>For example, the Switch &amp; Sense 8/8 has 8 input lines and 8 separate output
+lines. There can be a maximum of 16 input and 16 output lines in a single
+device. The state of each line can be controlled independently. However, not
+all devices must have all 16 lines, e.g. the Switch &amp; Sense 8/8 only has
+8 input and 8 output lines.</p>
+<div class="section" id="driver-requirements">
+<h4>Driver requirements<a class="headerlink" href="#driver-requirements" title="Permalink to this headline">¶</a></h4>
+<p>In order to create MC DAQ channels, the MC InstaCal drivers
+(<a class="reference external" href="http://www.mccdaq.com/daq-software/instacal.aspx">http://www.mccdaq.com/daq-software/instacal.aspx</a>) must be installed. In
+particular, the server dynamically loads either <cite>CBW32.dll</cite> or <cite>CBW64.dll</cite>,
+depending if the server is a 64-bit or 32-bit compiled binary, respectively
+from the system path.</p>
+<p>When installing from a wheel, the server comes with these dlls preinstalled.</p>
+<p>If driver errors arise, either, the driver is not installed, an older version
+of the driver is installed, or the incorrect 64/32-bit version is installed.
+The dlls seem to be installed in <cite>C:Program FilesMeasurement ComputingDAQ</cite>.
+If this path is not in the system path and the dlls fail to be loaded, one can
+manually copy the dlls to the same folder as Barst.exe file, making it
+available for Barst.</p>
+<p>Finally, in order to be able to use a particular device, that device must
+be loaded from <cite>InstaCal</cite> and assigned a channel number. Then channel number
+is then used in <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> to create a <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> channel
+controlling the device.</p>
+</div>
+<div class="section" id="typical-usage">
+<h4>Typical usage<a class="headerlink" href="#typical-usage" title="Permalink to this headline">¶</a></h4>
+<p>For the <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> channel, once a channel is created on the
+server, it’s always active. That means that there’s no need to set the state
+with <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<p>Typically, a client creates a <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> and then calls
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.open_channel" title="pybarst.mcdaq.MCDAQChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">MCDAQChannel.open_channel()</span></code></a> on it to create the
+channel on the server. Once created, the client can read and write to it
+through the server using <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">MCDAQChannel.read()</span></code></a> and
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.write" title="pybarst.mcdaq.MCDAQChannel.write"><code class="xref py py-meth docutils literal"><span class="pre">MCDAQChannel.write()</span></code></a>.</p>
+<p>Other clients can do similarly; they create a new <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a>
+instance and then call <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.open_channel" title="pybarst.mcdaq.MCDAQChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">MCDAQChannel.open_channel()</span></code></a> on it to open
+a new connection to the existing channel. Those new clients can then read/write
+to the channel as well.</p>
+<p>Finally, existing clients can call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> to simply
+close this client while leaving the channel on the server, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> to delete
+the channel from the server as well as for all the clients. If
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">MCDAQChannel.continuous</span></code></a> is <cite>True</cite>, a client can also call
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.cancel_read" title="pybarst.mcdaq.MCDAQChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">MCDAQChannel.cancel_read()</span></code></a> to cancel the continuous read triggered by
+this client.</p>
+<dl class="class">
+<dt id="pybarst.mcdaq.MCDAQChannel">
+<em class="property">class </em><code class="descclassname">pybarst.mcdaq.</code><code class="descname">MCDAQChannel</code><span class="sig-paren">(</span><em>int chan</em>, <em>BarstServer server</em>, <em>direction='rw'</em>, <em>init_val=0</em>, <em>continuous=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel" title="pybarst.core.server.BarstChannel"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstChannel</span></code></a></p>
+<p>An Measurement Computing interface channel.</p>
+<p>A Measurement Computing DAQ channel controls a single Measurement Computing
+DAQ device. See module description for details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>chan</cite>: int</dt>
+<dd><p class="first last">The channel number of the device. Before an MC DAQ device can be
+used, one has to load it and assign a channel number to it using
+InstaCal. Using a particular channel number here, will select
+which DAQ device to read / write to.</p>
+</dd>
+<dt><cite>server</cite>: <code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></dt>
+<dd><p class="first last">An instance of a server through which this channel is opened.</p>
+</dd>
+<dt><cite>direction</cite>: str</dt>
+<dd><p class="first last">Whether this channel can read, write, or do both. See
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.direction" title="pybarst.mcdaq.MCDAQChannel.direction"><code class="xref py py-attr docutils literal"><span class="pre">direction</span></code></a>. Defaults to <cite>‘rw’</cite>.</p>
+</dd>
+<dt><cite>init_val</cite>: unsigned short</dt>
+<dd><p class="first last">If this this channel can write, the value to initialize the channel
+with after it’s created. See <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.init_val" title="pybarst.mcdaq.MCDAQChannel.init_val"><code class="xref py py-attr docutils literal"><span class="pre">init_val</span></code></a>. Defaults to <cite>0</cite>.</p>
+</dd>
+<dt><cite>continuous</cite>: str</dt>
+<dd><p class="first last">If this channel can read, whether when reading from it, data will
+be sent back to the client continuously. See <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">continuous</span></code></a>.
+Defaults to <cite>False</cite>.</p>
+</dd>
+</dl>
+<p>For example with a Switch &amp; Sense 8/8 connected and enumerated as
+port 0:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel, which supports both input / output</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span> <span class="o">=</span> <span class="n">MCDAQChannel</span><span class="p">(</span><span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;rw&#39;</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create it on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daq</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="p">)</span>
+<span class="go">&lt;pybarst.mcdaq._mcdaq.MCDAQChannel object at 0x02269EF8&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now read the port</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(4.913095627208118, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># all ports at the input are low</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now set output line 1 to high</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x00FF</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x0002</span><span class="p">))</span>
+<span class="go">4.91410123958</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.cancel_read">
+<code class="descname">cancel_read</code><span class="sig-paren">(</span><em>self</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.cancel_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.cancel_read" title="pybarst.core.server.BarstChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a> for details.</p>
+<p>This method is only callable when <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">continuous</span></code></a> is <cite>True</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>When <cite>flush</cite> is <cite>False</cite>, the server will continue sending data that
+has already been queued, but it will not add new data to the queue.
+After the last valid read, <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will return with an error
+indicating there’s no new data coming. After that error, a further
+call to <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause a new read request and data will
+start coming again.</p>
+<p class="last">If <cite>flush</cite> is <cite>True</cite>, the server will discard all data waiting to
+be sent, and the client will not receive the final error message
+when calling <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>. Instead, a subsequent call to
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause a new read request to be sent to the server
+and data will start coming again.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.close_channel_client">
+<code class="descname">close_channel_client</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.close_channel_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> for
+details.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.mcdaq.MCDAQChannel.continuous">
+<code class="descname">continuous</code><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="Permalink to this definition">¶</a></dt>
+<dd><p>continuous: ‘int’</p>
+<p>Whether, when reading, the server should continuously read and send data
+back to the client. This is only used for a input device
+(<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.direction" title="pybarst.mcdaq.MCDAQChannel.direction"><code class="xref py py-attr docutils literal"><span class="pre">direction</span></code></a> contains <cite>‘r’</cite>). When <cite>True</cite>, a single call to
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> after the channel is opened will start the server reading the
+device continuously and sending the data back to this client. This will
+result in a high sampling rate of the device. If it’s <cite>False</cite>, each call to
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will trigger a new read resulting in a possibly slower
+reading rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.mcdaq.MCDAQChannel.direction">
+<code class="descname">direction</code><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>direction: object</p>
+<p>Whether this channel can read, write, or do both. A single MC DAQ device
+can have both read and write ports. This attribute indicates if the
+device has a output port, a input port, or both. <cite>‘w’</cite> means it only has
+an output port, <cite>‘r’</cite> means it only has an input port, and <cite>‘rw’</cite> or <cite>‘wr’</cite>
+means that it has both a output and input port.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.mcdaq.MCDAQChannel.init_val">
+<code class="descname">init_val</code><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.init_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>init_val: ‘unsigned short’</p>
+<p>What values (high/low) the output pins (if it supports output) will be set
+to when the channel is initially created on the server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the, possibly existing, channel on the server and connects the
+client to it. If the channel already exists, a new client connection
+will be opened to the channel.</p>
+<p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for more
+details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the channel already exists on the server, the settings used to
+initialize this client, e.g. <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.direction" title="pybarst.mcdaq.MCDAQChannel.direction"><code class="xref py py-attr docutils literal"><span class="pre">direction</span></code></a> will be overwritten
+by their values received from the existing server channel.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to read the states of the pins of the DAQ device.
+This method will wait until the server sends data, or an error
+message, thereby tying up this thread.</p>
+<p>If <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">continuous</span></code></a> is <cite>False</cite>, each call triggers
+the server to read from the device which is then sent to the client. If
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">continuous</span></code></a> is <cite>True</cite>, after the first call
+to <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> the server will continuously read from the device and
+send the results back to the client. This means that if the client
+doesn’t call <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> frequently enough data will accumulate in the
+pipe. Also, the data returned might have been acquired before the
+current <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> was called.</p>
+<p>To cancel a read request while the read is still waiting, from another
+thread you must call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a>, or just
+delete the server, which will cause this method to return with an
+error.</p>
+<p>When <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.continuous" title="pybarst.mcdaq.MCDAQChannel.continuous"><code class="xref py py-attr docutils literal"><span class="pre">continuous</span></code></a> is <cite>True</cite>, a more gentle way of canceling a
+read request while not currently waiting in <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>, is to call
+<a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.cancel_read" title="pybarst.mcdaq.MCDAQChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a> which will cause a subsequent read operation to
+return with an error, but will not delete/close the channel. However,
+once <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> returns with an error, a further call to <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.read" title="pybarst.mcdaq.MCDAQChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>
+will cause the reading to start again. See those methods for more
+details.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.mcdaq.MCDAQChannel.open_channel" title="pybarst.mcdaq.MCDAQChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be
+called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2-tuple of (<cite>time</cite>, <cite>data</cite>). <cite>time</cite> is the time that the data was
+read in server time, <a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>.
+<cite>data</cite> is a unsigned short (16-bit) value indicating the states of
+each pin of the input port. See class description.</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="go">(3.5920170227303707, 15)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># input lines 0-3 are high</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> for details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a Measurement Computing  DAQ channel, this method doesn’t do
+anything, since after creation, the state of the channel on the
+server is always active.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.mcdaq.MCDAQChannel.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>self</em>, <em>unsigned short mask</em>, <em>unsigned short value</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.mcdaq.MCDAQChannel.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells the server to update the states of some digital pins on the DAQ
+device.</p>
+<p>Before this method can be called, <code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.open_channel()</span></code> must be
+called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>mask</cite>: unsigned short (16-bit)</dt>
+<dd><p class="first last">The mask which controls which port’s state will be changed by
+<cite>value</cite>. E.g. a value of 0b01000001 means that
+only pin 0, and pin 6 can be changed by <cite>value</cite>, all the other
+lines will remain unchanged no matter their value in <cite>value</cite>.</p>
+</dd>
+<dt><cite>value</cite>: unsigned short (16-bit)</dt>
+<dd><p class="first">The 16-bit value which will be written to the port controlled
+by this channel according to the <cite>mask</cite> mask. Only bits which
+have a high value in <cite>mask</cite> will be changed by the values
+in <cite>value</cite>, the others will remain the same.</p>
+<p class="last">Each element in <cite>buffer</cite> is similar to <cite>data</cite> ‘s, <cite>value</cite>
+parameter. A high value for the corresponding pin will set the
+pin high, and low otherwise.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float. The server time,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>, when the data was
+written.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the lines 0-3 to high</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x00FF</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x000F</span><span class="p">))</span>
+<span class="go">3.58502208323</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set only line 0 low, the remaining lines are unchanged</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="mh">0x0001</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mh">0x0000</span><span class="p">))</span>
+<span class="go">3.58652372654</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+      <li>Previous: <a href="serial.html" title="previous chapter">Serial</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mcdaq.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/mcdaq.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

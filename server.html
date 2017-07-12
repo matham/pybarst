@@ -1,0 +1,733 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Server &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FTDI" href="ftdi.html" />
+    <link rel="prev" title="PyBarst" href="pybarst.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="server">
+<span id="server-api"></span><h1>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.core.server">
+<span id="pybarst-core-server"></span><h2><a class="reference internal" href="#module-pybarst.core.server" title="pybarst.core.server"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.core.server</span></code></a><a class="headerlink" href="#module-pybarst.core.server" title="Permalink to this headline">¶</a></h2>
+<p>Creation of a channel or server instance does not result in extra process
+communication. However, instance methods does, and may therefore take
+significant time before the method returns.</p>
+<p>The point is that the channel exists on the server, so deleting a client
+instance will not delete the channel from the server, even if no client is
+connected to the server.</p>
+<div class="section" id="typical-usage">
+<h3>Typical usage<a class="headerlink" href="#typical-usage" title="Permalink to this headline">¶</a></h3>
+<p>you open and close with open_channel, close client/server.</p>
+<dl class="class">
+<dt id="pybarst.core.server.BarstPipe">
+<em class="property">class </em><code class="descclassname">pybarst.core.server.</code><code class="descname">BarstPipe</code><span class="sig-paren">(</span><em>pipe_name=''</em>, <em>timeout=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstPipe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>An abstract class that provides the client / server communication
+functionality. This base class should not be instantiated directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>pipe_name</cite>: bytes</dt>
+<dd><p class="first last">The name of the pipe used for client / server communication.
+Examples are <cite>\.\pipe\TestPipe</cite> for a local pipe named
+<cite>TestPipe</cite> or <cite>\Jace\pipe\TestPipe</cite> for a pipe named
+<cite>TestPipe</cite> on a remote computer named <cite>Jace</cite>.</p>
+</dd>
+<dt><cite>timeout</cite>: int</dt>
+<dd><p class="first last">The duration (in ms) to wait before returning with a timeout when
+opening the pipe. If zero or None, it defaults to
+<code class="xref py py-attr docutils literal"><span class="pre">pybarst.core.default_server_timeout</span></code> in ms. Defaults to
+None.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstPipe.pipe_name">
+<code class="descname">pipe_name</code><a class="headerlink" href="#pybarst.core.server.BarstPipe.pipe_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>pipe_name: bytes</p>
+<p>The name of the pipe used to communicate with the server for the
+channel. See <a class="reference internal" href="#pybarst.core.server.BarstPipe" title="pybarst.core.server.BarstPipe"><code class="xref py py-class docutils literal"><span class="pre">BarstPipe</span></code></a> description. This is read only and is
+automatically set by the channel.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unicode pipe names are not currently supported.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstPipe.timeout">
+<code class="descname">timeout</code><a class="headerlink" href="#pybarst.core.server.BarstPipe.timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>timeout: ‘DWORD’</p>
+<p>The amount of time to wait when connecting to the server before a
+timeout occurs. Defaults to <code class="xref py py-attr docutils literal"><span class="pre">default_server_timeout</span></code>
+ms. This only effects the initial connection wait.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.core.server.BarstServer">
+<em class="property">class </em><code class="descclassname">pybarst.core.server.</code><code class="descname">BarstServer</code><span class="sig-paren">(</span><em>barst_path=None</em>, <em>curr_dir=None</em>, <em>write_size=None</em>, <em>read_size=None</em>, <em>max_server_size=-1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.core.server.BarstPipe" title="pybarst.core.server.BarstPipe"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstPipe</span></code></a></p>
+<p>The server class that controls and provides client based access to a
+remote server. A Barst server provides access to devices connected
+to the server’s system. Using a server client, a client can open,
+read/write, and close those channels in the server.</p>
+<p>If the pipe name used to communicate with the server is local and
+a server with that name has not been created, a new server instance will
+be created on this system.</p>
+<p>Multiple clients may connect safely to a single server. However, the
+server’s main pipe is single threaded, therefore, reading and writing to it
+can only be done by a single client at any time. So while a client is
+e.g. creating a new channel, other clients cannot create other channels.
+Once a channel is created, the channel gets its own pipe. A channel pipe is
+fully multithreaded allowing many clients to communicate with the channel
+at any time. See individual channels, e.g.
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> for details.</p>
+<p>A server can control different device types. Before each device type can
+be created, a manager for it must be created on the server. For example, to
+create a serial port channel, one first creates the server’s serial manager
+using <a class="reference internal" href="#pybarst.core.server.BarstServer.get_manager" title="pybarst.core.server.BarstServer.get_manager"><code class="xref py py-meth docutils literal"><span class="pre">get_manager()</span></code></a>. Then, using the manager one can create new
+serial channels. Typically, when a new channel instance is created, its
+manager is automatically created first. As mentioned, each new channel
+created gets its own pipe, leaving the server’s main pipe for channel
+creation/deletion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>barst_path</cite>: str</dt>
+<dd><p class="first last">The full path to the Barst executable. It only needs to be provided
+when the server is local and has not been created yet. If None, we
+look for the executable in <a class="reference internal" href="pybarst.html#pybarst.dep_bins" title="pybarst.dep_bins"><code class="xref py py-attr docutils literal"><span class="pre">pybarst.dep_bins</span></code></a> and then in
+<cite>Program Files\Barst\</cite> (or the
+x86 program files if the server is 32-bit). Defaults
+to None. See <a class="reference internal" href="#pybarst.core.server.BarstServer.barst_path" title="pybarst.core.server.BarstServer.barst_path"><code class="xref py py-attr docutils literal"><span class="pre">barst_path</span></code></a> for details.</p>
+</dd>
+<dt><cite>curr_dir</cite>: str</dt>
+<dd><p class="first last">The working directory of the server. See <a class="reference internal" href="#pybarst.core.server.BarstServer.curr_dir" title="pybarst.core.server.BarstServer.curr_dir"><code class="xref py py-attr docutils literal"><span class="pre">curr_dir</span></code></a> for
+details. Defaults to None.</p>
+</dd>
+<dt><cite>write_size</cite>: int</dt>
+<dd><p class="first last">The size of the buffer used to write to the server’s main pipe.
+If None it defaults to 1024 bytes. Defaults to None. See
+<a class="reference internal" href="#pybarst.core.server.BarstServer.write_size" title="pybarst.core.server.BarstServer.write_size"><code class="xref py py-attr docutils literal"><span class="pre">write_size</span></code></a> for details.</p>
+</dd>
+<dt><cite>read_size</cite>: int</dt>
+<dd><p class="first last">The size of the buffer used to read from the server’s main pipe.
+If None it defaults to 1024 bytes. Defaults to None. See
+<a class="reference internal" href="#pybarst.core.server.BarstServer.read_size" title="pybarst.core.server.BarstServer.read_size"><code class="xref py py-attr docutils literal"><span class="pre">read_size</span></code></a> for details.</p>
+</dd>
+<dt><cite>max_server_size</cite>: 64-bit integer</dt>
+<dd><p class="first last">The maximum number of bytes that the server can queue to send to
+clients at any time, if not <cite>-1</cite>. Defaults to <cite>-1</cite>. See
+<a class="reference internal" href="#pybarst.core.server.BarstServer.max_server_size" title="pybarst.core.server.BarstServer.max_server_size"><code class="xref py py-attr docutils literal"><span class="pre">max_server_size</span></code></a>.</p>
+</dd>
+</dl>
+<div class="last admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In cases where messages to/from the server’s main pipe are larger
+than 1024 bytes, the buffer sizes should be enlarged. Windows might
+return an error saying that all data could not be read if the
+buffer is too small. Channel pipe are guaranteed to be large
+enough to hold the data required for reading/writing, only the
+server’s main pipe size can not be predicted.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.barst_path">
+<code class="descname">barst_path</code><a class="headerlink" href="#pybarst.core.server.BarstServer.barst_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>barst_path: object</p>
+<p>The full path to the Barst binary. When the server doesn’t exist yet,
+we launch a server instance using this binary when <a class="reference internal" href="#pybarst.core.server.BarstServer.open_server" title="pybarst.core.server.BarstServer.open_server"><code class="xref py py-meth docutils literal"><span class="pre">open_server()</span></code></a> is
+called. <a class="reference internal" href="#pybarst.core.server.BarstServer.barst_path" title="pybarst.core.server.BarstServer.barst_path"><code class="xref py py-attr docutils literal"><span class="pre">barst_path</span></code></a> is a string, defaults to <cite>‘’</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.clock">
+<code class="descname">clock</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer.clock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current server time using a high precision clock on the
+server.</p>
+<p>The server has a single global high precision clock that it uses
+for time stamping data. All channels pass some data from/to the server.
+For example, the <a class="reference internal" href="mcdaq.html#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a> channel can read
+and write to the channel. Each read/write is time stamped by the server
+with the time it occurred. This method returns the current time as
+measured using that clock.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a 2-tuple of (<cite>server_time</cite>, <cite>utc_time</cite>).<dl class="docutils">
+<dt><cite>server_time</cite>: double</dt>
+<dd>The current server time measured using the high precision
+clock. This clock starts running when the server is created.
+This is the clock used to time stamp data sent by the server.</dd>
+<dt><cite>utc_time</cite>: double</dt>
+<dd>The current utc time measured by the server’s system. This
+clock is much less precise/accurate. By calling this many
+times, one can correlate time between the server time, utc
+time, and the time of a clients system. For example, one can
+call it repeatedly to try to find on average what time on a
+clients system corresponds to a particular time stamp of the
+server.<p class="last">The value represents the number of second that has passed since
+12:00 A.M. January 1, 1601 Coordinated Universal Time (UTC).
+This is commonly called Windows file time
+(<a class="reference external" href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724284%28v=vs.85%29.aspx">http://msdn.microsoft.com/en-us/library/windows/desktop/ms724284%28v=vs.85%29.aspx</a>).</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">clock</span><span class="p">())</span>
+<span class="go">(0.027729689422222512, 13045704696.357197)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">clock</span><span class="p">())</span>
+<span class="go">(0.02788367253417604, 13045704696.357197)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">clock</span><span class="p">())</span>
+<span class="go">(1.528171928919753, 13045704697.857283)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.close_manager">
+<code class="descname">close_manager</code><span class="sig-paren">(</span><em>self</em>, <em>str manager</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer.close_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes a manager. If the manager has not been created yet by this
+instance of the server’s client, we will create the manager and then
+close it. The reason is that another client elsewhere could have
+created the manager, even if it has not been created locally. So we
+need to ensure we close it on the server.</p>
+<p>If the manager had any open channels, those channels will also be
+closed by the server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.close_server">
+<code class="descname">close_server</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer.close_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notifies the server to shut down.</p>
+<p>Shuts down the server and all its open managers and channels.
+Afterwards, the server process should have closed. To open
+the server again, call <a class="reference internal" href="#pybarst.core.server.BarstServer.open_server" title="pybarst.core.server.BarstServer.open_server"><code class="xref py py-meth docutils literal"><span class="pre">open_server()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.connected">
+<code class="descname">connected</code><a class="headerlink" href="#pybarst.core.server.BarstServer.connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>connected: ‘int’</p>
+<p>Whether the instance opened it’s connection with the server. If False,
+<a class="reference internal" href="#pybarst.core.server.BarstServer.open_server" title="pybarst.core.server.BarstServer.open_server"><code class="xref py py-meth docutils literal"><span class="pre">open_server()</span></code></a> must be called. Closing the server sets this to False.
+Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.curr_dir">
+<code class="descname">curr_dir</code><a class="headerlink" href="#pybarst.core.server.BarstServer.curr_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>curr_dir: object</p>
+<p>When we launch the binary at <a class="reference internal" href="#pybarst.core.server.BarstServer.barst_path" title="pybarst.core.server.BarstServer.barst_path"><code class="xref py py-attr docutils literal"><span class="pre">barst_path</span></code></a>, which creates the
+server, <a class="reference internal" href="#pybarst.core.server.BarstServer.curr_dir" title="pybarst.core.server.BarstServer.curr_dir"><code class="xref py py-attr docutils literal"><span class="pre">curr_dir</span></code></a> is the directory used by the binary as the current
+directory. Defaults to <a class="reference internal" href="#pybarst.core.server.BarstServer.barst_path" title="pybarst.core.server.BarstServer.barst_path"><code class="xref py py-attr docutils literal"><span class="pre">barst_path</span></code></a> if <cite>None</cite> or empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.get_manager">
+<code class="descname">get_manager</code><span class="sig-paren">(</span><em>self</em>, <em>str manager</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer.get_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a manager in the server if it has not been created yet.</p>
+<p>As described in the class description, a server is constructed
+from a single main pipe through which you create managers which
+in turn manage and create specific channels, e.g. a serial port
+channel. Once the manager is created, we can create channels using that
+driver. By default, creating a channel will automatically create its
+manager.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;path_to_barst&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+<span class="go">&lt;pybarst.barst_core.BarstServer object at 0x02C77F30&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_version</span><span class="p">())</span>
+<span class="go">20000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">))</span>
+<span class="go">{&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>manager</cite>: str</dt>
+<dd><p class="first last">The name of the manager to create. Can be one of <cite>‘ftdi’</cite>,
+<cite>‘rtv’</cite>, <cite>‘serial’</cite>, or <cite>‘mcdaq’</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dict describing the manager. See <a class="reference internal" href="#pybarst.core.server.BarstServer.managers" title="pybarst.core.server.BarstServer.managers"><code class="xref py py-attr docutils literal"><span class="pre">managers</span></code></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.get_version">
+<code class="descname">get_version</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span> &#x2192; DWORD<a class="headerlink" href="#pybarst.core.server.BarstServer.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Barst’s version.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int. The version in the form where e.g. 10000 means 1.00.00.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.managers">
+<code class="descname">managers</code><a class="headerlink" href="#pybarst.core.server.BarstServer.managers" title="Permalink to this definition">¶</a></dt>
+<dd><p>managers: dict</p>
+<p>A dictionary containing the managers opened with this server instance.
+Other managers can be open on the server, even if not contained here.
+Read only. See <a class="reference internal" href="#pybarst.core.server.BarstServer.get_manager" title="pybarst.core.server.BarstServer.get_manager"><code class="xref py py-meth docutils literal"><span class="pre">get_manager()</span></code></a>.</p>
+<p>For example, after the FTDI manager is opened:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">managers</span><span class="p">)</span>
+<span class="go">{&#39;ftdi&#39;: {&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}}</span>
+</pre></div>
+</div>
+<p>For each manager, the values in the dict is:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><cite>version</cite>: int</dt>
+<dd>The version of that manager’s driver.</dd>
+<dt><cite>chan</cite>: int</dt>
+<dd>The channel number of the manager in the server.</dd>
+<dt><cite>chan_id</cite>: str</dt>
+<dd>The string ID given to that manager by barst.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.max_server_size">
+<code class="descname">max_server_size</code><a class="headerlink" href="#pybarst.core.server.BarstServer.max_server_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>max_server_size: ‘long long’</p>
+<p>The maximum number of bytes that the server can queue to send to clients
+at any time. If <cite>-1</cite>, it’s unlimited. There are many channels which
+when requested, the server will continuously send data to clients, e.g.
+RTV channels. When <cite>-1</cite>, if the client never reads, the server will still
+continuously queue more data, exhausting its RAM after some time. Using
+this value, once the server has exceeded <a class="reference internal" href="#pybarst.core.server.BarstServer.max_server_size" title="pybarst.core.server.BarstServer.max_server_size"><code class="xref py py-attr docutils literal"><span class="pre">max_server_size</span></code></a> bytes in
+its queue, new data waiting to be sent will simply be discarded.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a global server wide value. That is, the write queues of all
+the channels are combined when checking if the size is too large.
+Therefore, once exceeded, no channel will be able to send data to a
+client until the client resolves the waiting data. Also, while some
+channels will resume sending data once the value is not exceeded
+anymore, other channels might disable their pipes. So once exceeded,
+the server should be thought of as being in a unrecoverable error
+state.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstServer.open_server">
+<code class="descname">open_server</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstServer.open_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the server with the settings specified when creating the
+<a class="reference internal" href="#pybarst.core.server.BarstServer" title="pybarst.core.server.BarstServer"><code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></a> instance. If a server with this pipe name doesn’t
+exist yet, one will be created, provided the pipe is local and
+<a class="reference internal" href="#pybarst.core.server.BarstServer.barst_path" title="pybarst.core.server.BarstServer.barst_path"><code class="xref py py-attr docutils literal"><span class="pre">barst_path</span></code></a> was provided.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.read_size">
+<code class="descname">read_size</code><a class="headerlink" href="#pybarst.core.server.BarstServer.read_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>read_size: ‘DWORD’</p>
+<p>The maximum buffer size used by the client for reading from the
+server’s main pipe. The default value should be large enough for all the
+messages, however, if there errors indicating that the whole messages was
+not read, this value should be increased.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The value only affects the server’s main pipe, not the pipes of the
+individual channels. Individual channels will always create pipes
+large enough for their data. If there are issues, errors would arise
+when creating/opening a channel. This parameter is only used when the
+server is launched by the client, not when the server already exists.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstServer.write_size">
+<code class="descname">write_size</code><a class="headerlink" href="#pybarst.core.server.BarstServer.write_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>write_size: ‘DWORD’</p>
+<p>The maximum buffer size used by the client for writing to the server’s
+main pipe. The default value should be large enough for all the messages,
+however, if there errors indicating that the whole messages was not
+written, this value should be increased.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The value only affects the server’s main pipe, not the pipes of the
+individual channels. Individual channels will always create pipes
+large enough for their data. If there are issues, errors would arise
+when creating/opening a channel. This parameter is only used when the
+server is launched by the client, not when the server already exists.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.core.server.BarstChannel">
+<em class="property">class </em><code class="descclassname">pybarst.core.server.</code><code class="descname">BarstChannel</code><a class="headerlink" href="#pybarst.core.server.BarstChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.core.server.BarstPipe" title="pybarst.core.server.BarstPipe"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstPipe</span></code></a></p>
+<p>An abstract representation class of a client connected to a channel on
+the server. This class is never instantiated directly.</p>
+<p>See derived classes, e.g. <a class="reference internal" href="rtv.html#pybarst.rtv.RTVChannel" title="pybarst.rtv.RTVChannel"><code class="xref py py-class docutils literal"><span class="pre">RTVChannel</span></code></a> for examples.</p>
+<p>The class provides methods commonly used by the client classes.</p>
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstChannel.barst_chan_type">
+<code class="descname">barst_chan_type</code><a class="headerlink" href="#pybarst.core.server.BarstChannel.barst_chan_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>barst_chan_type: str</p>
+<p>The string ID given to the channel type by the server. Each channel type
+has a unique string assigned by barst. Read only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstChannel.cancel_read">
+<code class="descname">cancel_read</code><span class="sig-paren">(</span><em>self</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstChannel.cancel_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancels a continuous read.</p>
+<p>This method is only implemented for for the classes that indicate that
+e.g. <a class="reference internal" href="mcdaq.html#pybarst.mcdaq.MCDAQChannel" title="pybarst.mcdaq.MCDAQChannel"><code class="xref py py-class docutils literal"><span class="pre">MCDAQChannel</span></code></a>. For other classes, it
+doesn’t do anything.</p>
+<p>Some classes offer an option where the server continuously sends data
+read back to the client. For those classes, one can stop the read
+operation by setting the state to inactive with <a class="reference internal" href="#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>,
+which will affect all the clients connected, or by calling this
+method. With this method, the read operation is only canceled for this
+client.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>flush</cite>: bool</dt>
+<dd><p class="first">Whether any data already waiting to be read by the client
+will be discarded. This forces a disconnection and
+reconnection with the server for this client. <cite>flush</cite> defaults
+to <cite>False</cite>.</p>
+<p>After canceling, the server will not queue any new data to be
+sent to the client. However, the server might have already
+queued data to be sent to the client. This parameter controls
+whether that data will sill be sent.</p>
+<p>If <cite>flush</cite> is <cite>False</cite>, that data will be available to the
+client when it calls read, until the server has no more data
+available and read will then return an error once. Calling read
+after the error, will trigger the server to start sending new
+data again.</p>
+<p class="last">If <cite>flush</cite> is <cite>True</cite>, then all data waiting to be sent will
+be discarded. In addition, no error will be raised upon a
+subsequent call to read, but instead it will trigger the server
+to start sending data to the client again.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Calling this method while a read operation is not ongoing may
+result in an exception.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstChannel.chan">
+<code class="descname">chan</code><a class="headerlink" href="#pybarst.core.server.BarstChannel.chan" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan: ‘int’</p>
+<p>The channel number assigned to this channel by the server. For example, an
+FTDI channel may be one channel among many in the FTDI manager - each
+channel gets its own channel number. Read only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstChannel.close_channel_client">
+<code class="descname">close_channel_client</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstChannel.close_channel_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes this client’s connection to the channel without
+affecting the channel on the server. Other clients are not affected
+by this.</p>
+<p>After this is called, the channel will still exist on the server, but
+this instance won’t be connected to it. Therefore, calling other
+channel methods will likely raise an exception until
+<a class="reference internal" href="#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> is called again.</p>
+<p>If a class method, e.g. a read or write operation got stuck
+communicating with the server, calling this method from another thread
+will force the waiting method to return, possibly with an error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstChannel.close_channel_server">
+<code class="descname">close_channel_server</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstChannel.close_channel_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the channel on the server. This deletes the channel from the
+server. Therefore any other clients that may be connected to the
+channel will return an error when they try to communicate with it after
+this method has been called.</p>
+<p>This method internally also calls <a class="reference internal" href="#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>.</p>
+<p>To only close the connection of this client without affecting the state
+of the channel on the server, call <a class="reference internal" href="#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstChannel.connected">
+<code class="descname">connected</code><a class="headerlink" href="#pybarst.core.server.BarstChannel.connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>connected: ‘int’</p>
+<p>Whether the instance opened it’s connection with the server. If False,
+<a class="reference internal" href="#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be called. Closing the channel sets this to
+False. Read only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstChannel.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstChannel.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the client’s connection to this channel on the server. If the
+channel doesn’t exist yet it creates it first, otherwise it just opens
+a new client for the channel.</p>
+<p>Before any other operations can be done on the channel, this method
+must be called.</p>
+<p>All channels are designed such that when the class instance is created,
+no client/server communication occurs. Then, to actually create/open
+the channel, this method must be called.</p>
+<p>Similarly, after closing a channel with
+<a class="reference internal" href="#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> or <a class="reference internal" href="#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> one can
+recreate or reopen the client’s connection to the channel using this
+method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstChannel.parent_chan">
+<code class="descname">parent_chan</code><a class="headerlink" href="#pybarst.core.server.BarstChannel.parent_chan" title="Permalink to this definition">¶</a></dt>
+<dd><p>parent_chan: ‘int’</p>
+<p>The channel number of this channel’s parent, e.g. if this is a FTDI
+channel then it’s parent channel is the FTDI manager and this value will
+represent the FTDI manager’s channel number in the server. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.core.server.BarstChannel.server">
+<code class="descname">server</code><a class="headerlink" href="#pybarst.core.server.BarstChannel.server" title="Permalink to this definition">¶</a></dt>
+<dd><p>server: pybarst.core.server.BarstServer</p>
+<p>A <a class="reference internal" href="#pybarst.core.server.BarstServer" title="pybarst.core.server.BarstServer"><code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></a> instance in which this channel exists / will
+exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.core.server.BarstChannel.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.core.server.BarstChannel.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the state of the channel to active or inactive (True or False).
+The activation state of a channel is global, and therefore affects
+all the clients of a channel.</p>
+<p>For most channels, after the channel is created on the server with
+<a class="reference internal" href="#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a>, before you can read/write to it, the channel
+must be activated. Because the state is global, once activated, further
+clients opening the channel will already be in a activate state.</p>
+<p>Similarly, to stop an active channel from reading or writing data, you
+set the channel into an inactive state. Typically, the channel uses
+less resource when inactive because e.g. sampling is disabled etc. so
+it is preferred to deactivate channels that are not used. Again, once
+deactivated, the channel will be inactive for all the clients.</p>
+<p>When deactivating, all the read or write requests being performed
+will be canceled. Also, reading or writing data to an inactive channel
+will result in an error. Typically, one sets the state to
+active/inactive in cycles as they are needed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>state</cite>: bool</dt>
+<dd><p class="first last">The state to set the channel in. Can be either True for
+activation and False for inactivation.</p>
+</dd>
+<dt><cite>flush</cite>: bool</dt>
+<dd><p class="first">Whether any data waiting to be sent, or read by the client
+will be discarded. This forces a disconnection and
+reconnection with the server for this client.</p>
+<p>Typically, this is only used for channels that continuously
+send data back to clients, e.g.
+<a class="reference internal" href="rtv.html#pybarst.rtv.RTVChannel" title="pybarst.rtv.RTVChannel"><code class="xref py py-class docutils literal"><span class="pre">RTVChannel</span></code></a>. Always, when deactivating,
+the server will not queue any new data to be sent to a client.
+However, the server might have already queued data to be sent
+to the client. This parameter controls whether that data will
+sill be sent.</p>
+<p>If <cite>flush</cite> is <cite>False</cite>, that data will be available to the
+client when it calls read, until the server has no more data
+available and read will return an error. For channels that
+support that, the channel will only be considered inactive
+after the last read once that error is raised.</p>
+<p>If <cite>flush</cite> is <cite>True</cite>, then all data waiting to be sent will
+be discarded. In addition, the channel will instantly become
+inactive. If the channel is in a read or write, then that
+method will return with an exception.</p>
+<p><cite>flush</cite> is only used when <cite>state</cite> is <cite>False</cite>. <cite>flush</cite> defaults
+to <cite>False</cite>.</p>
+<p class="last">See <a class="reference internal" href="#pybarst.core.server.BarstChannel.cancel_read" title="pybarst.core.server.BarstChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a> for an alternative method to cancel
+ongoing server reads.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+      <li>Previous: <a href="pybarst.html" title="previous chapter">PyBarst</a></li>
+      <li>Next: <a href="ftdi.html" title="next chapter">FTDI</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/server.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/server.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

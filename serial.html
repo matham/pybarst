@@ -1,0 +1,463 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Serial &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Measurement Computing DAQ" href="mcdaq.html" />
+    <link rel="prev" title="RTV" href="rtv.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="serial">
+<span id="serial-api"></span><h1>Serial<a class="headerlink" href="#serial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.serial">
+<span id="pybarst-serial"></span><h2><a class="reference internal" href="#module-pybarst.serial" title="pybarst.serial"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.serial</span></code></a><a class="headerlink" href="#module-pybarst.serial" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="serial-channel">
+<h3>Serial channel<a class="headerlink" href="#serial-channel" title="Permalink to this headline">¶</a></h3>
+<p>The Barst serial port interface. A serial channel is an interface to a serial
+port, such as a RS232 or RS485 port. See <a class="reference internal" href="#pybarst.serial.SerialChannel" title="pybarst.serial.SerialChannel"><code class="xref py py-class docutils literal"><span class="pre">SerialChannel</span></code></a>
+for details.</p>
+<div class="section" id="typical-usage">
+<h4>Typical usage<a class="headerlink" href="#typical-usage" title="Permalink to this headline">¶</a></h4>
+<p>For the serial channel, once a channel is created on the server, it’s always
+active. That means that there’s no need to set the state with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<p>Typically, a client creates a <a class="reference internal" href="#pybarst.serial.SerialChannel" title="pybarst.serial.SerialChannel"><code class="xref py py-class docutils literal"><span class="pre">SerialChannel</span></code></a> and then calls
+<a class="reference internal" href="#pybarst.serial.SerialChannel.open_channel" title="pybarst.serial.SerialChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">SerialChannel.open_channel()</span></code></a> on it to create the
+channel on the server. Once created, the client can read and write to it
+through the server using <a class="reference internal" href="#pybarst.serial.SerialChannel.read" title="pybarst.serial.SerialChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">SerialChannel.read()</span></code></a> and
+<a class="reference internal" href="#pybarst.serial.SerialChannel.write" title="pybarst.serial.SerialChannel.write"><code class="xref py py-meth docutils literal"><span class="pre">SerialChannel.write()</span></code></a>.</p>
+<p>Other clients can do similarly; they create a new <a class="reference internal" href="#pybarst.serial.SerialChannel" title="pybarst.serial.SerialChannel"><code class="xref py py-class docutils literal"><span class="pre">SerialChannel</span></code></a>
+instance and then call <a class="reference internal" href="#pybarst.serial.SerialChannel.open_channel" title="pybarst.serial.SerialChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">SerialChannel.open_channel()</span></code></a> on it to open
+a new connection to the existing channel. Those new clients can then read/write
+to the channel as well.</p>
+<p>Finally, existing clients can call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> to simply
+close this client while leaving the channel on the server, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> to delete
+the channel from the server as well as for all the clients.</p>
+<dl class="class">
+<dt id="pybarst.serial.SerialChannel">
+<em class="property">class </em><code class="descclassname">pybarst.serial.</code><code class="descname">SerialChannel</code><span class="sig-paren">(</span><em>BarstServer server</em>, <em>port_name</em>, <em>max_write</em>, <em>max_read</em>, <em>baud_rate=9600</em>, <em>stop_bits=1</em>, <em>parity='none'</em>, <em>byte_size=8</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.serial.SerialChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel" title="pybarst.core.server.BarstChannel"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstChannel</span></code></a></p>
+<p>A serial port interface channel.</p>
+<p>A serial port channel controls a single serial port.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>server</cite>: <code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></dt>
+<dd><p class="first last">An instance of a server through which this channel is opened.</p>
+</dd>
+<dt><cite>port_name</cite>: str</dt>
+<dd><p class="first last">The name of the port this channel controls. See <a class="reference internal" href="#pybarst.serial.SerialChannel.port_name" title="pybarst.serial.SerialChannel.port_name"><code class="xref py py-attr docutils literal"><span class="pre">port_name</span></code></a>.</p>
+</dd>
+<dt><cite>max_write</cite>: unsigned int</dt>
+<dd><p class="first last">The maximum number of bytes written to the port. See
+<a class="reference internal" href="#pybarst.serial.SerialChannel.max_write" title="pybarst.serial.SerialChannel.max_write"><code class="xref py py-attr docutils literal"><span class="pre">max_write</span></code></a>.</p>
+</dd>
+<dt><cite>max_read</cite>: unsigned int</dt>
+<dd><p class="first last">The maximum number of bytes read from the port. See
+<a class="reference internal" href="#pybarst.serial.SerialChannel.max_read" title="pybarst.serial.SerialChannel.max_read"><code class="xref py py-attr docutils literal"><span class="pre">max_read</span></code></a>.</p>
+</dd>
+<dt><cite>baud_rate</cite>: unsigned int</dt>
+<dd><p class="first last">The baud rate to use for the port. See <a class="reference internal" href="#pybarst.serial.SerialChannel.baud_rate" title="pybarst.serial.SerialChannel.baud_rate"><code class="xref py py-attr docutils literal"><span class="pre">baud_rate</span></code></a>. Defaults
+to 9600.</p>
+</dd>
+<dt><cite>stop_bits</cite>: float</dt>
+<dd><p class="first last">The number of stop bits to use. See <a class="reference internal" href="#pybarst.serial.SerialChannel.stop_bits" title="pybarst.serial.SerialChannel.stop_bits"><code class="xref py py-attr docutils literal"><span class="pre">stop_bits</span></code></a>. Defaults to
+<cite>1</cite>.</p>
+</dd>
+<dt><cite>parity</cite>: str</dt>
+<dd><p class="first last">The parity scheme to use. See <a class="reference internal" href="#pybarst.serial.SerialChannel.parity" title="pybarst.serial.SerialChannel.parity"><code class="xref py py-attr docutils literal"><span class="pre">parity</span></code></a>. Defaults to ‘none’.</p>
+</dd>
+<dt><cite>byte_size</cite>: unsigned char</dt>
+<dd><p class="first last">The number of bits in the bytes transmitted and received. See
+<a class="reference internal" href="#pybarst.serial.SerialChannel.byte_size" title="pybarst.serial.SerialChannel.byte_size"><code class="xref py py-attr docutils literal"><span class="pre">byte_size</span></code></a>. Defaults to 8.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In the following example, a loopback cable was connected to the com3
+serial port:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the com3 port and read/write a maximum of 32 chars.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span> <span class="o">=</span> <span class="n">SerialChannel</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">port_name</span><span class="o">=</span><span class="s1">&#39;COM3&#39;</span><span class="p">,</span> <span class="n">max_write</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_read</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span>
+<span class="go">&lt;pybarst.serial._serial.SerialChannel object at 0x024C06F0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;cheesecake and fries.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.0525455800455579, 21)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.056576697876712934, &#39;cheesecake and fries.&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.06754473171193724, 7)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.07514634606696861, &#39;apples.&#39;)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.baud_rate">
+<code class="descname">baud_rate</code><a class="headerlink" href="#pybarst.serial.SerialChannel.baud_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>baud_rate: ‘DWORD’</p>
+<p>The baud rate to use for the serial port when opening it.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.byte_size">
+<code class="descname">byte_size</code><a class="headerlink" href="#pybarst.serial.SerialChannel.byte_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>byte_size: ‘unsigned char’</p>
+<p>The number of bits in the bytes transmitted and received. Can be between
+4 and 8, including 4 and 8.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.max_read">
+<code class="descname">max_read</code><a class="headerlink" href="#pybarst.serial.SerialChannel.max_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>max_read: ‘DWORD’</p>
+<p>The maximum number of bytes that will be read from the serial port
+at any time. I.e. the maximum value of the <cite>read_len</cite> parameter in
+<a class="reference internal" href="#pybarst.serial.SerialChannel.write" title="pybarst.serial.SerialChannel.write"><code class="xref py py-meth docutils literal"><span class="pre">write()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.max_write">
+<code class="descname">max_write</code><a class="headerlink" href="#pybarst.serial.SerialChannel.max_write" title="Permalink to this definition">¶</a></dt>
+<dd><p>max_write: ‘DWORD’</p>
+<p>The maximum number of bytes that will be written to the serial port
+at any time. I.e. the maximum length of the <cite>value</cite> parameter in
+<a class="reference internal" href="#pybarst.serial.SerialChannel.read" title="pybarst.serial.SerialChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.serial.SerialChannel.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.serial.SerialChannel.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the, possibly existing, channel on the server and connects the
+client to it. If the channel already exists, a new client connection
+will be opened to the channel.</p>
+<p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for more
+details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the channel already exists on the server, the settings used to
+initialize this client, e.g. <a class="reference internal" href="#pybarst.serial.SerialChannel.parity" title="pybarst.serial.SerialChannel.parity"><code class="xref py py-attr docutils literal"><span class="pre">parity</span></code></a> will be overwritten
+by their values received from the existing server channel.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.parity">
+<code class="descname">parity</code><a class="headerlink" href="#pybarst.serial.SerialChannel.parity" title="Permalink to this definition">¶</a></dt>
+<dd><p>parity: object</p>
+<p>The parity scheme to use. Can be one of <cite>‘even’</cite>, <cite>‘odd’</cite>, <cite>‘mark’</cite>,
+<cite>‘none’</cite>, <cite>‘space’</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.port_name">
+<code class="descname">port_name</code><a class="headerlink" href="#pybarst.serial.SerialChannel.port_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>port_name: object</p>
+<p>The name of the port this channel controls. E.g. COM1, COM5 etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.serial.SerialChannel.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em>, <em>DWORD read_len</em>, <em>timeout=0</em>, <em>stop_char=''</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.serial.SerialChannel.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to read from the serial port and send the data back
+to <em>this</em> client. When multiple clients are connected simultaneously,
+and each requests a read, their read requests are performed in the
+order on which they were received.</p>
+<p>The read request is initiated when this method is called and it waits
+until the server sends data back, returns an error, or times out.
+To terminate the waiting client, from another thread you must call
+<code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code>, or just close
+the channel or server, which will cause this method to return with an
+error.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.serial.SerialChannel.open_channel" title="pybarst.serial.SerialChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be called`.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>read_len</cite>: int</dt>
+<dd><p class="first last">The number of bytes to read from the port. The value cannot
+exceed <a class="reference internal" href="#pybarst.serial.SerialChannel.max_read" title="pybarst.serial.SerialChannel.max_read"><code class="xref py py-attr docutils literal"><span class="pre">max_read</span></code></a>.</p>
+</dd>
+<dt><cite>timeout</cite>: unsigned int</dt>
+<dd><p class="first last">The amount of time, in ms, the server should wait to finish the
+read request before returning. If zero, it won’t time out.
+Defaults to <cite>0</cite>. After the timeout, if <cite>read_len</cite> chars was not
+read, the method just returns the data read and does not raise
+and exception.</p>
+</dd>
+<dt><cite>stop_char</cite>: single character string</dt>
+<dd><p class="first last">The character on which to finish the read, even if it’s less
+than <cite>read_len</cite>. When the server reads this character the
+read is completed and whatever read is returned. If <cite>stop_char</cite>
+is the empty string, <cite>‘’</cite>, then the server doesn’t send data
+back until <cite>read_len</cite> bytes have been read, or it timed out.
+Defaults to the empty string, <cite>‘’</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2-tuple of (<cite>time</cite>, <cite>data</cite>). <cite>time</cite> is the time that the data was
+finished reading in channel time,
+<code class="xref py py-meth docutils literal"><span class="pre">clock()</span></code>.
+<cite>data</cite> is a bytes instance containing the data read.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example, with a loopback cable connected to com3:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;cheesecake and fries.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.0524498444040303, 21)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># here we read the exact number of chars written.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.05645847628379451, &#39;cheesecake and fries.&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples with oranges.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.08144922638106329, 20)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we read more than the number of chars written, forcing us to time out</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.087937104749782, &#39;apples with oranges.&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples with oranges.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.114267472435971, 20)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we read less than the number of chars written only returning those chars</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.116678238982054, &#39;apples &#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now we read the rest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.118474730219688, &#39;with oranges.&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples with oranges.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.144263390895098, 20)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we read less than the number of chars written only returning those chars</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.146677223707279, &#39;apples &#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now write even more</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(10.159265949523808, 7)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># in this read, everything we haven&#39;t read is returned</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(20.167324778223787, &#39;with oranges.apples.&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples with oranges.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(20.193081413453278, 20)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># we read more than the number of chars written, but becuase of the stop</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># char, it doesn&#39;t wait to timeout, but returns everything it read when it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># hit the stop char, which here was a few more chars of the text written</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">stop_char</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+<span class="go">(20.19520872073334, &#39;apples with oran&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now finish up the read</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">read_len</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(30.198723343074974, &#39;ges.&#39;)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When the method returns it might return up to a <cite>read_len</cite>
+character bytes string. Even if it times out or we hit the
+<cite>stop_char</cite> in the middle of the string, when specified, if the
+server already read less than or <cite>read_len</cite> characters, it returns
+them all.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.serial.SerialChannel.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.serial.SerialChannel.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> for details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For the serial channel, this method doesn’t do anything, since
+after creation, the state of the channel on the server is always
+active.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.serial.SerialChannel.stop_bits">
+<code class="descname">stop_bits</code><a class="headerlink" href="#pybarst.serial.SerialChannel.stop_bits" title="Permalink to this definition">¶</a></dt>
+<dd><p>stop_bits: ‘float’</p>
+<p>The number of stop bits to use. Can be one of 1, 1.5, or 2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.serial.SerialChannel.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>self</em>, <em>value</em>, <em>timeout=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.serial.SerialChannel.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to write <cite>value</cite> to the serial port.</p>
+<p>The write request is initiated when this method is called and it waits
+until it finishes writing, it times out, or it returns an error.
+To terminate the waiting client, from another thread you must call
+<code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code>, or just close
+the channel or server, which will cause this method to return with an
+error.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.serial.SerialChannel.open_channel" title="pybarst.serial.SerialChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>value</cite>: str</dt>
+<dd><p class="first last">The byte string to write to the port. The length of the bytes
+instance cannot exceed <a class="reference internal" href="#pybarst.serial.SerialChannel.max_write" title="pybarst.serial.SerialChannel.max_write"><code class="xref py py-attr docutils literal"><span class="pre">max_write</span></code></a>.</p>
+</dd>
+<dt><cite>timeout</cite>: unsigned int</dt>
+<dd><p class="first last">The amount of time, in ms, the server should wait to finish the
+write request before returning with a timeout error. If zero,
+it won’t time out. Defaults to <cite>0</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2-tuple of (<cite>time</cite>, <cite>length</cite>). <cite>time</cite> is the time that the data was
+finished writing in channel time,
+<code class="xref py py-meth docutils literal"><span class="pre">clock()</span></code>.
+<cite>length</cite> is the number of bytes actually written.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;cheesecake and fries.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.0525455800455579, 21)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">serial</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;apples.&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">(0.06754473171193724, 7)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+      <li>Previous: <a href="rtv.html" title="previous chapter">RTV</a></li>
+      <li>Next: <a href="mcdaq.html" title="next chapter">Measurement Computing DAQ</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/serial.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/serial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

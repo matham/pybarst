@@ -1,0 +1,755 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FTDI ADC Device &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RTV" href="rtv.html" />
+    <link rel="prev" title="FTDI Switching Devices" href="ftdi_switch.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ftdi-adc-device">
+<span id="ftdi-adc-api"></span><h1>FTDI ADC Device<a class="headerlink" href="#ftdi-adc-device" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.ftdi.adc">
+<span id="pybarst-ftdi-adc"></span><h2><a class="reference internal" href="#module-pybarst.ftdi.adc" title="pybarst.ftdi.adc"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.ftdi.adc</span></code></a><a class="headerlink" href="#module-pybarst.ftdi.adc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>FTDI ADC device<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The FTDI ADC module controls an CPL ADC device connected to the FTDI
+channel’s digital pins. You can connect multiple ADC devices in parallel to
+different pins, and they can be configured to be connected to a variable
+number of channel pins.</p>
+<dl class="class">
+<dt id="pybarst.ftdi.adc.ADCSettings">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.adc.</code><code class="descname">ADCSettings</code><span class="sig-paren">(</span><em>clock_bit</em>, <em>lowest_bit</em>, <em>num_bits</em>, <em>sampling_rate=None</em>, <em>chan1=False</em>, <em>chan2=False</em>, <em>hw_buff_size=25</em>, <em>transfer_size=100</em>, <em>chop=True</em>, <em>input_range='-10</em>, <em>10'</em>, <em>data_width=16</em>, <em>reverse=False</em>, <em>rate_filter=None</em>, <em>double crystal_freq=6000000.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDISettings</span></code></a></p>
+<p>The settings for a CPL ADC device connected to the the FTDI channel.</p>
+<p>When an instance of this class is passed to a
+<code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code> in the <cite>channels</cite> parameter, it will
+create a <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC" title="pybarst.ftdi.adc.FTDIADC"><code class="xref py py-class docutils literal"><span class="pre">FTDIADC</span></code></a> in <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>.</p>
+<p>This settings class indicates and controls how the device is connected
+to the FTDI bus as well as the settings used to configure the ADC device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>hw_buff_size</cite>: float</dt>
+<dd><p class="first last">The buffer size of the USB device. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.hw_buff_size" title="pybarst.ftdi.adc.ADCSettings.hw_buff_size"><code class="xref py py-attr docutils literal"><span class="pre">hw_buff_size</span></code></a>.
+Defaults to 25.</p>
+</dd>
+<dt><cite>transfer_size</cite>: int</dt>
+<dd><p class="first last">The number of data points for the server to accumulate before
+sending it to the client. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.transfer_size" title="pybarst.ftdi.adc.ADCSettings.transfer_size"><code class="xref py py-attr docutils literal"><span class="pre">transfer_size</span></code></a>. Effectively
+this controls how often data is sent to the client. E.g. if the
+sampling rate is 1000Hz and this value is 500, then 500 data point
+will be sent at once, or data will be sent to the client twice per
+second. Defaults to <cite>100</cite>.</p>
+</dd>
+<dt><cite>clock_bit</cite>: int</dt>
+<dd><p class="first last">The pin connected to the ADC clock pin. Ssee <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.clock_bit" title="pybarst.ftdi.adc.ADCSettings.clock_bit"><code class="xref py py-attr docutils literal"><span class="pre">clock_bit</span></code></a>.</p>
+</dd>
+<dt><cite>lowest_bit</cite>: int</dt>
+<dd><p class="first last">The lowest data pin connected to the ADC device. See
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.lowest_bit" title="pybarst.ftdi.adc.ADCSettings.lowest_bit"><code class="xref py py-attr docutils literal"><span class="pre">lowest_bit</span></code></a>.</p>
+</dd>
+<dt><cite>num_bits</cite>: int</dt>
+<dd><p class="first last">The number of data pins connected to the ADC device. See
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.num_bits" title="pybarst.ftdi.adc.ADCSettings.num_bits"><code class="xref py py-attr docutils literal"><span class="pre">num_bits</span></code></a>.</p>
+</dd>
+<dt><cite>chop</cite>: bool</dt>
+<dd><p class="first last">Whether chopping (hardware sampling smoothing) is enabled. See
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chop" title="pybarst.ftdi.adc.ADCSettings.chop"><code class="xref py py-attr docutils literal"><span class="pre">chop</span></code></a>. Defaults to <cite>True</cite>.</p>
+</dd>
+<dt><cite>chan1</cite>: bool</dt>
+<dd><p class="first last">Whether channel 1 of the ADC device is enabled and sampled. Each
+ADC device has two channels, either or both of which can be
+enabled. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="pybarst.ftdi.adc.ADCSettings.chan1"><code class="xref py py-attr docutils literal"><span class="pre">chan1</span></code></a>. Defaults to <cite>False</cite>.</p>
+</dd>
+<dt><cite>chan2</cite>: bool</dt>
+<dd><p class="first last">Whether channel 2 of the ADC device is enabled and sampled. Each
+ADC device has two channels, either or both of which can be
+enabled. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="pybarst.ftdi.adc.ADCSettings.chan2"><code class="xref py py-attr docutils literal"><span class="pre">chan2</span></code></a>. Defaults to <cite>False</cite>.</p>
+</dd>
+<dt><cite>input_range</cite>: str</dt>
+<dd><p class="first last">The voltage input range supported by the ADC device. See
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range" title="pybarst.ftdi.adc.ADCSettings.input_range"><code class="xref py py-attr docutils literal"><span class="pre">input_range</span></code></a>. Defaults to <cite>‘-10, 10’</cite>.</p>
+</dd>
+<dt><cite>data_width</cite>: int</dt>
+<dd><p class="first last">The bit depth of the ADC data points; either 16 or 24. See
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.data_width" title="pybarst.ftdi.adc.ADCSettings.data_width"><code class="xref py py-attr docutils literal"><span class="pre">data_width</span></code></a>. Defaults to <cite>16</cite>.</p>
+</dd>
+<dt><cite>reverse</cite>: bool</dt>
+<dd><p class="first last">Whether the data pins of the ADC device are connected in the
+reverse order compared to the FTDI USB bus. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.reverse" title="pybarst.ftdi.adc.ADCSettings.reverse"><code class="xref py py-attr docutils literal"><span class="pre">reverse</span></code></a>.
+Defaults to <cite>False</cite>.</p>
+</dd>
+<dt><cite>sampling_rate</cite>: float</dt>
+<dd><p class="first last">The sampling rate that should be used by the ADC device for
+each channel. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.sampling_rate" title="pybarst.ftdi.adc.ADCSettings.sampling_rate"><code class="xref py py-attr docutils literal"><span class="pre">sampling_rate</span></code></a>. If <cite>None</cite>, it’ll use
+<cite>rate_filter</cite> filter instead. Defaults to <cite>None</cite>. Note, the device
+will try to find to closest sampling rate possible, which
+is not likely to be equal to <cite>sampling_rate</cite>.</p>
+</dd>
+<dt><cite>rate_filter</cite>: int</dt>
+<dd><p class="first last">The sampling rate code used by the device to set the sampling rate.
+See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="pybarst.ftdi.adc.ADCSettings.rate_filter"><code class="xref py py-attr docutils literal"><span class="pre">rate_filter</span></code></a>. If <cite>None</cite>, it’ll use <cite>sampling_rate</cite>
+filter instead. Defaults to <cite>None</cite>. This controls the actual
+sampling rate, and the <cite>sampling_rate</cite> parameter, if supplied, gets
+first converted to <cite>rate_filter</cite> internally.</p>
+</dd>
+<dt><cite>crystal_freq</cite>: float</dt>
+<dd><p class="first last">The frequency of the crystal on the ADC device. Defaults to
+6000000.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The settings can not be changed after they have been passed to the
+constructor. I.e. setting the properties directly might result in
+incorrect states.</p>
+</div>
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.chan1">
+<code class="descname">chan1</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan1: ‘unsigned char’</p>
+<p>Indicates whether channel 1 should be active and read and send back data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.chan2">
+<code class="descname">chan2</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan2: ‘unsigned char’</p>
+<p>Indicates whether channel 2 should be active and read and send back data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.chop">
+<code class="descname">chop</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.chop" title="Permalink to this definition">¶</a></dt>
+<dd><p>chop: ‘unsigned char’</p>
+<p>Indicates whether chopping mode (noise reduction) should be active on the
+ADC device. It typically lowers the sampling rate when enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.clock_bit">
+<code class="descname">clock_bit</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.clock_bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>clock_bit: ‘unsigned char’</p>
+<p>The pin to which the clock line of the ADC device is connected at the FTDI
+channel. Typically between 0 - 7.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.data_width">
+<code class="descname">data_width</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.data_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>data_width: ‘unsigned char’</p>
+<p>The bit depth of each data point read by the ADC device. Acceptable values
+are either <cite>16</cite>, or <cite>24</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.hw_buff_size">
+<code class="descname">hw_buff_size</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.hw_buff_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>hw_buff_size: ‘float’</p>
+<p>When The FTDI channel is communicating with the peripheral ADC device we
+continuously read/write to it. The larger the buffer we write/read at once
+the faster it performs. For instance, for fastest communication we would
+write in buffer multiples of the maximum buffer size. Because each FTDI
+channel can be used for multiple peripherals devices, if we were to write
+in multiples of the maximum buffer size then although it’d be most
+efficient for the ADC device, during this write/read other devices of this
+channel will have to wait until we are finished writing the buffer and
+before move on to the next buffer to be able to update their device. This
+means, the larger the buffer the more we have to wait between writes to
+other devices and the longer we have to wait between to update a device.
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.hw_buff_size" title="pybarst.ftdi.adc.ADCSettings.hw_buff_size"><code class="xref py py-attr docutils literal"><span class="pre">hw_buff_size</span></code></a> tells us the percentage (0-100) of the maximum buffer
+to use for ADC read / write. The smaller this is, the faster other devices
+will be able to update, but might reduce the ADC bit rate which could be
+unsuited at higher ADC sampling rates.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.input_range">
+<code class="descname">input_range</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.input_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>input_range: ‘unsigned char’</p>
+<p>The internal Barst code the correspond to the <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="pybarst.ftdi.adc.ADCSettings.input_range_str"><code class="xref py py-attr docutils literal"><span class="pre">input_range_str</span></code></a>
+string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.input_range_str">
+<code class="descname">input_range_str</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>input_range_str: str</p>
+<p>The voltage input range that the device should accept. Can be one of 4
+strings: <cite>‘0, 5’</cite>, <cite>‘0, 10’</cite>, <cite>‘-5, 5’</cite>, or <cite>‘-10, 10’</cite>. For a particular
+setting, voltage outside its range will show as error.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.lowest_bit">
+<code class="descname">lowest_bit</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.lowest_bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>lowest_bit: ‘unsigned char’</p>
+<p>Defines which pins on the FTDI USB bus are data pins. The data pins are
+connected to the FTDI bus starting from pin number <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.lowest_bit" title="pybarst.ftdi.adc.ADCSettings.lowest_bit"><code class="xref py py-attr docutils literal"><span class="pre">lowest_bit</span></code></a> until
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.lowest_bit" title="pybarst.ftdi.adc.ADCSettings.lowest_bit"><code class="xref py py-attr docutils literal"><span class="pre">lowest_bit</span></code></a> + <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.num_bits" title="pybarst.ftdi.adc.ADCSettings.num_bits"><code class="xref py py-attr docutils literal"><span class="pre">num_bits</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.max_rate">
+<code class="descname">max_rate</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.max_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>max_rate: ‘double’</p>
+<p>Indicates the highest possible sampling rate possible for the current
+device settings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.min_rate">
+<code class="descname">min_rate</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.min_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>min_rate: ‘double’</p>
+<p>Indicates the lowest possible sampling rate possible for the current device
+settings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.num_bits">
+<code class="descname">num_bits</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.num_bits" title="Permalink to this definition">¶</a></dt>
+<dd><p>num_bits: ‘unsigned char’</p>
+<p>Indicates the number of pins on the FTDI bus that are connected to the ADC
+data port. Range is [2, 8]. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.lowest_bit" title="pybarst.ftdi.adc.ADCSettings.lowest_bit"><code class="xref py py-attr docutils literal"><span class="pre">lowest_bit</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.rate_filter">
+<code class="descname">rate_filter</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>rate_filter: ‘unsigned char’</p>
+<p>The internal code indicating the current sampling rate of the device.
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.sampling_rate" title="pybarst.ftdi.adc.ADCSettings.sampling_rate"><code class="xref py py-attr docutils literal"><span class="pre">sampling_rate</span></code></a> gets converted to the closest <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="pybarst.ftdi.adc.ADCSettings.rate_filter"><code class="xref py py-attr docutils literal"><span class="pre">rate_filter</span></code></a>
+value which controls the final sampling rate of the device.</p>
+<p>Following, is the meaning of <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="pybarst.ftdi.adc.ADCSettings.rate_filter"><code class="xref py py-attr docutils literal"><span class="pre">rate_filter</span></code></a>:</p>
+<ul class="simple">
+<li>If <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chop" title="pybarst.ftdi.adc.ADCSettings.chop"><code class="xref py py-attr docutils literal"><span class="pre">chop</span></code></a> is <cite>True</cite>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="pybarst.ftdi.adc.ADCSettings.rate_filter"><code class="xref py py-attr docutils literal"><span class="pre">rate_filter</span></code></a> can range between 2-127,
+inclusive. Therefore:<ul>
+<li>If only one of <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="pybarst.ftdi.adc.ADCSettings.chan1"><code class="xref py py-attr docutils literal"><span class="pre">chan1</span></code></a>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="pybarst.ftdi.adc.ADCSettings.chan2"><code class="xref py py-attr docutils literal"><span class="pre">chan2</span></code></a> is enabled then the
+sampling rate is <code class="docutils literal"><span class="pre">Freq</span> <span class="pre">/</span> <span class="pre">(rate_filter</span> <span class="pre">*</span> <span class="pre">128</span> <span class="pre">+</span> <span class="pre">248)</span></code>.</li>
+<li>If both <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="pybarst.ftdi.adc.ADCSettings.chan1"><code class="xref py py-attr docutils literal"><span class="pre">chan1</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="pybarst.ftdi.adc.ADCSettings.chan2"><code class="xref py py-attr docutils literal"><span class="pre">chan2</span></code></a> are enabled then the
+sampling rate is <code class="docutils literal"><span class="pre">Freq</span> <span class="pre">/</span> <span class="pre">(rate_filter</span> <span class="pre">*</span> <span class="pre">128</span> <span class="pre">+</span> <span class="pre">249)</span></code>.</li>
+</ul>
+</li>
+<li>If <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chop" title="pybarst.ftdi.adc.ADCSettings.chop"><code class="xref py py-attr docutils literal"><span class="pre">chop</span></code></a> is <cite>False</cite>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.rate_filter" title="pybarst.ftdi.adc.ADCSettings.rate_filter"><code class="xref py py-attr docutils literal"><span class="pre">rate_filter</span></code></a> can range between 3-127,
+inclusive. Therefore:<ul>
+<li>If only one of <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="pybarst.ftdi.adc.ADCSettings.chan1"><code class="xref py py-attr docutils literal"><span class="pre">chan1</span></code></a>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="pybarst.ftdi.adc.ADCSettings.chan2"><code class="xref py py-attr docutils literal"><span class="pre">chan2</span></code></a> is enabled then the
+sampling rate is <code class="docutils literal"><span class="pre">Freq</span> <span class="pre">/</span> <span class="pre">(rate_filter</span> <span class="pre">*</span> <span class="pre">64</span> <span class="pre">+</span> <span class="pre">206)</span></code>.</li>
+<li>If both <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan1" title="pybarst.ftdi.adc.ADCSettings.chan1"><code class="xref py py-attr docutils literal"><span class="pre">chan1</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.chan2" title="pybarst.ftdi.adc.ADCSettings.chan2"><code class="xref py py-attr docutils literal"><span class="pre">chan2</span></code></a> are enabled then the
+sampling rate is <code class="docutils literal"><span class="pre">Freq</span> <span class="pre">/</span> <span class="pre">(rate_filter</span> <span class="pre">*</span> <span class="pre">64</span> <span class="pre">+</span> <span class="pre">207)</span></code>.</li>
+</ul>
+</li>
+</ul>
+<p>In all cases, if both channels are enabled, the sampling rate above is for
+both channels, therefore the sampling rate per channel is half the rate
+quoted above. Also, <cite>Freq</cite> is the crystal frequency of the ADC board.
+This is controlled by the <cite>crystal_freq</cite> parameter. The resulting sampling
+rate is expressed in Hz.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.reverse">
+<code class="descname">reverse</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>reverse: ‘unsigned char’</p>
+<p>Indicates how the ADC is connected to the FTDI USB bus. If True, indicates
+that the data pins on the USB bus are flipped relative to the pins on the
+ADC device; e.g. pin 7 connects to pin 0 etc. If False the pins on the USB
+bus and ADC device go in the same direction; e.g. pin 2 is connected to
+pin 5, pin 3 to pin 6 etc.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.sampling_rate">
+<code class="descname">sampling_rate</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.sampling_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>sampling_rate: ‘double’</p>
+<p>The sampling rate used by the ADC device for each channel. The value
+controls both channels. The available sampling rates is a function of all
+the other device options.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCSettings.transfer_size">
+<code class="descname">transfer_size</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCSettings.transfer_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>transfer_size: ‘DWORD’</p>
+<p>This parameter allows you to control over how often the ADC sends data read
+back to the client. The server will wait until <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.transfer_size" title="pybarst.ftdi.adc.ADCSettings.transfer_size"><code class="xref py py-attr docutils literal"><span class="pre">transfer_size</span></code></a> data
+points for each channel (if two channels are active) has been accumulated
+and than sends <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.transfer_size" title="pybarst.ftdi.adc.ADCSettings.transfer_size"><code class="xref py py-attr docutils literal"><span class="pre">transfer_size</span></code></a> (for each channel) data points to the
+client.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.adc.ADCData">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.adc.</code><code class="descname">ADCData</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A data object returned by the ADC client after a read from the server. Each
+instance holds the most recently read data from the server for both channel
+1 and / or 2. The class returns both the raw and actual voltage data points
+as well other information about the data. See the class attributes.</p>
+<p>This class is not instantiated by the user, but is returned by
+<a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDIADC.read()</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.bad_count">
+<code class="descname">bad_count</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.bad_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>bad_count: ‘short’</p>
+<p>A value indicating the number of times for this packet that invalid data
+was read by the USB from the ADC device. None-zero values might indicate
+connection or hardware issues.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan1_data">
+<code class="descname">chan1_data</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan1_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan1_data: array.array</p>
+<p>An array of doubles containing the scaled data from channel 1. Each data
+point is the actual voltage sampled at the ADC channel port and has been
+scaled appropriately to be within the <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="pybarst.ftdi.adc.ADCSettings.input_range_str"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.input_range_str</span></code></a>
+range.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan1_data</span>
+<span class="go">array(&#39;d&#39;, [-0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan1_oor">
+<code class="descname">chan1_oor</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan1_oor" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan1_oor: ‘char’</p>
+<p>A bool indicating whether the voltage sensed on channel 1 is outside the
+range defined when creating the channel,
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="pybarst.ftdi.adc.ADCSettings.input_range_str"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.input_range_str</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan1_raw">
+<code class="descname">chan1_raw</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan1_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan1_raw: array.array</p>
+<p>An array containing the raw un-scaled 16 or 24 bit raw unsigned int data
+acquired for channel 1. If this channel is disabled, it defaults to <cite>None</cite>.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan1_raw</span>
+<span class="go">array(&#39;L&#39;, [32763L, 32763L, 32763L, 32763L, 32763L, 32763L, 32763L, 32763L, 32763L, 32763L])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan1_ts_idx">
+<code class="descname">chan1_ts_idx</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan1_ts_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan1_ts_idx: ‘DWORD’</p>
+<p>Each read operation by the USB from the ADC device gets time stamped after
+the read (uncertainty of the time stamp is a few ms, depending on the USB
+communication uncertainty). The time stamp is associated with a particular
+data point within the array since that data point would have been the first
+data point read in the next USB read. This time stamp is recorded in
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.ts" title="pybarst.ftdi.adc.ADCData.ts"><code class="xref py py-attr docutils literal"><span class="pre">ts</span></code></a>. This parameter tells you the index of this data point within
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_raw" title="pybarst.ftdi.adc.ADCData.chan1_raw"><code class="xref py py-attr docutils literal"><span class="pre">chan1_raw</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_data" title="pybarst.ftdi.adc.ADCData.chan1_data"><code class="xref py py-attr docutils literal"><span class="pre">chan1_data</span></code></a> for channel 1. E.g. a value of 10
+indicates that data point 10 in <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_data" title="pybarst.ftdi.adc.ADCData.chan1_data"><code class="xref py py-attr docutils literal"><span class="pre">chan1_data</span></code></a> was taken at about
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.ts" title="pybarst.ftdi.adc.ADCData.ts"><code class="xref py py-attr docutils literal"><span class="pre">ts</span></code></a>.</p>
+<p>Because the data in one USB read can be broken down and sent in multiple
+packets based on the <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.transfer_size" title="pybarst.ftdi.adc.ADCSettings.transfer_size"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.transfer_size</span></code></a> setting. If this
+packet doesn’t have a data point that was time stamped, <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.ts" title="pybarst.ftdi.adc.ADCData.ts"><code class="xref py py-attr docutils literal"><span class="pre">ts</span></code></a> is zero.</p>
+<p>Because data points are time stamped by the system clock regularly, it can
+be used to compare with the ADC clock (which is the number of data points
+of this channel received, multiplied by the sampling rate).</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan1_ts_idx</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan2_data">
+<code class="descname">chan2_data</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan2_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan2_data: array.array</p>
+<p>An array of doubles containing the scaled data from channel 2. Each data
+point is the actual voltage sampled at the ADC channel port and has been
+scaled appropriately to be within the <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="pybarst.ftdi.adc.ADCSettings.input_range_str"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.input_range_str</span></code></a>
+range.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan2_data</span>
+<span class="go">array(&#39;d&#39;, [-0.001220703125, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan2_oor">
+<code class="descname">chan2_oor</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan2_oor" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan2_oor: ‘char’</p>
+<p>A bool indicating whether the voltage sensed on channel 2 is outside the
+range defined when creating the channel,
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.input_range_str" title="pybarst.ftdi.adc.ADCSettings.input_range_str"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.input_range_str</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan2_raw">
+<code class="descname">chan2_raw</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan2_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan2_raw: array.array</p>
+<p>An array containing the raw un-scaled 16 or 24 bit raw unsigned int data
+acquired for channel 2. If this channel is disabled, it defaults to <cite>None</cite>.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan2_raw</span>
+<span class="go">array(&#39;L&#39;, [32764L, 32765L, 32765L, 32765L, 32765L, 32765L, 32765L, 32765L, 32765L])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.chan2_ts_idx">
+<code class="descname">chan2_ts_idx</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.chan2_ts_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan2_ts_idx: ‘DWORD’</p>
+<p>The index in <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan2_data" title="pybarst.ftdi.adc.ADCData.chan2_data"><code class="xref py py-attr docutils literal"><span class="pre">chan2_data</span></code></a> that approximately corresponds with
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.ts" title="pybarst.ftdi.adc.ADCData.ts"><code class="xref py py-attr docutils literal"><span class="pre">ts</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_ts_idx" title="pybarst.ftdi.adc.ADCData.chan1_ts_idx"><code class="xref py py-attr docutils literal"><span class="pre">chan1_ts_idx</span></code></a>.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan2_ts_idx</span>
+<span class="go">9</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.count">
+<code class="descname">count</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>count: ‘DWORD’</p>
+<p>The packet number of this instance. Everytime the server sends data to the
+client (every time <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDIADC.read()</span></code></a> is called) the internal index gets
+incremented and stored here. This allows us to recognize if a data packet
+is missing, since this index should be a continuous value.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">count</span>
+<span class="go">44</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.fullness">
+<code class="descname">fullness</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.fullness" title="Permalink to this definition">¶</a></dt>
+<dd><p>fullness: ‘float’</p>
+<p>As mentioned in <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.hw_buff_size" title="pybarst.ftdi.adc.ADCSettings.hw_buff_size"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.hw_buff_size</span></code></a>, we can select different
+sizes for the buffer length that is written to the FTDI USB device at once.
+If it is too small, than most of the buffer read would be full with ADC
+data. If it’s very large, then it should be mostly empty because it’s more
+efficient. This parameter tells you the percentage of the read buffer that
+was filled with ADC data.</p>
+<p>If this parameter is close to 100, that means the device is close to
+losing data because the buffer might be too small or the USB clock too slow
+to be able to read the data fast enough. So you should increase the buffer
+size or set a smaller sampling rate.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">fullness</span>
+<span class="go">0.0122897801921</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.noref">
+<code class="descname">noref</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.noref" title="Permalink to this definition">¶</a></dt>
+<dd><p>noref: ‘char’</p>
+<p>A bool indicating whether the hardware voltage reference on the ADC device
+is not detected. A value of True indicates a hardware error.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.overflow_count">
+<code class="descname">overflow_count</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.overflow_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>overflow_count: ‘short’</p>
+<p>Indicates the number of times data was skipped while reading the ADC
+device. For example, if the ADC is operating at a very high sampling rate
+and the FTDI USB channel is too slow, then data might simply be lost. If
+none-zero, this indicates the number of times it happened.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.rate">
+<code class="descname">rate</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>rate: ‘float’</p>
+<p>Debug information. With every packet, the server also computes the
+estimated sampling rate at which the data was taken. It should be close to
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings.sampling_rate" title="pybarst.ftdi.adc.ADCSettings.sampling_rate"><code class="xref py py-attr docutils literal"><span class="pre">ADCSettings.sampling_rate</span></code></a>.</p>
+<p>For example, the sampling rate was set to 1000Hz:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">rate</span>
+<span class="go">1187.5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.adc.ADCData.ts">
+<code class="descname">ts</code><a class="headerlink" href="#pybarst.ftdi.adc.ADCData.ts" title="Permalink to this definition">¶</a></dt>
+<dd><p>ts: ‘double’</p>
+<p>The time stamp, in server time
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">clock()</span></code></a>
+that the <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_ts_idx" title="pybarst.ftdi.adc.ADCData.chan1_ts_idx"><code class="xref py py-attr docutils literal"><span class="pre">chan1_ts_idx</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan2_ts_idx" title="pybarst.ftdi.adc.ADCData.chan2_ts_idx"><code class="xref py py-attr docutils literal"><span class="pre">chan2_ts_idx</span></code></a> data points were
+approximately taken. See <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_ts_idx" title="pybarst.ftdi.adc.ADCData.chan1_ts_idx"><code class="xref py py-attr docutils literal"><span class="pre">chan1_ts_idx</span></code></a>.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">ts</span>
+<span class="go">5.7277356845</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.adc.FTDIADC">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.adc.</code><code class="descname">FTDIADC</code><a class="headerlink" href="#pybarst.ftdi.adc.FTDIADC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDIDevice</span></code></a></p>
+<p>Controls an ADC device connected to the <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>.
+See <a class="reference internal" href="#pybarst.ftdi.adc.ADCSettings" title="pybarst.ftdi.adc.ADCSettings"><code class="xref py py-class docutils literal"><span class="pre">ADCSettings</span></code></a> for details on this device type.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a adc device with clock connected to pin 7, and 4 data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># lines at pins 3 - 6. The sampling rate is 1kHz. Both channels are</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># active. Send back data to client at every 100 data points (10Hz)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="n">ADCSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">lowest_bit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_bits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chan1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chan2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hw_buff_size</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span><span class="n">transfer_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create and open the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 B&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">adc</span>
+<span class="go">&lt;pybarst.ftdi.adc.FTDIADC object at 0x027984C8&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adc</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">adc</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span>
+<span class="go">&lt;pybarst.ftdi.adc.ADCData object at 0x0278C6B8&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan1_data</span>
+<span class="go">array(&#39;d&#39;, [-0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, -0.00152587890625, ..., -0.00152587890625])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">chan2_data</span>
+<span class="go">array(&#39;d&#39;, [-0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, -0.00091552734375, ..., -0.00091552734375])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the channel time stamp of the the data point at data.chan1_ts_idx</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">ts</span>
+<span class="go">7.34521248027</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the rate should be approximately at 1kHz +/ a few hundred Hz.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">data</span><span class="o">.</span><span class="n">rate</span>
+<span class="go">1058.51062012</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pybarst.ftdi.adc.FTDIADC.get_conversion_factors">
+<code class="descname">get_conversion_factors</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.adc.FTDIADC.get_conversion_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the factors used to scale the raw data into floating points.</p>
+<p>Returns a 3-tuple of bit-depth, multiplier, and subtractend.</p>
+<p>The formula is float = (raw / 2 ** bit_depth) * multiplier - subtractend.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.adc.FTDIADC.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.adc.FTDIADC.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.adc.FTDIADC.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.adc.FTDIADC.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to read and send the next available data from the
+ADC. This method will wait until the server sends data, or an error
+message, thereby tying up this thread. Depending on how often data is
+sent, this might take a while under error conditions.</p>
+<p>After the first call to <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> the server will continuously read
+from the device and send the results back to the client. This means
+that if the client doesn’t call <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> frequently enough data
+will accumulate in the pipe.</p>
+<p>To cancel a read request while the read is still waiting, from another
+thread you must call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a>, or just
+delete the server, which will cause this method to return with an
+error.</p>
+<p>A more gentle way of canceling a read request while not currently
+waiting in <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>, is to call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> to set it inactive,
+which will cause the next read operation to return with an error, but
+will not delete/close the channel. See that methods for more details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Each call to this method returns the next data read from the active
+channels in a <a class="reference internal" href="#pybarst.ftdi.adc.ADCData" title="pybarst.ftdi.adc.ADCData"><code class="xref py py-class docutils literal"><span class="pre">ADCData</span></code></a> instance. As long as data points
+are not missing, the data returned from subsequent reads can be
+concatenated to get a continuous data stream at the device’s
+sampling rate.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.open_channel" title="pybarst.ftdi.adc.FTDIADC.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be
+called and then device must be set to active using
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<p class="last"><a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> may/should be called immediately after
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> is
+called activating this device. When the state is activated,
+the device immediately starts sampling the ADC port, however, data
+only begins to be sent back to the client after <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> is
+called the first time. So any data sampled before <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> is
+called for the first time is lost. Once <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> is called, if
+<a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> is not called frequently enough, it just accumulates
+in the pipe, but does not get discarded.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The error attributes of <a class="reference internal" href="#pybarst.ftdi.adc.ADCData" title="pybarst.ftdi.adc.ADCData"><code class="xref py py-class docutils literal"><span class="pre">ADCData</span></code></a>
+(<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan1_oor" title="pybarst.ftdi.adc.ADCData.chan1_oor"><code class="xref py py-attr docutils literal"><span class="pre">ADCData.chan1_oor</span></code></a>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.chan2_oor" title="pybarst.ftdi.adc.ADCData.chan2_oor"><code class="xref py py-attr docutils literal"><span class="pre">ADCData.chan2_oor</span></code></a>,
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.noref" title="pybarst.ftdi.adc.ADCData.noref"><code class="xref py py-attr docutils literal"><span class="pre">ADCData.noref</span></code></a>, <a class="reference internal" href="#pybarst.ftdi.adc.ADCData.bad_count" title="pybarst.ftdi.adc.ADCData.bad_count"><code class="xref py py-attr docutils literal"><span class="pre">ADCData.bad_count</span></code></a>,
+<a class="reference internal" href="#pybarst.ftdi.adc.ADCData.overflow_count" title="pybarst.ftdi.adc.ADCData.overflow_count"><code class="xref py py-attr docutils literal"><span class="pre">ADCData.overflow_count</span></code></a>) should be checked for every
+returned instance to detect errors with the ADC device.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although multiple clients can simultaneously connect to the same
+FTDI channel, and FTDI peripheral devices; e.g. 2 clients instances
+can open the same ADC channel at the same time. Only one client is
+allowed to read at any time. That is after activation, once a
+client has called <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>, no other client is allowed to
+call <a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> until the initial client set the state to
+inactive with <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.
+After that, any client can activate the state and call
+<a class="reference internal" href="#pybarst.ftdi.adc.FTDIADC.read" title="pybarst.ftdi.adc.FTDIADC.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> again.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+  <li><a href="ftdi.html">FTDI</a><ul>
+      <li>Previous: <a href="ftdi_switch.html" title="previous chapter">FTDI Switching Devices</a></li>
+      <li>Next: <a href="rtv.html" title="next chapter">RTV</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ftdi_adc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/ftdi_adc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

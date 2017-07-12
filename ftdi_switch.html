@@ -1,0 +1,859 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FTDI Switching Devices &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FTDI ADC Device" href="ftdi_adc.html" />
+    <link rel="prev" title="FTDI Channel and Base Classes" href="ftdi_chan.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ftdi-switching-devices">
+<span id="ftdi-switch-api"></span><h1>FTDI Switching Devices<a class="headerlink" href="#ftdi-switching-devices" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.ftdi.switch">
+<span id="pybarst-ftdi-switch"></span><h2><a class="reference internal" href="#module-pybarst.ftdi.switch" title="pybarst.ftdi.switch"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.ftdi.switch</span></code></a><a class="headerlink" href="#module-pybarst.ftdi.switch" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ftdi-switch">
+<h3>FTDI Switch<a class="headerlink" href="#ftdi-switch" title="Permalink to this headline">¶</a></h3>
+<p>The FTDI switch module controls digital switching devices that are connected to
+a FTDI digital port. These devices could be the FTDI digital input and output
+pins themselves, or digital input and output devices connected and controlled
+by the FTDI digital pins.</p>
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDIPin">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDIPin</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDIDevice</span></code></a></p>
+<p>The base for the devices that directly control the states of the pins
+of the FTDI channels. See <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings" title="pybarst.ftdi.switch.PinSettings"><code class="xref py py-class docutils literal"><span class="pre">PinSettings</span></code></a> for details on this type of
+device.</p>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDIPin.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPin.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for details.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDIPinIn">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDIPinIn</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPinIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPin" title="pybarst.ftdi.switch.FTDIPin"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.switch.FTDIPin</span></code></a></p>
+<p>Reads the states of the digital pins on the FTDI channel controlled by
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings" title="pybarst.ftdi.switch.PinSettings"><code class="xref py py-class docutils literal"><span class="pre">PinSettings</span></code></a> for
+details on the device type.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a settings class to read 2 byte slices from the FTDI channel. Only the pins 0 - 3 will be read.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bitmask</span><span class="o">=</span><span class="mh">0x0F</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now create the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x0277C830&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel for this client</span>
+<span class="go">dev.open_channel()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the global state of the device to active so we can read it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="p">(</span><span class="n">byte1</span><span class="p">,</span> <span class="n">byte2</span><span class="p">)</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;time: </span><span class="si">{}</span><span class="s1">, byte1: 0b</span><span class="si">{:08b}</span><span class="s1">, byte2: 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">byte1</span><span class="p">,</span> <span class="n">byte2</span><span class="p">)</span>
+<span class="go">time: 1.25523419394, byte1: 0b00001011, byte2: 0b00001011</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="p">(</span><span class="n">byte1</span><span class="p">,</span> <span class="n">byte2</span><span class="p">)</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;time: </span><span class="si">{}</span><span class="s1">, byte1: 0b</span><span class="si">{:08b}</span><span class="s1">, byte2: 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">byte1</span><span class="p">,</span> <span class="n">byte2</span><span class="p">)</span>
+<span class="go">time: 1.25621763275, byte1: 0b00001100, byte2: 0b00001100</span>
+</pre></div>
+</div>
+<p>In the last read above, it returned <cite>0b00001100</cite>, which means that pins
+0, and 1 are low and pins 2, and 3 are high. Pins 4 - 7 are not under the
+control of the device, so they always return 0.</p>
+<p>The reason for being able to read more than one byte at once (2 in the
+example above) is to enable reading the states very quickly, i.e. at the
+device’s baud rate. E.g. if the baud rate has a clock rate of 1MHz,
+the bytes are read 2 us apart, vs having to trigger repeatedly which might
+result in reading them ms apart.</p>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDIPinIn.cancel_read">
+<code class="descname">cancel_read</code><span class="sig-paren">(</span><em>self</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPinIn.cancel_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.cancel_read" title="pybarst.ftdi.switch.FTDISerializerIn.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializerIn.cancel_read()</span></code></a> for details.</p>
+<p>This method is only callable when <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.continuous" title="pybarst.ftdi.switch.PinSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">PinSettings.continuous</span></code></a> is
+<cite>True</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDIPinIn.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to read the pins from the FTDI channel. This method
+will wait until the server sends data, or an error
+message, thereby tying up this thread.</p>
+<p>If <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.continuous" title="pybarst.ftdi.switch.PinSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">PinSettings.continuous</span></code></a> is <cite>False</cite>, each call triggers
+the server to read from the device which is then sent to the client. If
+<a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.continuous" title="pybarst.ftdi.switch.PinSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">PinSettings.continuous</span></code></a> is <cite>True</cite>, after the first call
+to <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> the server will continuously read from the device and
+send the results back to the client. This means that if the client
+doesn’t call <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> frequently enough data will accumulate in the
+pipe. Also, the data returned might have been acquired before the
+current <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> was called.</p>
+<p>To cancel a read request while the read is still waiting, from another
+thread you must call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a>, or just
+delete the server, which will cause this method to return with an
+error.</p>
+<p>A more gentle way of canceling a read request while not currently
+waiting in <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>, is to call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> to set it inactive,
+or <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.cancel_read" title="pybarst.ftdi.switch.FTDIPinIn.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a>, both of which will cause the next read
+operation to return with an error, but will not delete/close the
+channel. For the latter method, once <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> returned with an
+error, a further call to <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn.read" title="pybarst.ftdi.switch.FTDIPinIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause the reading to start
+again. See those methods for more details.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPin.open_channel" title="pybarst.ftdi.switch.FTDIPin.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.open_channel()</span></code></a> must be
+called and the device must be set to active with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2-tuple of (<cite>time</cite>, <cite>data</cite>). <cite>time</cite> is the time that the data was
+read in server time, <a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>.
+<cite>data</cite> is a list of size <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.num_bytes" title="pybarst.ftdi.switch.PinSettings.num_bytes"><code class="xref py py-attr docutils literal"><span class="pre">PinSettings.num_bytes</span></code></a>,
+where each element corresponds to a bit field of the states of the
+pins. See class description.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDIPinOut">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDIPinOut</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPinOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPin" title="pybarst.ftdi.switch.FTDIPin"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.switch.FTDIPin</span></code></a></p>
+<p>Sets the states of the pins on the FTDI channel controlled by
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings" title="pybarst.ftdi.switch.PinSettings"><code class="xref py py-class docutils literal"><span class="pre">PinSettings</span></code></a> for
+details on the device type.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a settings class to write 1 byte to the pins of the FTDI channel. Only the pins 4 - 7 will be set by this device.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mh">0xF0</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mb">0b01100000</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now create the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDIPinOut object at 0x0277C830&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel for this client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the global state of the device to active so we can write</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="go"># now set pins 4, and 5 to high</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b00110000</span><span class="p">])</span>
+<span class="go">0.0107669098094</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDIPinOut.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>self</em>, <em>data=[]</em>, <em>buff_mask=None</em>, <em>buffer=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDIPinOut.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells the server to update the states of some digital pins on the FTDI
+channel.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPin.open_channel" title="pybarst.ftdi.switch.FTDIPin.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.open_channel()</span></code></a> must be
+called and the device must be set to active with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<p>There are two parameters by which data can be written, <cite>data</cite>, or
+alternatively <cite>buff_mask</cite> combined with <cite>buffer</cite>. In each case, you can
+specify which of the pins this device controls should be changed, as
+well as the exact values they should take. The total number of bytes
+written cannot exceed <a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.num_bytes" title="pybarst.ftdi.switch.PinSettings.num_bytes"><code class="xref py py-attr docutils literal"><span class="pre">PinSettings.num_bytes</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>data</cite>: list</dt>
+<dd><p class="first"><cite>data</cite> is a list of 3-tuples to be written. Each tuple has 3
+elements: (<cite>repeat</cite>, <cite>value</cite>, <cite>mask</cite>).</p>
+<dl class="docutils">
+<dt><cite>repeat</cite>: int</dt>
+<dd><p class="first last">The number of times this data point will be replicated,
+i.e. if it’s 5, the byte will be written 5 times in
+succession.</p>
+</dd>
+<dt><cite>value</cite>: 8-bit int</dt>
+<dd><p class="first last">The bit-mask to set the pins controlled by this device.
+I.e. 0b01001000 will set pins 3 and 6 to high and the
+remaining low.</p>
+</dd>
+<dt><cite>mask</cite>: 8-bit int</dt>
+<dd><p class="first last">Indicates which pins to leave untouched (0), or update
+according to <cite>value</cite> (1). For example, if <cite>value</cite> is
+<cite>0b01001000</cite> and <cite>mask</cite> is <cite>0b01110000</cite>, then pins 0 - 3,
+and 7 will remain unchanged, while pins 4, and 5 will be
+set low and pin 6 will be set high.</p>
+</dd>
+</dl>
+<p class="last"><cite>data</cite> defaults to an empty list, <cite>[]</cite>.</p>
+</dd>
+<dt><cite>buffer</cite>: list</dt>
+<dd><p class="first">The elements in the list are 8-bit integers which will be
+written in order at the channel’s
+<code class="xref py py-attr docutils literal"><span class="pre">chan_baudrate</span></code> according to
+the <cite>buff_mask</cite> mask. The <cite>buff_mask</cite> parameter functions
+similarly to the <cite>data</cite> ‘s, <cite>mask</cite> parameter. Only pins which
+have a high value in <cite>buff_mask</cite> will be changed by the values
+in <cite>buffer</cite>, the others will remain the same.</p>
+<p class="last">Each element in <cite>buffer</cite> is similar to <cite>data</cite> ‘s, <cite>value</cite>
+parameter. A high value for the corresponding pin will set the
+pin high, and low otherwise.</p>
+</dd>
+<dt><cite>buff_mask</cite>: 8-bit int</dt>
+<dd><p class="first last">The mask which controls which pin’s state will be changed by
+the elements in <cite>buffer</cite>. E.g. a value of 0b01000001 means that
+only pin 0, and pin 6 can be changed by <cite>buffer</cite>, all the other
+pins will remain unchanged no matter their value in <cite>buffer</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float. The server time,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>, when the data was
+written.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Pins not controlled by this channel, will never be changed, no
+matter what their values were set here.</p>
+</div>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a output device which controls pins 4 - 7. Initialize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># them to 0b01100000 (pins 5, 6 high, pins 4, 7 low).</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mh">0xF0</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mb">0b01100000</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a reading device which will read the same pins</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># controlled by the output device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">bitmask</span><span class="o">=</span><span class="mh">0xF0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span><span class="p">,</span> <span class="n">write</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x0277C830&gt; &lt;pybarst.ftdi.switch.FTDIPinOut object at 0x0277C930&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open and activate all the channels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the current value, which should be the initialized one</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">)</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;read: </span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">read: 1.34129473928, 0b01100000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the states of the pins</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;wrote: </span><span class="si">{}</span><span class="s1">, 0b00110000&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b00110000</span><span class="p">]))</span>
+<span class="go">wrote: 1.3422974773, 0b00110000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">)</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;read: </span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">read: 1.34305835919, 0b00110000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;wrote: </span><span class="si">{}</span><span class="s1">, 0b10010000&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b10010000</span><span class="p">]))</span>
+<span class="go">wrote: 1.34394612316, 0b10010000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">)</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;read: </span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">read: 1.34467744028, 0b10010000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># using the mask, only pins 6 and 7 will be changed, the other</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># pins will remain unchanged since they are 0 in buff_mask</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;wrote: </span><span class="si">{}</span><span class="s1">, 0b00110000&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff_mask</span><span class="o">=</span><span class="mb">0b11000000</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="p">[</span><span class="mb">0b11000000</span><span class="p">]))</span>
+<span class="go">wrote: 1.34564691796, 0b00110000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">)</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="s1">&#39;read: </span><span class="si">{}</span><span class="s1">, 0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+<span class="go">read: 1.34642093973, 0b11010000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDISerializer">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDISerializer</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDIDevice</span></code></a></p>
+<p>The base for the serial to parallel type devices. See
+<a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings" title="pybarst.ftdi.switch.SerializerSettings"><code class="xref py py-class docutils literal"><span class="pre">SerializerSettings</span></code></a> for details on this type of device.</p>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDISerializer.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializer.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for details.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDISerializerIn">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDISerializerIn</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializerIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializer" title="pybarst.ftdi.switch.FTDISerializer"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.switch.FTDISerializer</span></code></a></p>
+<p>Controls a serial to parallel (74HC589) input device connected to the
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings" title="pybarst.ftdi.switch.SerializerSettings"><code class="xref py py-class docutils literal"><span class="pre">SerializerSettings</span></code></a> for
+details on this device type.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a settings class for the input device which has 2 74HC589</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># connected in a daisy chain fashion.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="n">SerializerSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data_bit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">latch_bit</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">num_boards</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now create the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDISerializerIn object at 0x05288D30&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel for this client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the global state of the device to active so we can read it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="go">(7.350556310186866, [True, False, True, True, False, True, True, True, True, True, False, True, True, True, True, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="go">(18.6506180676803, [True, False, False, True, False, True, False, True, True, False, True, True, True, True, False, False])</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDISerializerIn.cancel_read">
+<code class="descname">cancel_read</code><span class="sig-paren">(</span><em>self</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializerIn.cancel_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.cancel_read" title="pybarst.core.server.BarstChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a> for details.</p>
+<p>This method is only callable when <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.continuous" title="pybarst.ftdi.switch.SerializerSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.continuous</span></code></a>
+is <cite>True</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>When <cite>flush</cite> is <cite>False</cite>, the server will continue sending data that
+has already been queued, but it will not add new data to the queue.
+After the last valid read, <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will return with an error
+indicating there’s no new data coming. After that error, a further
+call to <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause a new read request and data will
+start coming again.</p>
+<p class="last">If <cite>flush</cite> is <cite>True</cite>, the server will discard all data waiting to
+be sent, and the client will not receive the final error message
+when calling <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>. Instead, a subsequent call to
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause a new read request to be sent to the server
+and data will start coming again.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDISerializerIn.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests the server to read from the serial to parallel input
+device. This method will wait until the server sends data or an error
+message, thereby tying up this thread.</p>
+<p>If <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.continuous" title="pybarst.ftdi.switch.SerializerSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.continuous</span></code></a> is <cite>False</cite>, each call triggers
+the server to read from the device which is then sent to the client. If
+<a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.continuous" title="pybarst.ftdi.switch.SerializerSettings.continuous"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.continuous</span></code></a> is <cite>True</cite>, after the first call
+to <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> the server will continuously read from the device and
+send the results back to the client. This means that if the client
+doesn’t call <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> frequently enough data will accumulate in the
+pipe. Also, the data returned might have been acquired before the
+current <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> was called.</p>
+<p>To cancel a read request while the read is still waiting, from another
+thread you must call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a>, or just
+delete the server, which will cause this method to return with an
+error.</p>
+<p>A more gentle way of canceling a read request while not currently
+waiting in <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>, is to call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> to set it inactive,
+or <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.cancel_read" title="pybarst.ftdi.switch.FTDISerializerIn.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a>, both of which will cause the next read
+operation to return with an error, but will not delete/close the
+channel. For the latter method, once <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> returned with an
+error, a further call to <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will cause the reading to start
+again. See those methods for more details.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializer.open_channel" title="pybarst.ftdi.switch.FTDISerializer.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializer.open_channel()</span></code></a>
+must be called and the device must be set to active with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2-tuple of (<cite>time</cite>, <cite>data</cite>). <cite>time</cite> is the time that the data was
+read in server time,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>.
+<cite>data</cite> is a list of size 8 * <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.num_boards" title="pybarst.ftdi.switch.SerializerSettings.num_boards"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.num_boards</span></code></a>,
+where each element corresponds (True / False) to the state of the
+corresponding pin on the 75HC589.<p>The order in the list is for the lowest element, 0, to represent
+the closest (farthest)? port in the device.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.FTDISerializerOut">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">FTDISerializerOut</code><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializerOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializer" title="pybarst.ftdi.switch.FTDISerializer"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.switch.FTDISerializer</span></code></a></p>
+<p>Controls a serial to parallel (74HC595) output device connected to the
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings" title="pybarst.ftdi.switch.SerializerSettings"><code class="xref py py-class docutils literal"><span class="pre">SerializerSettings</span></code></a> for
+details on that device type.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a settings class for the output device which has 2 74HC595</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># connected in a daisy chain fashion.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">settings</span> <span class="o">=</span> <span class="n">SerializerSettings</span><span class="p">(</span><span class="n">clock_bit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data_bit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">latch_bit</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">num_boards</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now create the channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDISerializerOut object at 0x0277C830&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># open the channel for this client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the global state of the device to active so we can write</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set the states of pins 0, 5, 15, 8 of the 595 to high, and the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># pins 3, 9 to low. The states of the other pins remain unchanged.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">set_high</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">set_low</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">0.01900274788</span>
+<span class="go"># now set pins 2, 1 to high and pins 5, 14 to low.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">dev</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">set_high</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">set_low</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">])</span>
+<span class="go">0.0191407167483</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pybarst.ftdi.switch.FTDISerializerOut.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>self</em>, <em>set_high=[]</em>, <em>set_low=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.FTDISerializerOut.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells the server to update the states of some pins on the 74HC595.
+Indices not listed in <cite>set_high</cite> or <cite>set_low</cite> remain unchanged.</p>
+<p>Before this method can be called,
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializer.open_channel" title="pybarst.ftdi.switch.FTDISerializer.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializer.open_channel()</span></code></a> must be called
+and the device must be set to active with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><cite>set_high</cite>: list</dt>
+<dd><p class="first last">A list of the pin indices to set to high. Each element in the
+list must be less than
+8 * <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.num_boards" title="pybarst.ftdi.switch.SerializerSettings.num_boards"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.num_boards</span></code></a>. The indices start at
+0. Defaults to <cite>[]</cite>.</p>
+</dd>
+<dt><cite>set_low</cite>: list</dt>
+<dd><p class="first last">A list of the pin indices to set to low. Each element in the
+list must be less than
+8 * <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.num_boards" title="pybarst.ftdi.switch.SerializerSettings.num_boards"><code class="xref py py-attr docutils literal"><span class="pre">SerializerSettings.num_boards</span></code></a>. The indices start at
+0. Defaults to <cite>[]</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float. The server time,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">pybarst.core.server.BarstServer.clock()</span></code></a>, when the data was
+written.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.PinSettings">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">PinSettings</code><span class="sig-paren">(</span><em>bitmask</em>, <em>num_bytes=1</em>, <em>init_val=0</em>, <em>continuous=False</em>, <em>output=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDISettings</span></code></a></p>
+<p>The settings class for reading and writing directly to the FTDI digital
+pins. Each FTDI channel has digital pins which can be set as output or
+input and can then be read from or written to independently.</p>
+<p>When an instance of this class is passed to a
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> in the <cite>channels</cite> parameter, it will
+create a <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a> or <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinOut" title="pybarst.ftdi.switch.FTDIPinOut"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinOut</span></code></a> in
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>, depending on the value of the
+<a class="reference internal" href="#pybarst.ftdi.switch.PinSettings.output" title="pybarst.ftdi.switch.PinSettings.output"><code class="xref py py-attr docutils literal"><span class="pre">output</span></code></a> parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>num_bytes</cite>: unsigned short</dt>
+<dd><p class="first last">The number of bytes that will be read from the USB bus for each
+read request at the <code class="xref py py-attr docutils literal"><span class="pre">chan_baudrate</span></code>
+of the channel. When the device is an output device, this
+determines the maximum number of bytes that can be written at once
+with the channel’s <code class="xref py py-attr docutils literal"><span class="pre">chan_baudrate</span></code>.</p>
+</dd>
+<dt><cite>bitmask</cite>: unsigned char</dt>
+<dd><p class="first">A bit-mask of the pins that are active for this device, either as
+input or output depending on the pin type. The high bits will be
+the active pins for this device. E.g. if it’s <cite>0b01000100</cite> and this
+is a output device, it means that pins 2, and 6 are output pins and
+are controlled by this device. The other pins will not be under
+the device’s control.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Both a <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinOut" title="pybarst.ftdi.switch.FTDIPinOut"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinOut</span></code></a> device
+can control the same pin, in which case the pin will function
+as output, but the <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a> will also be able to read
+that pin.</p>
+</div>
+</dd>
+<dt><cite>init_val</cite>: unsigned char</dt>
+<dd><p class="first last">If this is an output device, it sets the initial values (high/low)
+of the device’s active pins, otherwise it’s ignored. For example
+if pins 1, and 5 are under control of the device, and the value is
+0b01001011, then pin 1 will be initialized to high and pin 5 to
+low.</p>
+</dd>
+<dt><cite>continuous</cite>: bool</dt>
+<dd><p class="first last">Whether, when reading, we should continuously read and send data
+back to the client. This is only used for a input device (<cite>output</cite>
+is <cite>False</cite>). When <cite>True</cite>,  a single call to <code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.read()</span></code>
+after the device is activated will start the server reading the
+device continuously and sending the data back to this client. This
+will result in a potentially higher sampling rate of the device. If
+it’s <cite>False</cite>, each call to <code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.read()</span></code> will trigger a new
+read resulting in a possibly slower reading rate.</p>
+</dd>
+<dt><cite>output</cite>: bool</dt>
+<dd><p class="first last">If the active pins of this device are inputs or outputs. If True, a
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinOut" title="pybarst.ftdi.switch.FTDIPinOut"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinOut</span></code></a> will be created, otherwise a <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a>
+will be created by the <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.PinSettings.bitmask">
+<code class="descname">bitmask</code><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings.bitmask" title="Permalink to this definition">¶</a></dt>
+<dd><p>bitmask: ‘unsigned char’</p>
+<p>The pins that are active for this device, either as input or output
+depending on the pin type. The high bits will be the active pins for this
+device.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.PinSettings.continuous">
+<code class="descname">continuous</code><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings.continuous" title="Permalink to this definition">¶</a></dt>
+<dd><p>continuous: ‘int’</p>
+<p>Whether, when reading, the server should continuously read and send data
+back to the client. This is only used for a input device
+(<cite>output</cite> is <cite>False</cite>). When <cite>True</cite>,  a single call to
+<code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.read()</span></code> after the device is activated will
+start the server reading the device continuously and sending the
+data back to this client. This will result in a high sampling rate
+of the device. If it’s <cite>False</cite>, each call to
+<code class="xref py py-meth docutils literal"><span class="pre">FTDIPin.read()</span></code> will trigger a new read resulting in a possibly slower
+reading rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.PinSettings.init_val">
+<code class="descname">init_val</code><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings.init_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>init_val: ‘unsigned char’</p>
+<p>If this is an output device, what the initial values (high/low) of the
+active pins will be.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.PinSettings.num_bytes">
+<code class="descname">num_bytes</code><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings.num_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>num_bytes: ‘unsigned short’</p>
+<p>The number of bytes that will be read from the USB bus for each read
+request. The bytes will be read at the
+<code class="xref py py-attr docutils literal"><span class="pre">chan_baudrate</span></code> of the channel. When the
+device is an output device, this determines the maximum number of bytes
+that can be written at once with the channel’s
+<code class="xref py py-attr docutils literal"><span class="pre">chan_baudrate</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.PinSettings.output">
+<code class="descname">output</code><a class="headerlink" href="#pybarst.ftdi.switch.PinSettings.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>output: ‘int’</p>
+<p>If the active pins of this device are inputs or outputs. If True, a
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinOut" title="pybarst.ftdi.switch.FTDIPinOut"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinOut</span></code></a> will be created, otherwise a <a class="reference internal" href="#pybarst.ftdi.switch.FTDIPinIn" title="pybarst.ftdi.switch.FTDIPinIn"><code class="xref py py-class docutils literal"><span class="pre">FTDIPinIn</span></code></a> will
+be created by the <code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.switch.SerializerSettings">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.switch.</code><code class="descname">SerializerSettings</code><span class="sig-paren">(</span><em>clock_bit</em>, <em>data_bit</em>, <em>latch_bit</em>, <em>num_boards=1</em>, <em>clock_size=1</em>, <em>continuous=False</em>, <em>output=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">pybarst.ftdi.FTDISettings</span></code></a></p>
+<p>The settings for a serial to parallel type output / input device
+connected to the the FTDI channel. Examples are the 74HC595 for output
+and 74HC589 for input.</p>
+<p>These devices are controlled as serial devices by the controlling system
+but read / write as parallel ports. They are controlled by 3 digital lines;
+a clock line, a latch line, and a data line. The clock line is used to
+clock in / out the data and the latch line is used to perform a
+read / write from the pins of the device. To control such a device,
+you only need to indicate which pins on the FTDI digital port are connected
+to the clock, latch and data lines.</p>
+<p>Although these devices are controlled without only 3 digital lines, each
+of these device typically controls 8 digital input or output lines.
+Therefore, with only 3 lines connected to the FTDI port, once can control
+many more digital ports.</p>
+<p>When an instance of this class is passed to a
+<a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> in the <cite>channels</cite> parameter, it will
+create a <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn" title="pybarst.ftdi.switch.FTDISerializerIn"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerIn</span></code></a> or
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerOut" title="pybarst.ftdi.switch.FTDISerializerOut"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerOut</span></code></a> in <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>,
+depending on the value of the <a class="reference internal" href="#pybarst.ftdi.switch.SerializerSettings.output" title="pybarst.ftdi.switch.SerializerSettings.output"><code class="xref py py-attr docutils literal"><span class="pre">output</span></code></a> parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>clock_bit</cite>: unsigned char</dt>
+<dd><p class="first last">The pin to which the clock line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd>
+<dt><cite>data_bit</cite>: unsigned char</dt>
+<dd><p class="first last">The pin to which the data line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd>
+<dt><cite>latch_bit</cite>: unsigned char</dt>
+<dd><p class="first last">The pin to which the latch line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd>
+<dt><cite>num_boards</cite>: int</dt>
+<dd><p class="first">The number of serial to parallel boards in a daisy chain fashion
+that are connected. You can connect many of these serial to
+parallel boards in series, so that with only 3 lines you can
+control many digital pins, even though each such device only
+controls 8 pins directly. It is assumed by the software that each
+such device controls 8 lines.</p>
+<p class="last">Defaults to 1.</p>
+</dd>
+<dt><cite>clock_size</cite>: int</dt>
+<dd><p class="first">The number of clock cycles of the FTDI channel with pre-set
+baud rate to use for a single clock cycle communication with the
+device. The FTDI channel uses a pre-computed baud rate according
+to all the devices connected to the channel. E.g. if it computes
+to 1 MHz, each clock length is 1 us. If this is too fast for the
+device, we can increase the value, e.g. in the case above, a value
+of 2 for this parameter will result of 2 us clock lengths.</p>
+<p class="last">Defaults to 1, which satisfies the typical requirements if these
+devices.</p>
+</dd>
+<dt><cite>continuous</cite>: bool</dt>
+<dd><p class="first">Whether, when reading, we should continuously read and send data
+back to the client. This is only used for a input device
+(<cite>output</cite> is <cite>False</cite>). When <cite>True</cite>,  a single call to
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializerIn.read()</span></code></a> after the device is activated will
+start the server reading the device continuously and sending the
+data back to this client. This will result in a high sampling rate
+of the device. If it’s <cite>False</cite>, each call to
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializerIn.read()</span></code></a> will trigger a new read resulting in
+a much slower reading rate.</p>
+<p class="last">Defaults to <cite>False</cite>.</p>
+</dd>
+<dt><cite>output</cite>: bool</dt>
+<dd><p class="first">If the device connected is output device (74HC595) or a input
+device (74HC589). If True, a <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerOut" title="pybarst.ftdi.switch.FTDISerializerOut"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerOut</span></code></a> will be
+created, otherwise a <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn" title="pybarst.ftdi.switch.FTDISerializerIn"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerIn</span></code></a> will be created
+by the <a class="reference internal" href="ftdi_chan.html#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>.</p>
+<p class="last">Defaults to <cite>False</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.clock_bit">
+<code class="descname">clock_bit</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.clock_bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>clock_bit: ‘unsigned char’</p>
+<p>The pin to which the clock line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.clock_size">
+<code class="descname">clock_size</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.clock_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>clock_size: ‘DWORD’</p>
+<p>The number of clock cycles of the FTDI channel with pre-set
+baud rate to use for a single clock cycle communication with the
+device. The FTDI channel uses a pre-computed baud rate according
+to all the devices connected to the channel. E.g. if it computes
+to 1 MHz, each clock length is 1 us. If this is too fast for the
+device, we can increase the value, e.g. in the case above, a value
+of 2 for this parameter will result of 2 us clock lengths.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.continuous">
+<code class="descname">continuous</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.continuous" title="Permalink to this definition">¶</a></dt>
+<dd><p>continuous: ‘int’</p>
+<p>Whether, when reading, the server should continuously read and send data
+back to the client. This is only used for a input device
+(<cite>output</cite> is <cite>False</cite>). When <cite>True</cite>,  a single call to
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializerIn.read()</span></code></a> after the device is activated will
+start the server reading the device continuously and sending the
+data back to this client. This will result in a high sampling rate
+of the device. If it’s <cite>False</cite>, each call to
+<a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn.read" title="pybarst.ftdi.switch.FTDISerializerIn.read"><code class="xref py py-meth docutils literal"><span class="pre">FTDISerializerIn.read()</span></code></a> will trigger a new read resulting in
+a possibly slower reading rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.data_bit">
+<code class="descname">data_bit</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.data_bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>data_bit: ‘unsigned char’</p>
+<p>The pin to which the data line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.latch_bit">
+<code class="descname">latch_bit</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.latch_bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>latch_bit: ‘unsigned char’</p>
+<p>The pin to which the latch line of the serial to parallel device is
+connected at the FTDI channel. Typically between 0 - 7.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.num_boards">
+<code class="descname">num_boards</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.num_boards" title="Permalink to this definition">¶</a></dt>
+<dd><p>num_boards: ‘DWORD’</p>
+<p>The number of serial to parallel boards in a daisy chain fashion
+that are connected. You can connect many of these serial to
+parallel boards in series, so that with only 3 lines you can
+control many digital pins, even though each such device only
+controls 8 pins directly. It is assumed by the software that each
+such device controls 8 lines.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.switch.SerializerSettings.output">
+<code class="descname">output</code><a class="headerlink" href="#pybarst.ftdi.switch.SerializerSettings.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>output: ‘int’</p>
+<p>If the device connected is output device (74HC595) or a input
+device (74HC589). If True, a <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerOut" title="pybarst.ftdi.switch.FTDISerializerOut"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerOut</span></code></a> will be
+created, otherwise a <a class="reference internal" href="#pybarst.ftdi.switch.FTDISerializerIn" title="pybarst.ftdi.switch.FTDISerializerIn"><code class="xref py py-class docutils literal"><span class="pre">FTDISerializerIn</span></code></a> will be created
+by the <code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+  <li><a href="ftdi.html">FTDI</a><ul>
+      <li>Previous: <a href="ftdi_chan.html" title="previous chapter">FTDI Channel and Base Classes</a></li>
+      <li>Next: <a href="ftdi_adc.html" title="next chapter">FTDI ADC Device</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ftdi_switch.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/ftdi_switch.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

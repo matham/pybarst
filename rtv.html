@@ -1,0 +1,482 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RTV &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Serial" href="serial.html" />
+    <link rel="prev" title="FTDI ADC Device" href="ftdi_adc.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rtv">
+<span id="rtv-api"></span><h1>RTV<a class="headerlink" href="#rtv" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.rtv">
+<span id="pybarst-rtv"></span><h2><a class="reference internal" href="#module-pybarst.rtv" title="pybarst.rtv"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.rtv</span></code></a><a class="headerlink" href="#module-pybarst.rtv" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rtv-channel">
+<h3>RTV Channel<a class="headerlink" href="#rtv-channel" title="Permalink to this headline">¶</a></h3>
+<p>The Barst RTV interface. An RTV channel is a interface to a RTV camera sampling
+device such as the RTV-24. See <a class="reference internal" href="#pybarst.rtv.RTVChannel" title="pybarst.rtv.RTVChannel"><code class="xref py py-class docutils literal"><span class="pre">RTVChannel</span></code></a> for details.</p>
+<div class="section" id="driver-requirements">
+<h4>Driver requirements<a class="headerlink" href="#driver-requirements" title="Permalink to this headline">¶</a></h4>
+<p>In order to create RTV channels, the RTV WDM drivers must be installed. In
+particular, the server dynamically loads the <cite>AngeloRTV.dll</cite> dll from the
+system path. The server automatically loads the 64 or 32-bit version,
+depending on whether the server is 32 or 64-bit.</p>
+<p>If driver errors arise, either, the driver is not installed, an older version
+of the driver is installed, or the incorrect 64/32-bit version is installed.</p>
+</div>
+<div class="section" id="typical-usage">
+<h4>Typical usage<a class="headerlink" href="#typical-usage" title="Permalink to this headline">¶</a></h4>
+<p>For the RTV channel, typically, the client creates a <a class="reference internal" href="#pybarst.rtv.RTVChannel" title="pybarst.rtv.RTVChannel"><code class="xref py py-class docutils literal"><span class="pre">RTVChannel</span></code></a> and
+then calls <a class="reference internal" href="#pybarst.rtv.RTVChannel.open_channel" title="pybarst.rtv.RTVChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">RTVChannel.open_channel()</span></code></a> on it to create the
+channel on the server. Once created, no other client can connect to this
+channel because RTV channels do not support connections to multiple clients.</p>
+<p>After creation, the client must call <a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">RTVChannel.set_state()</span></code></a> to activate
+the channel. Once activated, the server immediately starts sending data back to
+the client, and the client should start calling <a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">RTVChannel.read()</span></code></a> to
+get the data.</p>
+<p>When a client wants to stop getting data, it can call
+<a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">RTVChannel.set_state()</span></code></a> to just deactivate the channel, or
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> to delete
+the channel from the server altogether.
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> is not
+supported, and if it is called,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> will have to be
+called before <a class="reference internal" href="#pybarst.rtv.RTVChannel.open_channel" title="pybarst.rtv.RTVChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">RTVChannel.open_channel()</span></code></a> can be called again.</p>
+<dl class="class">
+<dt id="pybarst.rtv.RTVChannel">
+<em class="property">class </em><code class="descclassname">pybarst.rtv.</code><code class="descname">RTVChannel</code><span class="sig-paren">(</span><em>int chan</em>, <em>BarstServer server</em>, <em>video_fmt='full_NTSC'</em>, <em>frame_fmt='rgb24'</em>, <em>unsigned char brightness=128</em>, <em>unsigned char hue=0</em>, <em>unsigned char u_saturation=127</em>, <em>unsigned char v_saturation=90</em>, <em>unsigned char luma_contrast=124</em>, <em>unsigned char luma_filt=0</em>, <em>int lossless=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.rtv.RTVChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel" title="pybarst.core.server.BarstChannel"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstChannel</span></code></a></p>
+<p>An RTV interface channel.</p>
+<p>A RTV channel controls a single RTV port which samples from a single
+camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>chan</cite>: int</dt>
+<dd><p class="first last">The channel number of the port. The RTV ports are assigned
+different channel numbers by the RTV driver. By using the proper
+channel number you can select which RTV channel to sample from.</p>
+</dd>
+<dt><cite>server</cite>: <a class="reference internal" href="server.html#pybarst.core.server.BarstServer" title="pybarst.core.server.BarstServer"><code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></a></dt>
+<dd><p class="first last">An instance of a server through which this channel is opened.</p>
+</dd>
+<dt><cite>video_fmt</cite>: str</dt>
+<dd><p class="first last">The size of the videos captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.video_fmt" title="pybarst.rtv.RTVChannel.video_fmt"><code class="xref py py-attr docutils literal"><span class="pre">video_fmt</span></code></a>. Defaults to
+<cite>‘full_NTSC’</cite>.</p>
+</dd>
+<dt><cite>frame_fmt</cite>: str</dt>
+<dd><p class="first last">The format of the images captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.frame_fmt" title="pybarst.rtv.RTVChannel.frame_fmt"><code class="xref py py-attr docutils literal"><span class="pre">frame_fmt</span></code></a>. Defaults
+to <cite>‘rgb24’</cite>.</p>
+</dd>
+<dt><cite>brightness</cite>: unsigned char</dt>
+<dd><p class="first last">The brightness of the images captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.brightness" title="pybarst.rtv.RTVChannel.brightness"><code class="xref py py-attr docutils literal"><span class="pre">brightness</span></code></a>.
+Defaults to to <cite>128</cite>.</p>
+</dd>
+<dt><cite>hue</cite>: unsigned char</dt>
+<dd><p class="first last">The hue of the captured images. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.hue" title="pybarst.rtv.RTVChannel.hue"><code class="xref py py-attr docutils literal"><span class="pre">hue</span></code></a>. Defaults to <cite>0</cite>.</p>
+</dd>
+<dt><cite>u_saturation</cite>: unsigned char</dt>
+<dd><p class="first last">The chroma (U) of the images captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.u_saturation" title="pybarst.rtv.RTVChannel.u_saturation"><code class="xref py py-attr docutils literal"><span class="pre">u_saturation</span></code></a>.
+Defaults to <cite>127</cite>.</p>
+</dd>
+<dt><cite>v_saturation</cite>: unsigned char</dt>
+<dd><p class="first last">The chroma (V) of the images captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.v_saturation" title="pybarst.rtv.RTVChannel.v_saturation"><code class="xref py py-attr docutils literal"><span class="pre">v_saturation</span></code></a>.
+Defaults to <cite>90</cite>.</p>
+</dd>
+<dt><cite>luma_contrast</cite>: unsigned char</dt>
+<dd><p class="first last">The luma of the images captured. See <a class="reference internal" href="#pybarst.rtv.RTVChannel.luma_contrast" title="pybarst.rtv.RTVChannel.luma_contrast"><code class="xref py py-attr docutils literal"><span class="pre">luma_contrast</span></code></a>.
+Defaults to <cite>124</cite>.</p>
+</dd>
+<dt><cite>luma_filt</cite>: unsigned char</dt>
+<dd><p class="first last">Whether the luma notch filter is enabled (black and white, True)
+or disabled (color, False). See <a class="reference internal" href="#pybarst.rtv.RTVChannel.luma_filt" title="pybarst.rtv.RTVChannel.luma_filt"><code class="xref py py-attr docutils literal"><span class="pre">luma_filt</span></code></a>. Defaults to <cite>0</cite>.</p>
+</dd>
+<dt><cite>lossless</cite>: int</dt>
+<dd><p class="first last">Whether all frames should be sent to the client or if frames should
+only be sent when no other frames are waiting to be sent. See
+<a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a>. Defaults to <cite>True</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a channel controlling port 0, returning rgb24 images of size 640x480.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span> <span class="o">=</span> <span class="n">RTVChannel</span><span class="p">(</span><span class="n">chan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">video_fmt</span><span class="o">=</span><span class="s1">&#39;full_NTSC&#39;</span><span class="p">,</span> <span class="n">frame_fmt</span><span class="o">=</span><span class="s1">&#39;rgb24&#39;</span><span class="p">,</span> <span class="n">lossless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rtv</span>
+<span class="go">&lt;pybarst.rtv._rtv.RTVChannel object at 0x05676718&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># print the image and buffer size information</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rtv</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">rtv</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">rtv</span><span class="o">.</span><span class="n">bpp</span><span class="p">,</span> <span class="n">rtv</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">,</span> <span class="n">rtv</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">rtv</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">rtv</span><span class="o">.</span><span class="n">bpp</span>
+<span class="go">640 480 3 921600 921600</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtv</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now read the first image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the size of the data should be the same as rtv.buffer_size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">t</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">0.0544582486987 921600</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For the RTV channel, the python client currently does not support
+reading from a channel that is already open on the server. I.e.
+each channel can only have its state set and read from by a single
+client at once. An <cite>already open</cite> error will be raised when trying to
+open an already existing RTV channel using <a class="reference internal" href="#pybarst.rtv.RTVChannel.open_channel" title="pybarst.rtv.RTVChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a>.</p>
+</div>
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.bpp">
+<code class="descname">bpp</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.bpp" title="Permalink to this definition">¶</a></dt>
+<dd><p>bpp: ‘unsigned char’</p>
+<p>The average bytes per pixel for the images returned by the server. This is
+automatically set and is read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.brightness">
+<code class="descname">brightness</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.brightness" title="Permalink to this definition">¶</a></dt>
+<dd><p>brightness: ‘unsigned char’</p>
+<p>The brightness of the acquired images.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.buffer_size">
+<code class="descname">buffer_size</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.buffer_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>buffer_size: ‘DWORD’</p>
+<p>The size of the buffer, in bytes, required to hold a single image given
+the current settings. This is automatically set by the server and is read
+only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.frame_fmt">
+<code class="descname">frame_fmt</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.frame_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>frame_fmt: object</p>
+<p>Selects the image format in which the frames are returned by the
+driver. Can be one of <cite>rgb16</cite> (rgb565le in ffmpeg), <cite>gray</cite> (gray in
+ffmpeg), <cite>rgb15</cite> (rgb555le in ffmpeg), <cite>rgb24</cite> (rgb24 in ffmpeg), <cite>rgb32</cite>
+(rgba in ffmpeg), <cite>rgb8</cite>, <cite>raw8x</cite>, or <cite>yuy24:2:2</cite>. <cite>rgb8</cite>, <cite>raw8x</cite>, and
+<cite>yuy24:2:2</cite> are not tested.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.height">
+<code class="descname">height</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>height: ‘int’</p>
+<p>The height of the images returned by the server. This is automatically set
+and is read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.hue">
+<code class="descname">hue</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.hue" title="Permalink to this definition">¶</a></dt>
+<dd><p>hue: ‘unsigned char’</p>
+<p>The hue of the acquired images.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.lossless">
+<code class="descname">lossless</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.lossless" title="Permalink to this definition">¶</a></dt>
+<dd><p>lossless: ‘int’</p>
+<p>If this is true, then every frame acquired by the server will be sent to
+the client. This ensures that no frame is missed. However, if the client
+doesn’t read them quickly enough, a lot of RAM will be used up quickly due
+to the space required to hold them in RAM while it’s waiting to be sent to
+the client.</p>
+<p>If it’s false, a frame will only be sent if no other frame is waiting to
+be sent. So when we queue a frame, as long as the client has not read this
+frame, no other frame will be queued for sending.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.luma_contrast">
+<code class="descname">luma_contrast</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.luma_contrast" title="Permalink to this definition">¶</a></dt>
+<dd><p>luma_contrast: ‘unsigned char’</p>
+<p>The luma of the acquired images.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.luma_filt">
+<code class="descname">luma_filt</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.luma_filt" title="Permalink to this definition">¶</a></dt>
+<dd><p>luma_filt: ‘unsigned char’</p>
+<p>Whether the luma notch filter is enabled (black and white, True) or
+disabled (color, False).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.rtv.RTVChannel.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.rtv.RTVChannel.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a new channel on the server and connects the
+client to it. If the channel already exists, a error will be raised.</p>
+<p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for more
+details.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Since you cannot open an existing channel, once the channel is
+created to reconnect to the channel you’ll first have to delete it.
+I.e. if you call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a>
+which disconnect the client but leaves the channel on the server,
+then you won’t be able to call <a class="reference internal" href="#pybarst.rtv.RTVChannel.open_channel" title="pybarst.rtv.RTVChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> again without
+raising an error. Instead you’ll first have to call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> to
+delete the channel from the server.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.rtv.RTVChannel.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.rtv.RTVChannel.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads an images sampled from the camera connected to port controlled
+by this RTV Channel. Once activated, there server continuously sends
+back images to the client, which is read with this method.</p>
+<p>This method will wait until the server sends data or an error
+message is raised, thereby tying up this thread. To cancel a read,
+from another thread you must call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a>, or just
+close the the server, which will cause this method to return with an
+error. A better method to cancel a read is <a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> with
+<cite>flush</cite> set to <cite>True</cite>, and <cite>state</cite> <cite>False</cite>. However, that method may
+raise an exception if the state is not already active.</p>
+<p>After <a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> is called to activate the channel, the server
+will continuously read from the device and send the results back to the
+client. If <a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a> is <cite>False</cite>, the server will only send the
+most recent image if no image is waiting to be sent.</p>
+<p>However, if <a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a> is <cite>True</cite>, then the server will
+continuously send back images to the server, no matter how many are
+still waiting to be sent. This means that if the client doesn’t call
+<a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> frequently enough data will accumulate in the pipe. Also,
+the data returned might have been acquired before <a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> was
+called.</p>
+<p>Before this method can be called, <a class="reference internal" href="#pybarst.rtv.RTVChannel.open_channel" title="pybarst.rtv.RTVChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> must be called
+and the device must be set to active with <a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a>.
+<a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> will raise an exception if it’s called when inactive.</p>
+<p>To stop the server from reading and sending data back to the client,
+set <a class="reference internal" href="#pybarst.rtv.RTVChannel.set_state" title="pybarst.rtv.RTVChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> to inactive for this channel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2-tuple of (<cite>time</cite>, <cite>data</cite>). <cite>time</cite> is the time that the data was
+read in channel time,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstServer.clock" title="pybarst.core.server.BarstServer.clock"><code class="xref py py-meth docutils literal"><span class="pre">clock()</span></code></a>.
+<cite>data</cite> is a python <cite>bytearray</cite> containing the
+raw image data as determined by the <a class="reference internal" href="#pybarst.rtv.RTVChannel.video_fmt" title="pybarst.rtv.RTVChannel.video_fmt"><code class="xref py py-attr docutils literal"><span class="pre">video_fmt</span></code></a> and
+<a class="reference internal" href="#pybarst.rtv.RTVChannel.frame_fmt" title="pybarst.rtv.RTVChannel.frame_fmt"><code class="xref py py-attr docutils literal"><span class="pre">frame_fmt</span></code></a> settings.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, with <a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a> <cite>False</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># do a read</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">t</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">0.0704396276054 921600</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now stop reading for two seconds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># resume reading. The first few frames will be old data.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">0.103799921367</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">0.170531751867</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rtv</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">2.53962433471</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When reading with <a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a> <cite>False</cite>, if waiting between
+between reads, the first 1 or 2 images read when resuming reading
+might be older images from when the reading initially stopped.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When <a class="reference internal" href="#pybarst.rtv.RTVChannel.lossless" title="pybarst.rtv.RTVChannel.lossless"><code class="xref py py-attr docutils literal"><span class="pre">lossless</span></code></a> is <cite>True</cite>, if the client doesn’t read the
+images and <a class="reference internal" href="server.html#pybarst.core.server.BarstServer.max_server_size" title="pybarst.core.server.BarstServer.max_server_size"><code class="xref py py-attr docutils literal"><span class="pre">max_server_size</span></code></a>
+is set (i.e. not -1), then after the size has been exceeded, the
+server will go into an error state.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.rtv.RTVChannel.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.rtv.RTVChannel.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> for details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When the state is set to active, the RTV server will immediately
+start sending images back to the client, even before the first call
+to <a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a>. So a user should start calling <a class="reference internal" href="#pybarst.rtv.RTVChannel.read" title="pybarst.rtv.RTVChannel.read"><code class="xref py py-meth docutils literal"><span class="pre">read()</span></code></a> as
+soon as this method is called.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.u_saturation">
+<code class="descname">u_saturation</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.u_saturation" title="Permalink to this definition">¶</a></dt>
+<dd><p>u_saturation: ‘unsigned char’</p>
+<p>The chroma (U) of the acquired images.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.v_saturation">
+<code class="descname">v_saturation</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.v_saturation" title="Permalink to this definition">¶</a></dt>
+<dd><p>v_saturation: ‘unsigned char’</p>
+<p>The chroma (V) of the acquired images.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.video_fmt">
+<code class="descname">video_fmt</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.video_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>video_fmt: object</p>
+<p>The video format that the RTV driver should use to capture the video. This
+parameter determines the size of the video being captured. In all cases the
+frame rate is approximately 30, provided the system has enough resources
+to process them.</p>
+<p>Possible values are: <cite>full_NTSC</cite> for 640x480, <cite>full_PAL</cite> for 768x576,
+<cite>CIF_NTSC</cite> for 320x240, <cite>CIF_PAL</cite> for 384x288, <cite>QCIF_NTSC</cite> for 160x120,
+and <cite>QCIF_PAL</cite> for 192x144.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.rtv.RTVChannel.width">
+<code class="descname">width</code><a class="headerlink" href="#pybarst.rtv.RTVChannel.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>width: ‘int’</p>
+<p>The width of the images returned by the server. This is automatically set
+and is read only.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+      <li>Previous: <a href="ftdi_adc.html" title="previous chapter">FTDI ADC Device</a></li>
+      <li>Next: <a href="serial.html" title="next chapter">Serial</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/rtv.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/rtv.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

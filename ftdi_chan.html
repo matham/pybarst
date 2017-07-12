@@ -1,0 +1,653 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FTDI Channel and Base Classes &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FTDI Switching Devices" href="ftdi_switch.html" />
+    <link rel="prev" title="FTDI" href="ftdi.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ftdi-channel-and-base-classes">
+<span id="ftdi-chan-api"></span><h1>FTDI Channel and Base Classes<a class="headerlink" href="#ftdi-channel-and-base-classes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pybarst.ftdi">
+<span id="pybarst-ftdi"></span><h2><a class="reference internal" href="#module-pybarst.ftdi" title="pybarst.ftdi"><code class="xref py py-mod docutils literal"><span class="pre">pybarst.ftdi</span></code></a><a class="headerlink" href="#module-pybarst.ftdi" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ftdi-channel">
+<h3>FTDI Channel<a class="headerlink" href="#ftdi-channel" title="Permalink to this headline">¶</a></h3>
+<p>The Barst FTDI interface. An FTDI channel is a FT device, e.g. the FT2232H
+which has one or more ports on the device. Each port has a number of digital
+input / output lines that can be controlled independently.</p>
+<p>When a FTDI channel is created, we describe the devices connected to these
+ports, which could anything from a ADC, to a serial / parallel converter to
+simple digital input / output pins. The <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> sub-classes
+are used to initialize these devices.</p>
+<div class="section" id="driver-requirements">
+<h4>Driver requirements<a class="headerlink" href="#driver-requirements" title="Permalink to this headline">¶</a></h4>
+<p>In order to create ftdi channels, the ftdi D2XX drivers
+(<a class="reference external" href="http://www.ftdichip.com/Drivers/D2XX.htm">http://www.ftdichip.com/Drivers/D2XX.htm</a>) must be installed. In
+particular, the server dynamically loads the <cite>ftd2xx.dll</cite> dll from the
+system path. The server automatically loads the 64 or 32-bit version,
+depending on whether the server is 32 or 64-bit.</p>
+<p>If driver errors arise, either, the driver is not installed, an older version
+of the driver is installed, or the incorrect 64/32-bit version is installed.</p>
+</div>
+<div class="section" id="typical-usage">
+<h4>Typical usage<a class="headerlink" href="#typical-usage" title="Permalink to this headline">¶</a></h4>
+<p>The FTDI channel is different than other channels. For the
+<a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>, instead of operating on the channel directly, one
+initializes the channel with <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> derived classes
+indicating which <em>peripheral</em> <a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> derived devices are
+connected to the <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>, and those <a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> devices
+are manipulated, not the <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> itself.</p>
+<p>So typically, a client creates a <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> and passes it a list
+of <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> indicating which peripherals are connected to the
+<a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>. Then, the client calls <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.open_channel" title="pybarst.ftdi.FTDIChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">FTDIChannel.open_channel()</span></code></a>
+on it, which creates the channel and all its peripherals on the server
+as well as in the clients <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">FTDIChannel.devices</span></code></a>.
+At that point, other clients can create <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> instances,
+which will automatically have their peripherals initialized.</p>
+<p>When created, the peripherals themselves are not yet open, so each client
+has to call <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> on the
+peripherals it wants to communicate with first. Following that, a client
+can set the global state to active/inactive with
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> and then start
+reading/writing to them. Some peripherals support multiple clients reading
+and/or writing  to them at the same time, while others don’t. Some
+devices support modes where the server continuously reads and sends back
+data to all the clients that subscribed to the channel.</p>
+<p>When a client wants to stop getting data, it can call
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> to just deactivate the
+channel, or <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> to
+delete the channel from the server altogether, or,
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_client" title="pybarst.core.server.BarstChannel.close_channel_client"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_client()</span></code></a> to just close
+the connection for this client, while leaving the channel’s state on the
+server unchanged.</p>
+<p>Finally, some peripherals support the
+<a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.cancel_read" title="pybarst.core.server.BarstChannel.cancel_read"><code class="xref py py-meth docutils literal"><span class="pre">cancel_read()</span></code></a> method, to cancel
+a continuous read triggered by this client.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">An FTDI channel supports the activation and deactivation of its
+peripherals independently of each other. When a peripheral is activated,
+the FTDI channel may change it hardware settings to run as efficiently as
+possible. As a consequence, the state of the internal buffers may
+be interrupted. In particular, it’s not recommended to change the state
+of any peripheral while an <a class="reference internal" href="ftdi_adc.html#pybarst.ftdi.adc.FTDIADC" title="pybarst.ftdi.adc.FTDIADC"><code class="xref py py-class docutils literal"><span class="pre">FTDIADC</span></code></a> is actively
+sampling because it will disrupt the device.</p>
+</div>
+<dl class="class">
+<dt id="pybarst.ftdi.FTDISettings">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.</code><code class="descname">FTDISettings</code><a class="headerlink" href="#pybarst.ftdi.FTDISettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for the settings describing FTDI devices connected to a FTDI
+channel. This class is never created directly.</p>
+<p>A FTDI channel can control multiple devices connected to its digital pins
+at the same time. Therefore, when a FTDI channel is created, a list of
+settings describing each connected device must be supplied to the
+constructor and is then used by the channel to create the channel and
+sub-devices for each device connected to the channel. This is the base
+class for these settings. <a class="reference internal" href="ftdi_adc.html#pybarst.ftdi.adc.ADCSettings" title="pybarst.ftdi.adc.ADCSettings"><code class="xref py py-class docutils literal"><span class="pre">ADCSettings</span></code></a> is an
+example of a settings class.</p>
+<p>See <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> for more details.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.FTDIChannel">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.</code><code class="descname">FTDIChannel</code><span class="sig-paren">(</span><em>list channels</em>, <em>BarstServer server</em>, <em>serial=None</em>, <em>desc=None</em>, <em>baudrate=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel" title="pybarst.core.server.BarstChannel"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstChannel</span></code></a></p>
+<p>An FTDI channel.</p>
+<p>An FTDI channel describes a single FTDI device, e.g. a FT2232H or a
+FT232R. Each FTDI device has one or more peripheral devices connected to
+it. For example, an ADC board could be interfaced with a PC through the
+digital port on a FT232R. Similarly, you can read/write directly to the
+pins of the FTDI channel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>channels</cite>: list</dt>
+<dd><p class="first">A list of instances of <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> derived classes
+each describing a peripheral device connected to the FTDI port.
+For each <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> instance, a corresponding
+<a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> derived class instance (in the same order as
+in this list)
+will be created and stored in <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>. See <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>.
+Similarly, for each created <a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> instance,
+<a class="reference internal" href="#pybarst.ftdi.FTDIDevice.settings" title="pybarst.ftdi.FTDIDevice.settings"><code class="xref py py-attr docutils literal"><span class="pre">FTDIDevice.settings</span></code></a> stores the settings with which the
+device was created.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If this channel already exists on the server, e.g. if a
+previous client created the channel and now a second client
+created this channel instance and wants to connect to it.
+Then this list will be ignored and instead the list of devices
+will be created from the existing channel on the server,
+ensuring the devices created are consistent across clients that
+open them.</p>
+</div>
+</dd>
+<dt><cite>server</cite>: <a class="reference internal" href="server.html#pybarst.core.server.BarstServer" title="pybarst.core.server.BarstServer"><code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code></a></dt>
+<dd><p class="first last">An instance of a server through which this channel is opened.</p>
+</dd>
+<dt><cite>serial</cite>: bytes</dt>
+<dd><p class="first last">The serial number used to identify the device to open.
+Either the <cite>serial</cite> number or the device description, <cite>desc</cite>, must
+be provided. See <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.dev_serial" title="pybarst.ftdi.FTDIChannel.dev_serial"><code class="xref py py-attr docutils literal"><span class="pre">dev_serial</span></code></a> for more details.</p>
+</dd>
+<dt><cite>desc</cite>: bytes</dt>
+<dd><p class="first last">The descriptions used to identify the device to open.
+Either the <cite>serial</cite> number or the device description, <cite>desc</cite>, must
+be provided. See <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.dev_description" title="pybarst.ftdi.FTDIChannel.dev_description"><code class="xref py py-attr docutils literal"><span class="pre">dev_description</span></code></a> for more details.</p>
+</dd>
+<dt><cite>baudrate</cite>: unsigned int</dt>
+<dd><p class="first last">The maximum baud rate this channel can use. See <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.baudrate" title="pybarst.ftdi.FTDIChannel.baudrate"><code class="xref py py-attr docutils literal"><span class="pre">baudrate</span></code></a>
+for more details. Defaults to <cite>0</cite>. It is not recommended that
+this be changed.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.baudrate">
+<code class="descname">baudrate</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.baudrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>baudrate: ‘DWORD’</p>
+<p>The baud rate used by the FTDI channel. The FTDI peripherals run at a
+specific clock rate controlled by the baud rate. By default, the server
+sets the channel baudrate to the maximum supported by the devices
+connected to the channel, as well based on the FTDI channel type.</p>
+<p>When supplying a none-zero value for this attribute, the channel baud rate
+will not exceed that value. Although it is not recommend to change this
+value, it might be necessary to lower the baud rate here in the face of
+hardware issues. However, a lower baud rate may adversely affect the
+devices, in particular the <a class="reference internal" href="ftdi_adc.html#pybarst.ftdi.adc.FTDIADC" title="pybarst.ftdi.adc.FTDIADC"><code class="xref py py-class docutils literal"><span class="pre">FTDIADC</span></code></a> peripheral.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.chan_min_buff_in">
+<code class="descname">chan_min_buff_in</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.chan_min_buff_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan_min_buff_in: ‘DWORD’</p>
+<p>Debug information. Describes the number of bytes allocated for the
+pipe for writing to the server. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.chan_min_buff_out">
+<code class="descname">chan_min_buff_out</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.chan_min_buff_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>chan_min_buff_out: ‘DWORD’</p>
+<p>Debug information. Describes the number of bytes allocated for the
+pipe for reading from the server. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.dev_description">
+<code class="descname">dev_description</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.dev_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>dev_description: object</p>
+<p>The description of the device. FTDI devices can be opened by their
+serial numbers and description strings. Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">dev_description</span>
+<span class="go">Birch Board rev1 A</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For FTDI devices that embed 2 channels in a single device, e.g. the
+FT2232H, the device still has a single description. So to identify the
+channel in question, either an A or B is appended to the description.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.dev_id">
+<code class="descname">dev_id</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.dev_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>dev_id: ‘DWORD’</p>
+<p>The ID of this FTDI device.
+Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">dev_id</span>
+<span class="go">67330064</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.dev_loc">
+<code class="descname">dev_loc</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.dev_loc" title="Permalink to this definition">¶</a></dt>
+<dd><p>dev_loc: ‘DWORD’</p>
+<p>The location on the USB bus where this FTDI device is connected to.
+Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">dev_loc</span>
+<span class="go">29217</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.dev_serial">
+<code class="descname">dev_serial</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.dev_serial" title="Permalink to this definition">¶</a></dt>
+<dd><p>dev_serial: object</p>
+<p>The Serial number of this device. Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">dev_serial</span>
+<span class="go">FTWR60CBA</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For FTDI devices that embed 2 channels in a single device, e.g. the
+FT2232H, the device still has a single serial number. So to identify
+the channel in question, either an A or B is appended to the serial
+number.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.dev_type">
+<code class="descname">dev_type</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.dev_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>dev_type: ‘DWORD’</p>
+<p>The device type code given by the FTDI driver for this FTDI device.
+Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">dev_type</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.devices">
+<code class="descname">devices</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>devices: list</p>
+<p>A list of <a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> instances which control the devices
+connected to this FTDI channel. Each device is a peripheral device
+connected to the channel, e.g. an ADC, a serial to parallel converter etc.
+Read only.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">BarstServer</span><span class="p">(</span><span class="n">barst_path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">pipe_name</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\.\pipe\TestPipe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">open_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">get_manager</span><span class="p">(</span><span class="s1">&#39;ftdi&#39;</span><span class="p">)</span>
+<span class="go">{&#39;ftdi&#39;: {&#39;version&#39;: 197127L, &#39;chan&#39;: 0, &#39;chan_id&#39;: &#39;FTDIMan&#39;}}</span>
+<span class="go"># open the channel with two pin devices, one input the other output</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bitmask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bitmask</span><span class="o">=</span><span class="mh">0x0F</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">init_val</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go"># open the channel using its description</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">devices</span>
+<span class="go">[&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x05338D30&gt;,</span>
+<span class="go">&lt;pybarst.ftdi.switch.FTDIPinOut object at 0x05338DB0&gt;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.is_full_speed">
+<code class="descname">is_full_speed</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.is_full_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>is_full_speed: ‘unsigned char’</p>
+<p>Describes whether the FTDI channel is a full speed FTDI device. Read
+only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.is_high_speed">
+<code class="descname">is_high_speed</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.is_high_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>is_high_speed: ‘char’</p>
+<p>Describes whether the FTDI channel is a high speed FTDI device. Read
+only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIChannel.is_open">
+<code class="descname">is_open</code><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>is_open: ‘unsigned char’</p>
+<p>Describes whether the FTDI driver has opened this channel. Read only.
+This does not indicate whether the server has this channel open, just
+if the driver had it open the last time we checked.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.FTDIChannel.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em>, <em>alloc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a>.</p>
+<p>Every time this method is called, <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a> is updated with a new
+list of devices. Therefore, any references to the devices that were on
+the list previously must be updated to the new devices. If the channel
+already exists on the server, the devices list will be created from
+the devices which initially created the channel, other <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">devices</span></code></a>
+will be used to create the channel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>alloc</cite>: bool</dt>
+<dd><p class="first last">Whether we should create the channel on the server if the
+channel doesn’t already exist. If False and the channel doesn’t
+exist yet on the server, an error will be raised. Otherwise,
+the channel will be created automatically. Defaults to False.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a channel with a read and write pin device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bitmask</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write</span> <span class="o">=</span> <span class="n">PinSettings</span><span class="p">(</span><span class="n">num_bytes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bitmask</span><span class="o">=</span><span class="mh">0x0F</span><span class="p">,</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">init_val</span><span class="o">=</span><span class="mh">0xFF</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span> <span class="o">=</span> <span class="n">FTDIChannel</span><span class="p">(</span><span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="n">read</span><span class="p">,</span> <span class="n">write</span><span class="p">],</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Birch Board rev1 A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create the channel on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">[&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x05328EB0&gt;, &lt;pybarst.ftdi.switch.FTDIPinOut object at 0x05328F30&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># close the connection between the client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">close_channel_client</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the channel is still open, but no client is connected</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">connected</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now connect the client again to the exiting channel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">()</span>
+<span class="go">[&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x054BF230&gt;, &lt;pybarst.ftdi.switch.FTDIPinOut object at 0x054BF2B0&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now delete the channel from the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">close_channel_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># re-create the channel on the server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ft</span><span class="o">.</span><span class="n">open_channel</span><span class="p">(</span><span class="n">alloc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">[&lt;pybarst.ftdi.switch.FTDIPinIn object at 0x052F8EB0&gt;, &lt;pybarst.ftdi.switch.FTDIPinOut object at 0x052F8F30&gt;]</span>
+</pre></div>
+</div>
+<p>In the above example, we created a channel and then
+closed / opened / deleted / and re-created the channel from a single
+instance. Similarly, you can create multiple <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>
+instances corresponding to the same physical device and do similar
+operations on each instance independently. However, calling
+ will
+delete the channel on the server, and all the clients connected will
+raise exceptions when trying to communicate with it. To resolve it,
+for each instance you’ll have to call <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.open_channel" title="pybarst.ftdi.FTDIChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> to recover
+the connection to the channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.FTDIChannel.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIChannel.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Because an FTDI channel is composed of peripheral devices, setting the
+<a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> itself to inactive/active has no meaning.
+Therefore, this method doesn’t do anything. Instead, you should set
+the state of the <a class="reference internal" href="#pybarst.ftdi.FTDIDevice" title="pybarst.ftdi.FTDIDevice"><code class="xref py py-class docutils literal"><span class="pre">FTDIDevice</span></code></a> instances of the channel.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pybarst.ftdi.FTDIDevice">
+<em class="property">class </em><code class="descclassname">pybarst.ftdi.</code><code class="descname">FTDIDevice</code><span class="sig-paren">(</span><em>int chan</em>, <em>FTDIChannel parent</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIDevice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel" title="pybarst.core.server.BarstChannel"><code class="xref py py-class docutils literal"><span class="pre">pybarst.core.server.BarstChannel</span></code></a></p>
+<p>An abstract class for the peripheral devices that can connect to an FTDI
+channel.</p>
+<p>You don’t instantiate this class or it’s derived classes, instead, it is
+instantiated by the <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> in response to
+<a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> instances in its <cite>devices</cite> parameter and is then
+stored in its <a class="reference internal" href="#pybarst.ftdi.FTDIChannel.devices" title="pybarst.ftdi.FTDIChannel.devices"><code class="xref py py-attr docutils literal"><span class="pre">FTDIChannel.devices</span></code></a> attribute.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><cite>chan</cite>: int</dt>
+<dd><p class="first last">The channel number assigned to this channel within the parent
+FTDI channel.</p>
+</dd>
+<dt><cite>parent</cite>: <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a></dt>
+<dd><p class="first last">The <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> of which this device is a peripheral
+device.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pybarst.ftdi.FTDIDevice.close_channel_server">
+<code class="descname">close_channel_server</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.close_channel_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.close_channel_server" title="pybarst.core.server.BarstChannel.close_channel_server"><code class="xref py py-meth docutils literal"><span class="pre">close_channel_server()</span></code></a> for
+details. However, you cannot delete a FTDI peripheral device on
+the server, but instead have to delete the whole <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a>
+channel. Therefore, this method raises an exception when called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_device_baud">
+<code class="descname">ft_device_baud</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_device_baud" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_device_baud: ‘DWORD’</p>
+<p>The maximum baud rate this device can handle. The channels baud rate
+is the minimum of all its devices. Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">write</span><span class="o">.</span><span class="n">ft_device_baud</span>
+<span class="go">200000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_device_bitmask">
+<code class="descname">ft_device_bitmask</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_device_bitmask" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_device_bitmask: ‘unsigned char’</p>
+<p>The 8-bit bitmask indicating which ports are outputs (1) for this
+channel. Read only.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;0b</span><span class="si">{:08b}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">write</span><span class="o">.</span><span class="n">ft_device_bitmask</span><span class="p">)</span>
+<span class="go">0b00001111</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_device_mode">
+<code class="descname">ft_device_mode</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_device_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_device_mode: ‘unsigned char’</p>
+<p>The mode required of this device (whether sync or async bit bang). If
+both are available we use async. Otherwise, we use the mode supported by
+all the devices. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_read_device_size">
+<code class="descname">ft_read_device_size</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_read_device_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_read_device_size: ‘DWORD’</p>
+<p>Debug information. The minimum number of bytes required to by this
+device to read from the FTDI hardware buffer. The actual size is the
+maximum of all the devices connected to the channel. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_write_buff_size">
+<code class="descname">ft_write_buff_size</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_write_buff_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_write_buff_size: ‘DWORD’</p>
+<p>Debug information. The maximum number of bytes written / read
+by the FTDI hardware buffer. The actual read / write buffer size
+can change as different devices become active / inactive according to their
+<a class="reference internal" href="#pybarst.ftdi.FTDIDevice.ft_read_device_size" title="pybarst.ftdi.FTDIDevice.ft_read_device_size"><code class="xref py py-attr docutils literal"><span class="pre">ft_read_device_size</span></code></a> and <a class="reference internal" href="#pybarst.ftdi.FTDIDevice.ft_write_device_size" title="pybarst.ftdi.FTDIDevice.ft_write_device_size"><code class="xref py py-attr docutils literal"><span class="pre">ft_write_device_size</span></code></a> , however
+this is the maximum size, which occurs when all the channel’s devices are
+active. Read only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.ft_write_device_size">
+<code class="descname">ft_write_device_size</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.ft_write_device_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>ft_write_device_size: ‘DWORD’</p>
+<p>Debug information. The minimum number of bytes required to by this
+device to write to the FTDI hardware buffer. The actual size is the maximum
+of all the devices connected to the channel. Read only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.FTDIDevice.open_channel">
+<code class="descname">open_channel</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.open_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.open_channel" title="pybarst.core.server.BarstChannel.open_channel"><code class="xref py py-meth docutils literal"><span class="pre">open_channel()</span></code></a> for details.</p>
+<p>Calling this method will open a new client for communication with
+the peripheral instance on the server.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.parent">
+<code class="descname">parent</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>parent: pybarst.ftdi._ftdi.FTDIChannel</p>
+<p>The <a class="reference internal" href="#pybarst.ftdi.FTDIChannel" title="pybarst.ftdi.FTDIChannel"><code class="xref py py-class docutils literal"><span class="pre">FTDIChannel</span></code></a> instance to which this device belongs to.
+Read only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybarst.ftdi.FTDIDevice.set_state">
+<code class="descname">set_state</code><span class="sig-paren">(</span><em>self</em>, <em>int state</em>, <em>flush=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="server.html#pybarst.core.server.BarstChannel.set_state" title="pybarst.core.server.BarstChannel.set_state"><code class="xref py py-meth docutils literal"><span class="pre">set_state()</span></code></a> for details.</p>
+<p>See the class description for the derived class for more details on
+how to manipulate state.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pybarst.ftdi.FTDIDevice.settings">
+<code class="descname">settings</code><a class="headerlink" href="#pybarst.ftdi.FTDIDevice.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>settings: pybarst.ftdi._ftdi.FTDISettings</p>
+<p>The <a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> derived class holding the settings for this
+peripheral device. Each device type has its corresponding
+<a class="reference internal" href="#pybarst.ftdi.FTDISettings" title="pybarst.ftdi.FTDISettings"><code class="xref py py-class docutils literal"><span class="pre">FTDISettings</span></code></a> class. Read only.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">The PyBarst API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pybarst.html">PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="ftdi.html">FTDI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtv.html">RTV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcdaq.html">Measurement Computing DAQ</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">The PyBarst API</a><ul>
+  <li><a href="ftdi.html">FTDI</a><ul>
+      <li>Previous: <a href="ftdi.html" title="previous chapter">FTDI</a></li>
+      <li>Next: <a href="ftdi_switch.html" title="next chapter">FTDI Switching Devices</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ftdi_chan.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/ftdi_chan.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

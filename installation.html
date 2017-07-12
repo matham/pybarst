@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Installation &#8212; PyBarst 2.2.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
+    <link rel="prev" title="Welcome to PyBarst’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<span id="install-pybarst"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Since PyBarst is a python client, no drivers are required to be
+installed on the system. However, drivers need to be installed on the system
+that runs the server.</p>
+<p>PyBarst is only a client to a Barst server. To run a Barst server, one
+simply launches the pre-compiled Barst exe file directly with the proper
+parameters or one can launch it from PyBarst. The Barst server itself, however,
+only runs on Windows from XP and above.</p>
+<p>Although it has only been tested on Windows, PyBarst should be to run on any
+system that runs python.</p>
+<div class="section" id="using-binary-wheels">
+<h2>Using binary wheels<a class="headerlink" href="#using-binary-wheels" title="Permalink to this headline">¶</a></h2>
+<p>On windows 7+, compiled pybarst wheels can be installed for python 2.7 and 3.4,
+on either a 32 or 64 bit system using:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pybarst</span>
+</pre></div>
+</div>
+<p>The wheels come with the barst server, and do not need to be installed separately.</p>
+</div>
+<div class="section" id="compiling-pybarst">
+<h2>Compiling PyBarst<a class="headerlink" href="#compiling-pybarst" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements">
+<span id="id1"></span><h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>To compile PyBarst rather than using pre-compiled wheels, the following software is required:</p>
+<ol class="arabic simple">
+<li>Cython (<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">cython</span></code>).</li>
+<li>A c compiler e.g. MinGW  (<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mingwpy</span></code> on windows).</li>
+<li>The Barst server header file, <code class="docutils literal"><span class="pre">cpl</span> <span class="pre">defs.h</span></code>. By default, the system looks
+for this file in <code class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Barst\api</span></code> (or
+<code class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\Barst\api</span></code> if running from 32 bit python).
+However, the path to the file can be specified by setting the environmental
+variable <code class="docutils literal"><span class="pre">BARST_INCLUDE</span></code>, to that path.</li>
+</ol>
+</div>
+<div class="section" id="pybarst">
+<h3>PyBarst<a class="headerlink" href="#pybarst" title="Permalink to this headline">¶</a></h3>
+<p>PyBarst is written in python using cython. Cython is a project that converts
+python code to c. Therefore, before using PyBarst one must compile it with
+cython and a c compiler. Luckily, if a c compiler is installed on your
+system it should all be automatically compiled.</p>
+<p>First, you can download PyBarst directly from github using:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">matham</span><span class="o">/</span><span class="n">pybarst</span><span class="o">.</span><span class="n">git</span> <span class="n">pybarst</span>
+</pre></div>
+</div>
+<p>if you have git installed. Or getting the zip directly at
+<a class="reference external" href="https://github.com/matham/pybarst/archive/master.zip">https://github.com/matham/pybarst/archive/master.zip</a> and extracting it.</p>
+<p>Once it’s downloaded, from the command line you change the current directory
+to the folder where PyBarst is extracted and run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>This will compile and and install PyBarst to your preinstalled python path.
+Alternatively, to just compile PyBarst and not install it to Python, from
+the command line while in that folder type <code class="docutils literal"><span class="pre">make</span></code> or <code class="docutils literal"><span class="pre">make</span> <span class="pre">force</span></code>.</p>
+</div>
+<div class="section" id="running-barst-server">
+<span id="install-barst"></span><h3>Running Barst Server<a class="headerlink" href="#running-barst-server" title="Permalink to this headline">¶</a></h3>
+<p>When not using a wheel, to install Barst, simply copy the Barst.exe file to your
+desired location, a good path is <code class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Barst\</span></code> for the 64-bit version
+and <code class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\Barst\</span></code> for the 32-bit version.</p>
+<p>To run the server
+you can either provide the path to PyBarst in <code class="xref py py-class docutils literal"><span class="pre">BarstServer</span></code>
+and have PyBarst launch it if it’s local, or manually start it from the command
+line by typing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="s2">&quot;&quot;</span> <span class="s2">&quot;C:\Program Files\Barst\Barst.exe&quot;</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">.\pipe\PipeName&quot;</span> <span class="mi">1024</span> <span class="mi">1024</span> <span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Barst\Barst.exe</span></code> is the full path to Barst and
+<code class="docutils literal"><span class="pre">PipeName</span></code> is the pipe name that this server will have.</p>
+<p>Alternatively, you can create a file called <code class="docutils literal"><span class="pre">autostart.bat</span></code> and in it put:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@ECHO</span> <span class="n">OFF</span>
+<span class="n">start</span> <span class="s2">&quot;&quot;</span> <span class="s2">&quot;C:\Program Files\Barst\Barst.exe&quot;</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">.\pipe\PipeName&quot;</span> <span class="mi">1024</span> <span class="mi">1024</span> <span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Running this file will start the Barst server.</p>
+<p>Furthermore, you can place this <code class="docutils literal"><span class="pre">autostart.bat</span></code> file in this path:
+<code class="docutils literal"><span class="pre">%AppData%\Microsoft\Windows\Start</span> <span class="pre">Menu\Programs\Startup\</span></code> and Windows
+will automatically launch the server whenever Windows starts.</p>
+<p>When using a wheel, barst is included so the path does not need to be
+provided as we auto-discover it.</p>
+<div class="section" id="drivers">
+<h4>Drivers<a class="headerlink" href="#drivers" title="Permalink to this headline">¶</a></h4>
+<p>In order to be able to create channels of specific types, the drivers for
+those channels must be installed on the system running the Barst server.
+See the individual PyBarst channels for their requirements.</p>
+</div>
+</div>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>All channels come with tests that can be run on them. You can find them under
+<code class="docutils literal"><span class="pre">pybarst/tests/</span></code>. To run them, make sure that the hardware is connected as
+described in that file, and then just run it with <code class="docutils literal"><span class="pre">python</span> <span class="pre">filename.py</span></code>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyBarst</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=matham&repo=pybarst&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-binary-wheels">Using binary wheels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compiling-pybarst">Compiling PyBarst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyBarst Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">The PyBarst API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to PyBarst’s documentation!</a></li>
+      <li>Next: <a href="getting_started.html" title="next chapter">Getting Started</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014, CPL Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/installation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/matham/pybarst" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
